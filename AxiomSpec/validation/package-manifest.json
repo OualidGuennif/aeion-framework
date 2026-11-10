@@ -1,0 +1,240 @@
+{
+  "format": "axiomspec-package-manifest/0.1",
+  "entries": [
+    {
+      "path": "README.md",
+      "sha256": "e269a9f78610f0fe881b71183997a5d6e83dfc7c90516930a8d62bebdf0a64c7",
+      "bytes": 4241
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "c1a96a83dc676f6b5ace2f5b90c5623a4009cc6ac0fe92a471c05425d2c8bddd",
+      "bytes": 7334
+    },
+    {
+      "path": "RULE_INDEX.md",
+      "sha256": "f104e45337d9a62b8159cc797ece70feafbe1dc67194516134203bfebb1350c4",
+      "bytes": 10748
+    },
+    {
+      "path": "docs/00_IMPLEMENTATION_HANDOFF.md",
+      "sha256": "0b9a1cd1265a66e0acb9be23a214e67101d9a0707f4a51c4cbc392d60b2b62d7",
+      "bytes": 3493
+    },
+    {
+      "path": "docs/01_FOUNDATIONS.md",
+      "sha256": "13e12b943e1113dd0de24b95382c43abf7ebbb5a9433ce87222e36ecf1df6e82",
+      "bytes": 6457
+    },
+    {
+      "path": "docs/02_PRINCIPLES_AND_SCOPE.md",
+      "sha256": "c29cf1661af88f28627cf6a2c5f3104928f7f38f3bdcd156211dc4b679649e65",
+      "bytes": 3384
+    },
+    {
+      "path": "docs/03_CANONICAL_MODEL.md",
+      "sha256": "feea2a72d423680b54215e6bc5476061413fae4a9f63cc81a15ce15ed8b33ee2",
+      "bytes": 9510
+    },
+    {
+      "path": "docs/04_AUTHORING_WORKFLOW.md",
+      "sha256": "c7d362d21e05723c7d06a9727dce8f942a0e5b55ac232853aeb5ef77cd1f9faf",
+      "bytes": 5113
+    },
+    {
+      "path": "docs/05_CONSTRAINTS_AND_SEMANTICS.md",
+      "sha256": "b9633a343dca44db57f5eec03c6e93d6871611bc990599018a1383704986f18b",
+      "bytes": 9466
+    },
+    {
+      "path": "docs/06_GATES_AND_EVIDENCE.md",
+      "sha256": "db8bc7e3fecf0d04b342f0d85e1a575ee78ef1ac6ede22ce81bbae46a278efed",
+      "bytes": 7732
+    },
+    {
+      "path": "docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md",
+      "sha256": "5205727a6a8b701d06081b0462b5a093a4cdb299c75800f5764185b3556a5ed4",
+      "bytes": 7178
+    },
+    {
+      "path": "docs/08_AGENT_CODING_CONTRACT.md",
+      "sha256": "08390f9990866de2f1f112e7e89b01e3951616bd6077d794ce8b4a5912758817",
+      "bytes": 4584
+    },
+    {
+      "path": "docs/09_TEST_STRATEGY_AND_CLOSED_LOOP.md",
+      "sha256": "ef0bbac9641ed28861ade9c815985eda5ad46ae8a972acddc9ebdf31d4ec2d5e",
+      "bytes": 4666
+    },
+    {
+      "path": "docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md",
+      "sha256": "be27310726347b824aac0c8809df1839cbcf1a185a93e602ef5d8bc84a168484",
+      "bytes": 3685
+    },
+    {
+      "path": "docs/11_RISK_SECURITY_AND_EXTENSIONS.md",
+      "sha256": "3c5b45f1e0bc4884dd9d4b594a9059cad13be4ad5b74380a8142b38d9a1bc1ae",
+      "bytes": 4195
+    },
+    {
+      "path": "docs/12_IMPLEMENTATION_PLAN.md",
+      "sha256": "b86bf1b23a09388792be72d004cb989f4bf607bc99ee8bc5e7149f0872426b77",
+      "bytes": 4782
+    },
+    {
+      "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
+      "sha256": "56738a38aaaac7169a243c0c65bbf3c7cf411ec6cbce68b2068e0e901f885f3f",
+      "bytes": 5196
+    },
+    {
+      "path": "docs/14_CONFORMANCE_SUITE.md",
+      "sha256": "ddd04a23b4619d4cfb4b39f7c6cf8db7295df38664dcccb90ddc3a74952f5b05",
+      "bytes": 5294
+    },
+    {
+      "path": "docs/15_TEMPLATES_AND_PROMPTS.md",
+      "sha256": "8641cb55b3d601430bbc228a69be4bccb73a812698527a1f52aa6520cffd99a8",
+      "bytes": 3860
+    },
+    {
+      "path": "docs/16_ACCEPTANCE_AND_LIMITS.md",
+      "sha256": "09615cfe0cad623a37d56c93030ffae9c960f0dd2900a8e40c58136c450a651c",
+      "bytes": 2966
+    },
+    {
+      "path": "docs/17_CONTEXT_DOMAIN_INTERFACE.md",
+      "sha256": "37ee7efcd47046f608437155d6f3dd6c7485e440bfcf2c7171ae1fccb6db3a12",
+      "bytes": 4110
+    },
+    {
+      "path": "docs/18_CROA_READINESS.md",
+      "sha256": "2024c34b538c15ad82d9d4c9a4214b43b8e5a14a0a38be033989b227d988a757",
+      "bytes": 8789
+    },
+    {
+      "path": "examples/refund-ledger/croa-readiness.json",
+      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55",
+      "bytes": 8664
+    },
+    {
+      "path": "examples/refund-ledger/execution.json",
+      "sha256": "4ee851e833b1944bfee01b797fb151a0bd304a73d3ee218d16042b12f3f34d4c",
+      "bytes": 166
+    },
+    {
+      "path": "examples/refund-ledger/observations.json",
+      "sha256": "ff31b1c4ac2a0dd151e209d8acdee96eb116d18ed295249b66a454cc0298cae2",
+      "bytes": 7583
+    },
+    {
+      "path": "examples/refund-ledger/spec.json",
+      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e",
+      "bytes": 88848
+    },
+    {
+      "path": "fixtures/conformance.json",
+      "sha256": "0b15f6cadda4577ff3508fdbf4f3b50d3be21ee7498ece63086891772d3ab22a",
+      "bytes": 11774
+    },
+    {
+      "path": "qa/check_package.py",
+      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100",
+      "bytes": 42423
+    },
+    {
+      "path": "qa/croa_readiness.py",
+      "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45",
+      "bytes": 8154
+    },
+    {
+      "path": "qa/requirements-qa.txt",
+      "sha256": "7467fc0132d4dc44309dbc436294ea21cbe39ce1f76ca6d9d7258b1949cf1e3a",
+      "bytes": 212
+    },
+    {
+      "path": "qa/run_checks.py",
+      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3",
+      "bytes": 8807
+    },
+    {
+      "path": "qa/test_review_regressions.py",
+      "sha256": "8453863961815f1322f658e94935f987ef5fd90c7d03b3e6619f063fc6ea21ed",
+      "bytes": 7380
+    },
+    {
+      "path": "qa/test_second_review.py",
+      "sha256": "4179a85b9d5f2a496d2661c0b965af537c0fc239c8f90b5dd5c98684be19eb0f",
+      "bytes": 8493
+    },
+    {
+      "path": "qa/test_third_review.py",
+      "sha256": "53a4aedd0f97781582e400b6786f566397f40a9375e1987eaf972a28b98418c4",
+      "bytes": 11771
+    },
+    {
+      "path": "review/ASSURANCE_MATRIX.md",
+      "sha256": "be366b0e9bab3d0b9bad5418530caf809be3e3aa23eb4a7e2bec54c917fe3a1a",
+      "bytes": 2971
+    },
+    {
+      "path": "review/SOURCE_AUDIT.md",
+      "sha256": "8b9322de0885cd86de859e7a71055ccd2e6cf05bbacb8add80d0867aa8aa7f06",
+      "bytes": 1913
+    },
+    {
+      "path": "review/portability-run.json",
+      "sha256": "9a2a9860b709d7ad9eb0475ba5591f68dfb71f915ed898cbf00dd6edebd61c30",
+      "bytes": 3105
+    },
+    {
+      "path": "review/probes-before.json",
+      "sha256": "79490555991e95c05b3a3b65bb56867e1c177a2fc32b2d1954063247d312fb89",
+      "bytes": 2828
+    },
+    {
+      "path": "review/probes-review2-before.json",
+      "sha256": "182f194fc4436d0d9d3c2d82e78faca974d05ae6deef3b57ca134ffa6698deee",
+      "bytes": 637
+    },
+    {
+      "path": "review/probes-review3-before.json",
+      "sha256": "05e45c663e7f54316c70878710b6bda682bc07f7c881599924043f098ca331ca",
+      "bytes": 932
+    },
+    {
+      "path": "review/regression-output.txt",
+      "sha256": "9665443fb3f398047ad52fbe545fbf1a38433c16d14a79c52d5003242081f369",
+      "bytes": 6957
+    },
+    {
+      "path": "review/regression-run.json",
+      "sha256": "61785b60dc59a23c5074c583d7d619498bc7676532961f8745bfc711e0d02485",
+      "bytes": 7916
+    },
+    {
+      "path": "schemas/croa-readiness.schema.json",
+      "sha256": "84b112c8d737c28ad91b45139f85990132d5b1ac806747a2ac5b0cfb1bddaef3",
+      "bytes": 40607
+    },
+    {
+      "path": "schemas/execution.schema.json",
+      "sha256": "2d097ae71aab6ff5525a1fc8d26ff75f1d41bc8e44c94036fb139b6ac82f7ae4",
+      "bytes": 1014
+    },
+    {
+      "path": "schemas/report.schema.json",
+      "sha256": "c104ae2ccad5694908178f1bffb8c00f32cb21b45dd6fa9cb8f46a3882b539b3",
+      "bytes": 8214
+    },
+    {
+      "path": "schemas/spec.schema.json",
+      "sha256": "8248fdebd510087f6c08a8f2b01bc6268485dadbf0bfd2ab3a699285aa9eb0cc",
+      "bytes": 57771
+    }
+  ],
+  "exclusions": [
+    "validation/**",
+    "VALIDATION.md",
+    "**/__pycache__/**"
+  ]
+}

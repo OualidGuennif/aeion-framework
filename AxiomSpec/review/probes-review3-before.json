@@ -1,0 +1,40 @@
+{
+  "format": "axiomspec-review3-probes/0.1",
+  "scope": "package_checker",
+  "baseline_checker_sha256": "9bc77b62bbd460cb51a2ad95ce03d78e6f0197948617ddcd6e6a8bdba37ab902",
+  "results": [
+    {
+      "probe": "stale_receipt",
+      "exit_code": 0,
+      "report_status": "pass"
+    },
+    {
+      "probe": "changed_checker",
+      "exit_code": 0,
+      "report_status": "pass"
+    },
+    {
+      "probe": "absolute_local_link",
+      "exit_code": 0,
+      "report_status": "pass"
+    },
+    {
+      "probe": "retired_croa_mapping",
+      "result": "accepted"
+    },
+    {
+      "probe": "unrelated_croa_method_binding",
+      "result": "accepted"
+    },
+    {
+      "probe": "unsupported_score_clears_finding",
+      "input_status": "incomplete",
+      "finding": {
+        "id": "CRF-001",
+        "severity": "critical",
+        "state": "not_triggered",
+        "subject": "Direct access without a hard stop"
+      }
+    }
+  ]
+}

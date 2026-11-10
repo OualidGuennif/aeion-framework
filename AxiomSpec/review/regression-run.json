@@ -1,0 +1,158 @@
+{
+  "format": "axiomspec-review-regression-run/0.2",
+  "scope": "package_checker",
+  "edition": "0.3.0",
+  "status": "pass",
+  "exit_code": 0,
+  "command": [
+    "python3",
+    "qa/run_checks.py",
+    "--tests-only"
+  ],
+  "evaluated_at": "2026-11-09T19:06:41.433283+00:00",
+  "tests": {
+    "test_ids": [
+      "test_review_regressions.ReviewRegressions.test_500_row_uniqueness_is_explicitly_unresolved_under_default_budget",
+      "test_review_regressions.ReviewRegressions.test_bad_pointer_escape_is_rejected_even_if_matching_key_exists",
+      "test_review_regressions.ReviewRegressions.test_canonical_bytes_have_fixed_unicode_and_control_escaping",
+      "test_review_regressions.ReviewRegressions.test_empty_or_missing_vector_is_rejected",
+      "test_review_regressions.ReviewRegressions.test_external_schema_references_are_rejected_without_network",
+      "test_review_regressions.ReviewRegressions.test_malformed_input_replaces_previous_green_report",
+      "test_review_regressions.ReviewRegressions.test_missing_or_empty_observations_are_rejected",
+      "test_review_regressions.ReviewRegressions.test_reference_corpus_still_exercises_45_expectations",
+      "test_review_regressions.ReviewRegressions.test_removing_an_expectation_from_both_copies_is_rejected",
+      "test_review_regressions.ReviewRegressions.test_review_protocol_is_not_accepted_as_state_guard",
+      "test_review_regressions.ReviewRegressions.test_unit_term_reference_is_checked",
+      "test_review_regressions.ReviewRegressions.test_unknown_mutation_operation_is_rejected",
+      "test_review_regressions.ReviewRegressions.test_unrelated_reference_error_does_not_satisfy_vector",
+      "test_review_regressions.ReviewRegressions.test_valid_pointer_escapes_resolve",
+      "test_review_regressions.ReviewRegressions.test_work_budget_is_per_evaluation",
+      "test_review_regressions.ReviewRegressions.test_wrong_expected_gate_or_verdict_is_rejected",
+      "test_second_review.CroaReadiness.test_fictional_source_cannot_substantiate_operational_answer",
+      "test_second_review.CroaReadiness.test_missing_item_or_changed_baseline_fails_schema",
+      "test_second_review.CroaReadiness.test_red_flag_thresholds_match_guide",
+      "test_second_review.CroaReadiness.test_scores_are_strict_integers",
+      "test_second_review.CroaReadiness.test_stale_model_digest_is_rejected",
+      "test_second_review.CroaReadiness.test_three_valued_logic_for_missing_inputs",
+      "test_second_review.CroaReadiness.test_unknown_answers_do_not_become_scores_or_conformance",
+      "test_second_review.CroaReadiness.test_unknown_mapped_node_is_rejected",
+      "test_second_review.SecondReview.test_deep_valid_chain_and_deep_cycle_do_not_use_recursion",
+      "test_second_review.SecondReview.test_execution_mode_does_not_accept_an_authority_boolean",
+      "test_second_review.SecondReview.test_external_local_link_is_not_a_portable_package_link",
+      "test_second_review.SecondReview.test_invalid_future_metadata_is_rejected_without_execution",
+      "test_second_review.SecondReview.test_noncanonical_array_indexes_are_rejected",
+      "test_second_review.SecondReview.test_replace_and_remove_require_existing_target",
+      "test_second_review.SecondReview.test_symlink_is_rejected_before_packaging",
+      "test_third_review.CroaEvidenceChecks.test_captured_reviewed_source_reference_is_still_only_declared",
+      "test_third_review.CroaEvidenceChecks.test_retired_mapping_is_rejected_on_current_snapshot",
+      "test_third_review.CroaEvidenceChecks.test_unrelated_method_binding_is_rejected",
+      "test_third_review.CroaEvidenceChecks.test_unsupported_operational_score_does_not_clear_finding",
+      "test_third_review.LocalReceiptChecks.test_changed_source_and_toolchain_reject_old_receipt",
+      "test_third_review.LocalReceiptChecks.test_consistent_receipt_metadata_is_locally_checkable",
+      "test_third_review.LocalReceiptChecks.test_interrupted_test_process_cannot_leave_an_old_pass",
+      "test_third_review.LocalReceiptChecks.test_missing_input_or_changed_raw_output_rejects_receipt",
+      "test_third_review.LocalReceiptChecks.test_zero_duplicate_or_skipped_tests_do_not_pass_receipt",
+      "test_third_review.ThirdReview.test_100_seeded_states_match_direct_domain_oracles",
+      "test_third_review.ThirdReview.test_absolute_internal_link_is_not_portable",
+      "test_third_review.ThirdReview.test_detected_input_change_prevents_publication",
+      "test_third_review.ThirdReview.test_generated_outputs_do_not_invalidate_input_snapshot",
+      "test_third_review.ThirdReview.test_read_rejects_symlink_before_opening_target",
+      "test_third_review.ThirdReview.test_reference_checks_do_not_depend_on_node_order",
+      "test_third_review.ThirdReview.test_writers_refuse_symlinked_output_parent"
+    ],
+    "tests_run": 47,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "expected_failures": 0,
+    "unexpected_successes": 0
+  },
+  "inputs": [
+    {
+      "path": "examples/refund-ledger/croa-readiness.json",
+      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55"
+    },
+    {
+      "path": "examples/refund-ledger/execution.json",
+      "sha256": "4ee851e833b1944bfee01b797fb151a0bd304a73d3ee218d16042b12f3f34d4c"
+    },
+    {
+      "path": "examples/refund-ledger/observations.json",
+      "sha256": "ff31b1c4ac2a0dd151e209d8acdee96eb116d18ed295249b66a454cc0298cae2"
+    },
+    {
+      "path": "examples/refund-ledger/spec.json",
+      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e"
+    },
+    {
+      "path": "fixtures/conformance.json",
+      "sha256": "0b15f6cadda4577ff3508fdbf4f3b50d3be21ee7498ece63086891772d3ab22a"
+    },
+    {
+      "path": "qa/check_package.py",
+      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100"
+    },
+    {
+      "path": "qa/croa_readiness.py",
+      "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45"
+    },
+    {
+      "path": "qa/requirements-qa.txt",
+      "sha256": "7467fc0132d4dc44309dbc436294ea21cbe39ce1f76ca6d9d7258b1949cf1e3a"
+    },
+    {
+      "path": "qa/run_checks.py",
+      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3"
+    },
+    {
+      "path": "qa/test_review_regressions.py",
+      "sha256": "8453863961815f1322f658e94935f987ef5fd90c7d03b3e6619f063fc6ea21ed"
+    },
+    {
+      "path": "qa/test_second_review.py",
+      "sha256": "4179a85b9d5f2a496d2661c0b965af537c0fc239c8f90b5dd5c98684be19eb0f"
+    },
+    {
+      "path": "qa/test_third_review.py",
+      "sha256": "53a4aedd0f97781582e400b6786f566397f40a9375e1987eaf972a28b98418c4"
+    },
+    {
+      "path": "schemas/croa-readiness.schema.json",
+      "sha256": "84b112c8d737c28ad91b45139f85990132d5b1ac806747a2ac5b0cfb1bddaef3"
+    },
+    {
+      "path": "schemas/execution.schema.json",
+      "sha256": "2d097ae71aab6ff5525a1fc8d26ff75f1d41bc8e44c94036fb139b6ac82f7ae4"
+    },
+    {
+      "path": "schemas/report.schema.json",
+      "sha256": "c104ae2ccad5694908178f1bffb8c00f32cb21b45dd6fa9cb8f46a3882b539b3"
+    },
+    {
+      "path": "schemas/spec.schema.json",
+      "sha256": "8248fdebd510087f6c08a8f2b01bc6268485dadbf0bfd2ab3a699285aa9eb0cc"
+    }
+  ],
+  "toolchain": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "attrs": "26.1.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.9.1",
+      "typing-extensions": "4.16.0"
+    }
+  },
+  "raw_output": {
+    "path": "review/regression-output.txt",
+    "sha256": "9665443fb3f398047ad52fbe545fbf1a38433c16d14a79c52d5003242081f369"
+  },
+  "limitations": [
+    "Local untrusted producer. Hash consistency does not authenticate this receipt.",
+    "No application tests, execution authority or deployed CROA assessment."
+  ]
+}

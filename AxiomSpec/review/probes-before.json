@@ -1,0 +1,76 @@
+{
+  "format": "axiomspec-review-probes/0.1",
+  "scope": "original_package_checker",
+  "baseline_checker_sha256": "5a6a2435aae42df29e0372f1b6573268936d817eb2879e9c2f7dc3ee05c949f0",
+  "baseline_manifest_sha256": "3a8a97ef374b2ceb143376abada6dc412d85edcc719981756079b57502bf4b47",
+  "results": [
+    {
+      "probe": "empty_observations",
+      "exit_code": 1,
+      "report_status": "error",
+      "stdout": "{\"status\": \"error\", \"scope\": \"package\", \"observations\": 0, \"boolean_expectations\": 0, \"mutations_executed\": 10, \"product_obligations_pending\": 30, \"normative_rules\": 102, \"local_links\": 129, \"json_blocks\": 2}",
+      "stderr_tail": [
+        "PKG.QA_SELF_CHECKS: IndexError: list index out of range"
+      ]
+    },
+    {
+      "probe": "missing_observation",
+      "exit_code": 0,
+      "report_status": "pass",
+      "stdout": "{\"status\": \"pass\", \"scope\": \"package\", \"observations\": 8, \"boolean_expectations\": 40, \"mutations_executed\": 10, \"product_obligations_pending\": 30, \"qa_self_checks\": 16, \"normative_rules\": 102, \"local_links\": 129, \"json_blocks\": 2}",
+      "stderr_tail": []
+    },
+    {
+      "probe": "empty_vectors",
+      "exit_code": 0,
+      "report_status": "pass",
+      "stdout": "{\"status\": \"pass\", \"scope\": \"package\", \"observations\": 9, \"boolean_expectations\": 45, \"mutations_executed\": 0, \"product_obligations_pending\": 0, \"qa_self_checks\": 16, \"normative_rules\": 102, \"local_links\": 129, \"json_blocks\": 2}",
+      "stderr_tail": []
+    },
+    {
+      "probe": "wrong_vector_verdict",
+      "exit_code": 0,
+      "report_status": "pass",
+      "stdout": "{\"status\": \"pass\", \"scope\": \"package\", \"observations\": 9, \"boolean_expectations\": 45, \"mutations_executed\": 10, \"product_obligations_pending\": 30, \"qa_self_checks\": 16, \"normative_rules\": 102, \"local_links\": 129, \"json_blocks\": 2}",
+      "stderr_tail": []
+    },
+    {
+      "probe": "malformed_input_old_green",
+      "exit_code": 1,
+      "report_status": "pass",
+      "stdout": "",
+      "stderr_tail": [
+        "json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+      ]
+    },
+    {
+      "probe": "malformed_pointer",
+      "returned": true
+    },
+    {
+      "probe": "budget_reused_evaluator",
+      "first": true,
+      "second": "BudgetExceeded"
+    },
+    {
+      "probe": "dangling_unit_term",
+      "reference_errors": []
+    },
+    {
+      "probe": "report_cannot_declare_capabilities",
+      "schema_accepts": false
+    },
+    {
+      "probe": "uniqueness_work_budget",
+      "rows": 100,
+      "result": true,
+      "steps": 40602
+    },
+    {
+      "probe": "uniqueness_work_budget",
+      "rows": 500,
+      "result": "BudgetExceeded",
+      "steps": 1000001
+    }
+  ]
+}

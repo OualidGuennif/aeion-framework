@@ -1,0 +1,413 @@
+{
+  "format": "axiomspec-conformance-vectors/0.1",
+  "baseline": "examples/refund-ledger/spec.json",
+  "vectors": [
+    {
+      "id": "V-001",
+      "purpose": "Unknown canonical field rejected",
+      "layer": "schema",
+      "mutation": {
+        "op": "add",
+        "path": "/project/is_ready",
+        "value": true
+      },
+      "expected_schema_valid": false,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-002",
+      "purpose": "Misspelled operator is not silently ignored",
+      "layer": "schema",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/17/data/expression/operator",
+        "value": "less_than_or_equal_maybe"
+      },
+      "expected_schema_valid": false,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-003",
+      "purpose": "Missing requirement response rejected",
+      "layer": "schema",
+      "mutation": {
+        "op": "remove",
+        "path": "/nodes/7/data/response"
+      },
+      "expected_schema_valid": false,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-004",
+      "purpose": "Risk enum has no guessed value",
+      "layer": "schema",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/7/data/risk",
+        "value": "safe-ish"
+      },
+      "expected_schema_valid": false,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-005",
+      "purpose": "Float is not accepted as an integer bound",
+      "layer": "schema",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/0/revision",
+        "value": 1.5
+      },
+      "expected_schema_valid": false,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-006",
+      "purpose": "Unknown edge target rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/edges/0/to",
+        "value": "GOAL-999"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-007",
+      "purpose": "Wrong typed edge rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/edges/0/to",
+        "value": "TERM-001"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-008",
+      "purpose": "Duplicate identifier rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/actors/1/id",
+        "value": "ACTOR-001"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-009",
+      "purpose": "Unknown owner rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/0/owner",
+        "value": "ACTOR-999"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-010",
+      "purpose": "Dependency self-cycle rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "append",
+        "path": "/edges",
+        "value": {
+          "id": "EDGE-999999",
+          "from": "REQ-001",
+          "relation": "depends_on",
+          "to": "REQ-001",
+          "origin": "declared",
+          "rationale": "Intentional negative fixture."
+        }
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-101",
+      "purpose": "Duplicate JSON keys are rejected before schema evaluation",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-102",
+      "purpose": "Input larger than configured byte limit is rejected",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G01",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-103",
+      "purpose": "Local reference through a symlink outside repository is rejected",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G09",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-104",
+      "purpose": "Unknown expression path is rejected by static typing",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G03",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-105",
+      "purpose": "Boolean used in arithmetic is not coerced to integer",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G03",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-106",
+      "purpose": "Mixed currency or unit comparison is rejected",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G03",
+      "expected_outcome": "error"
+    },
+    {
+      "id": "V-107",
+      "purpose": "Expression work budget exhausted",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G06",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-108",
+      "purpose": "Empty collection does not stand in for unavailable observation",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G06",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-109",
+      "purpose": "Open blocking decision prevents design readiness",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-110",
+      "purpose": "Unvalidated blocking assumption prevents design readiness",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-111",
+      "purpose": "State transition references unknown destination",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G05",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-112",
+      "purpose": "Description-only effects cannot support exhaustive model proof",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G05",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-113",
+      "purpose": "Required test exists in plan but was not executed",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G10",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-114",
+      "purpose": "Changed spec digest invalidates old receipt",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G11",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-115",
+      "purpose": "Changed test code invalidates test receipt",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G11",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-116",
+      "purpose": "Author writes verified identity without trusted attestation",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G12",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-117",
+      "purpose": "Mandatory hard constraint omitted from context packet",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-118",
+      "purpose": "Context page exceeds byte budget without completion",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-119",
+      "purpose": "Restricted asset requested by unauthorized principal",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-120",
+      "purpose": "Expired dynamic observation used for hard rule",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-121",
+      "purpose": "Same query against a changed snapshot rejects old cursor",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-122",
+      "purpose": "No extracted code impacts with unmapped changes is not complete",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G09",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-123",
+      "purpose": "Prompt-injected source attempts to change runner policy",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-124",
+      "purpose": "Soft preference cannot compensate hard rule violation",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G08",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-125",
+      "purpose": "Future product gates cannot be replaced by package QA report",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G11",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-126",
+      "purpose": "Missing required gate is not not_applicable",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G11",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-127",
+      "purpose": "An inactive or retired requirement cannot silently retain active links",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-128",
+      "purpose": "Observed trace is incomplete; no universal runtime claim",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G13",
+      "expected_outcome": "unknown"
+    },
+    {
+      "id": "V-129",
+      "purpose": "Proposed changed business rule requires explicit revision",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-130",
+      "purpose": "Artifact publication interruption retains previous complete snapshot",
+      "layer": "future_runtime",
+      "mutation": null,
+      "expected_schema_valid": null,
+      "expected_gate": "G09",
+      "expected_outcome": "pass"
+    }
+  ],
+  "note": "Only layers explicitly executed by package QA are reported as run. Future runtime vectors are implementation acceptance obligations."
+}

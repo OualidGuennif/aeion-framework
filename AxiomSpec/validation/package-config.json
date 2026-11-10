@@ -1,0 +1,18 @@
+{
+  "format": "axiomspec-package-config/0.1",
+  "profile": "AX-CORE-0.1",
+  "bounds": {
+    "max_input_bytes": 1048576,
+    "max_expression_depth": 24,
+    "max_expression_nodes": 2000,
+    "max_steps": 1000000,
+    "max_collection_items": 10000
+  },
+  "json_depth_limit": 128,
+  "corpus_version": "0.1",
+  "observation_coverage": "all_canonical_scenarios_and_bcir_constraints",
+  "application_test_execution": false,
+  "external_schema_retrieval": false,
+  "regression_receipt": "required_matching_inputs_toolchain_and_output",
+  "input_change_policy": "reject_detected_changes"
+}

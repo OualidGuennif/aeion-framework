@@ -1,0 +1,3242 @@
+{
+  "format": "axiomspec/0.1",
+  "profile": "AX-CORE-0.1",
+  "project": {
+    "id": "PROJECT-001",
+    "name": "RefundLedger demonstration",
+    "description": "Fictional local authorization ledger; no money movement, payment provider or deployment integration.",
+    "owner": "ACTOR-001",
+    "mode": "example"
+  },
+  "actors": [
+    {
+      "id": "ACTOR-001",
+      "name": "Demonstration product-owner role",
+      "type": "human_role",
+      "binding_status": "asserted"
+    },
+    {
+      "id": "ACTOR-002",
+      "name": "Demonstration spec author",
+      "type": "ai",
+      "binding_status": "asserted"
+    }
+  ],
+  "sources": [
+    {
+      "id": "SRC-001",
+      "type": "fixture",
+      "locator": "fixture:refund-ledger/0.1",
+      "capture_sha256": null,
+      "review_state": "fixture"
+    }
+  ],
+  "environments": [
+    {
+      "id": "ENV-001",
+      "title": "One tenant/payment ledger observation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "object",
+            "properties": {
+              "tenant_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "payment_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "currency": {
+                "enum": [
+                  "EUR"
+                ],
+                "type": "string",
+                "maxLength": 3
+              },
+              "captured_minor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              },
+              "refunds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "key": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "amount_minor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "status": {
+                      "enum": [
+                        "reserved",
+                        "committed",
+                        "released",
+                        "rejected"
+                      ],
+                      "type": "string",
+                      "maxLength": 9
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "amount_minor",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 0,
+                "maxItems": 1000
+              }
+            },
+            "required": [
+              "tenant_id",
+              "payment_id",
+              "currency",
+              "captured_minor",
+              "refunds"
+            ],
+            "additionalProperties": false
+          },
+          "input": {
+            "type": "object",
+            "properties": {
+              "tenant_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "key": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "amount_minor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              }
+            },
+            "required": [
+              "tenant_id",
+              "key",
+              "amount_minor"
+            ],
+            "additionalProperties": false
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "verified": {
+                "type": "boolean"
+              },
+              "tenant_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "verified",
+              "tenant_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "state",
+          "input",
+          "auth"
+        ],
+        "additionalProperties": false
+      },
+      "units": [
+        {
+          "pointer": "/state/captured_minor",
+          "term_id": "TERM-001"
+        },
+        {
+          "pointer": "/state/refunds/*/amount_minor",
+          "term_id": "TERM-001"
+        },
+        {
+          "pointer": "/input/amount_minor",
+          "term_id": "TERM-001"
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "GOAL-001",
+      "kind": "Goal",
+      "revision": 1,
+      "status": "active",
+      "title": "Preserve captured capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "description": "Prevent local refund authorizations from consuming more than the captured amount.",
+        "success_measure": "Every accepted transition preserves CON-001; concurrency tests include atomic reservation."
+      }
+    },
+    {
+      "id": "GOAL-002",
+      "kind": "Goal",
+      "revision": 1,
+      "status": "active",
+      "title": "Preserve tenant isolation",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "description": "Only an authenticated principal for the tenant may operate on that tenant ledger.",
+        "success_measure": "Cross-tenant requests are denied and create no state change."
+      }
+    },
+    {
+      "id": "TERM-001",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Minor unit",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "A non-negative integer number of EUR cents. This example has one currency per payment and no conversion.",
+        "aliases": [],
+        "unit": "EUR_cent",
+        "context": "RefundLedger demo"
+      }
+    },
+    {
+      "id": "TERM-002",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Captured capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "The immutable captured amount for one tenant/payment pair. This is a local authorization ceiling, not a payment-provider balance.",
+        "aliases": [],
+        "unit": null,
+        "context": "RefundLedger demo"
+      }
+    },
+    {
+      "id": "TERM-003",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Consuming reservation",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "A refund record in reserved or committed state; released and rejected records do not consume capacity.",
+        "aliases": [],
+        "unit": null,
+        "context": "RefundLedger demo"
+      }
+    },
+    {
+      "id": "TERM-004",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Idempotency scope",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "The tuple tenant_id, payment_id, key. Records are retained for the lifetime of this demonstration ledger.",
+        "aliases": [],
+        "unit": null,
+        "context": "RefundLedger demo"
+      }
+    },
+    {
+      "id": "TERM-005",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Verified principal",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "A principal established outside request payloads by a trusted authentication adapter. Test fixtures simulate this adapter.",
+        "aliases": [],
+        "unit": null,
+        "context": "RefundLedger demo"
+      }
+    },
+    {
+      "id": "REQ-001",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Reject excess reservation",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "unwanted",
+        "conditions": [],
+        "trigger": "a reservation would consume more than the captured capacity",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "reject the reservation without changing the ledger"
+      }
+    },
+    {
+      "id": "REQ-002",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Reuse identical request",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "event",
+        "conditions": [],
+        "trigger": "a request repeats an existing tenant/payment/key with the same payload",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "return the existing reservation identifier without adding a record"
+      }
+    },
+    {
+      "id": "REQ-003",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Reject conflicting reuse",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "unwanted",
+        "conditions": [],
+        "trigger": "a tenant/payment/key is reused with a different payload",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "reject the conflicting request without changing the original record"
+      }
+    },
+    {
+      "id": "REQ-004",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Deny cross-tenant access",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "security",
+        "priority": "must",
+        "risk": "critical",
+        "verification_mode": "executable",
+        "pattern": "unwanted",
+        "conditions": [],
+        "trigger": "the principal is unverified or the principal, request and target ledger tenants do not all match",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "deny the request without disclosing or changing another tenant ledger"
+      }
+    },
+    {
+      "id": "REQ-005",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Release failed reservation",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "event",
+        "conditions": [],
+        "trigger": "a reserved authorization is definitively cancelled before commitment",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "release its capacity while retaining its idempotency record"
+      }
+    },
+    {
+      "id": "REQ-006",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Commit exactly one reserved record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "event",
+        "conditions": [],
+        "trigger": "an authorized commit command targets a reserved record",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "mark that record committed atomically without consuming capacity a second time"
+      }
+    },
+    {
+      "id": "REQ-007",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Bounded audit diagnostics",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "privacy",
+        "priority": "must",
+        "risk": "medium",
+        "verification_mode": "executable",
+        "pattern": "event",
+        "conditions": [],
+        "trigger": "an authorization attempt completes or is denied",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "record the operation identifier and outcome without copying credentials or complete request bodies"
+      }
+    },
+    {
+      "id": "COMP-001",
+      "kind": "Component",
+      "revision": 1,
+      "status": "active",
+      "title": "Ledger transaction boundary",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "responsibility": "Reserve, release and commit records atomically.",
+        "boundary": "One tenant/payment aggregate per operation."
+      }
+    },
+    {
+      "id": "COMP-002",
+      "kind": "Component",
+      "revision": 1,
+      "status": "active",
+      "title": "Authenticated access boundary",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "responsibility": "Resolve verified tenant identity before ledger access.",
+        "boundary": "Authentication data is not accepted from request parameters."
+      }
+    },
+    {
+      "id": "COMP-003",
+      "kind": "Component",
+      "revision": 1,
+      "status": "active",
+      "title": "Audit output boundary",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "responsibility": "Produce bounded non-sensitive diagnostics.",
+        "boundary": "Audit persistence must not mutate the business outcome on replay."
+      }
+    },
+    {
+      "id": "CON-001",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "Consumed capacity never exceeds captured capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "project",
+        "roles": [
+          "enforcement",
+          "verification"
+        ],
+        "representation": "bcir",
+        "environment_id": "ENV-001",
+        "expression": {
+          "kind": "apply",
+          "operator": "le",
+          "arguments": [
+            {
+              "kind": "aggregate",
+              "operator": "sum",
+              "bind": "r",
+              "collection": {
+                "kind": "path",
+                "root": "env",
+                "pointer": "/state/refunds"
+              },
+              "filter": {
+                "kind": "apply",
+                "operator": "in",
+                "arguments": [
+                  {
+                    "kind": "path",
+                    "root": "r",
+                    "pointer": "/status"
+                  },
+                  {
+                    "kind": "literal",
+                    "value": [
+                      "reserved",
+                      "committed"
+                    ]
+                  }
+                ]
+              },
+              "projection": {
+                "kind": "path",
+                "root": "r",
+                "pointer": "/amount_minor"
+              }
+            },
+            {
+              "kind": "path",
+              "root": "env",
+              "pointer": "/state/captured_minor"
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": "BIND-004",
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "invariant"
+      }
+    },
+    {
+      "id": "CON-002",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "New reservation fits remaining capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "representation": "bcir",
+        "environment_id": "ENV-001",
+        "expression": {
+          "kind": "apply",
+          "operator": "and",
+          "arguments": [
+            {
+              "kind": "apply",
+              "operator": "gt",
+              "arguments": [
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/input/amount_minor"
+                },
+                {
+                  "kind": "literal",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "kind": "apply",
+              "operator": "le",
+              "arguments": [
+                {
+                  "kind": "apply",
+                  "operator": "add",
+                  "arguments": [
+                    {
+                      "kind": "aggregate",
+                      "operator": "sum",
+                      "bind": "r",
+                      "collection": {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/state/refunds"
+                      },
+                      "filter": {
+                        "kind": "apply",
+                        "operator": "in",
+                        "arguments": [
+                          {
+                            "kind": "path",
+                            "root": "r",
+                            "pointer": "/status"
+                          },
+                          {
+                            "kind": "literal",
+                            "value": [
+                              "reserved",
+                              "committed"
+                            ]
+                          }
+                        ]
+                      },
+                      "projection": {
+                        "kind": "path",
+                        "root": "r",
+                        "pointer": "/amount_minor"
+                      }
+                    },
+                    {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/input/amount_minor"
+                    }
+                  ]
+                },
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/state/captured_minor"
+                }
+              ]
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "admission_guard"
+      }
+    },
+    {
+      "id": "CON-003",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "Existing refund amounts are positive",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "representation": "bcir",
+        "environment_id": "ENV-001",
+        "expression": {
+          "kind": "quantifier",
+          "operator": "all",
+          "bind": "r",
+          "collection": {
+            "kind": "path",
+            "root": "env",
+            "pointer": "/state/refunds"
+          },
+          "predicate": {
+            "kind": "apply",
+            "operator": "gt",
+            "arguments": [
+              {
+                "kind": "path",
+                "root": "r",
+                "pointer": "/amount_minor"
+              },
+              {
+                "kind": "literal",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "invariant"
+      }
+    },
+    {
+      "id": "CON-004",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "At most one record per idempotency key in the aggregate",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "representation": "bcir",
+        "environment_id": "ENV-001",
+        "expression": {
+          "kind": "quantifier",
+          "operator": "all",
+          "bind": "r",
+          "collection": {
+            "kind": "path",
+            "root": "env",
+            "pointer": "/state/refunds"
+          },
+          "predicate": {
+            "kind": "apply",
+            "operator": "le",
+            "arguments": [
+              {
+                "kind": "aggregate",
+                "operator": "count",
+                "bind": "s",
+                "collection": {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/state/refunds"
+                },
+                "filter": {
+                  "kind": "apply",
+                  "operator": "eq",
+                  "arguments": [
+                    {
+                      "kind": "path",
+                      "root": "s",
+                      "pointer": "/key"
+                    },
+                    {
+                      "kind": "path",
+                      "root": "r",
+                      "pointer": "/key"
+                    }
+                  ]
+                },
+                "projection": {
+                  "kind": "literal",
+                  "value": 1
+                }
+              },
+              {
+                "kind": "literal",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "invariant"
+      }
+    },
+    {
+      "id": "CON-005",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "Authenticated tenant matches requested tenant",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "technical",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "project",
+        "roles": [
+          "enforcement",
+          "verification"
+        ],
+        "representation": "bcir",
+        "environment_id": "ENV-001",
+        "expression": {
+          "kind": "apply",
+          "operator": "and",
+          "arguments": [
+            {
+              "kind": "path",
+              "root": "env",
+              "pointer": "/auth/verified"
+            },
+            {
+              "kind": "apply",
+              "operator": "eq",
+              "arguments": [
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/auth/tenant_id"
+                },
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/input/tenant_id"
+                }
+              ]
+            },
+            {
+              "kind": "apply",
+              "operator": "eq",
+              "arguments": [
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/auth/tenant_id"
+                },
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/state/tenant_id"
+                }
+              ]
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": "BIND-005",
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "admission_guard"
+      }
+    },
+    {
+      "id": "CON-006",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "Diagnostic explanations remain understandable",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "normative",
+          "explicitness": "elicited",
+          "temporality": "predefined",
+          "strength": "soft"
+        },
+        "scope": "linked",
+        "roles": [
+          "guidance"
+        ],
+        "representation": "review_protocol",
+        "environment_id": null,
+        "expression": null,
+        "review_protocol": "A product reviewer checks example diagnostic messages for clarity and records concrete disagreements. This judgment is not a deterministic language-quality score.",
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null,
+        "predicate_role": "review"
+      }
+    },
+    {
+      "id": "MODEL-001",
+      "kind": "StateModel",
+      "revision": 1,
+      "status": "active",
+      "title": "Refund authorization lifecycle",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "environment_id": "ENV-001",
+        "initial": "new",
+        "states": [
+          {
+            "name": "new",
+            "terminal": false
+          },
+          {
+            "name": "reserved",
+            "terminal": false
+          },
+          {
+            "name": "committed",
+            "terminal": true
+          },
+          {
+            "name": "released",
+            "terminal": true
+          },
+          {
+            "name": "rejected",
+            "terminal": true
+          }
+        ],
+        "transitions": [
+          {
+            "id": "TRN-001",
+            "from": "new",
+            "to": "reserved",
+            "event": "reserve",
+            "guard_id": "CON-002",
+            "effect_ref": "ledger.reserve"
+          },
+          {
+            "id": "TRN-002",
+            "from": "new",
+            "to": "rejected",
+            "event": "reject",
+            "guard_id": null,
+            "effect_ref": "ledger.reject"
+          },
+          {
+            "id": "TRN-003",
+            "from": "reserved",
+            "to": "committed",
+            "event": "commit",
+            "guard_id": null,
+            "effect_ref": "ledger.commit"
+          },
+          {
+            "id": "TRN-004",
+            "from": "reserved",
+            "to": "released",
+            "event": "cancel",
+            "guard_id": null,
+            "effect_ref": "ledger.release"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-001",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Exactly consumed capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-a",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-b",
+                "key": "b",
+                "amount_minor": 400,
+                "status": "committed"
+              }
+            ]
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 1
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "reserve",
+        "expected": "Reject another positive reservation.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-002",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Over-consumed candidate state",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-a",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-b",
+                "key": "b",
+                "amount_minor": 401,
+                "status": "committed"
+              }
+            ]
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 1
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "inspect",
+        "expected": "Detect an invalid state rather than accept it.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-003",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Empty ledger can reserve",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": []
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 400
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "reserve",
+        "expected": "Allow a reservation subject to atomic storage enforcement.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-004",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Zero existing amount",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-a",
+                "key": "a",
+                "amount_minor": 0,
+                "status": "reserved"
+              }
+            ]
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 0
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "inspect",
+        "expected": "Detect a domain-invalid zero amount; the environment shape alone permits the boundary value.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-005",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Duplicate retained key",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "same",
+                "amount_minor": 10,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "same",
+                "amount_minor": 20,
+                "status": "reserved"
+              }
+            ]
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 1
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "inspect",
+        "expected": "Detect duplicate idempotency records.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-006",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Wrong tenant is denied",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": []
+          },
+          "input": {
+            "tenant_id": "other-tenant",
+            "key": "new-key",
+            "amount_minor": 10
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "authorize",
+        "expected": "Deny before reading the other tenant ledger.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-007",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Released record does not consume capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-a",
+                "key": "a",
+                "amount_minor": 700,
+                "status": "released"
+              },
+              {
+                "id": "r-b",
+                "key": "b",
+                "amount_minor": 400,
+                "status": "committed"
+              }
+            ]
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 600
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "reserve",
+        "expected": "Allow exact remaining capacity; retain released idempotency record.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-008",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Unverified principal is denied",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": []
+          },
+          "input": {
+            "tenant_id": "tenant-demo",
+            "key": "new-key",
+            "amount_minor": 100
+          },
+          "auth": {
+            "verified": false,
+            "tenant_id": "tenant-demo"
+          }
+        },
+        "event": "authorize",
+        "expected": "Deny an unverified principal.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "TEST-001",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Capacity aggregation uses consuming states",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "unit",
+        "oracle": "Capacity aggregation uses consuming states. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-001",
+          "SCN-002",
+          "SCN-007"
+        ]
+      }
+    },
+    {
+      "id": "TEST-002",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Admission guard checks amount and remaining capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "unit",
+        "oracle": "Admission guard checks amount and remaining capacity. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-001",
+          "SCN-003",
+          "SCN-004",
+          "SCN-007"
+        ]
+      }
+    },
+    {
+      "id": "TEST-003",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Amounts are positive",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "unit",
+        "oracle": "Amounts are positive. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-004"
+        ]
+      }
+    },
+    {
+      "id": "TEST-004",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Duplicate keys are detected",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "unit",
+        "oracle": "Duplicate keys are detected. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-005"
+        ]
+      }
+    },
+    {
+      "id": "TEST-005",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Principal guard is explicit",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "unit",
+        "oracle": "Principal guard is explicit. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-006",
+          "SCN-008",
+          "SCN-009"
+        ]
+      }
+    },
+    {
+      "id": "TEST-006",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Sequences preserve capacity after every accepted transition",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "property",
+        "oracle": "Sequences preserve capacity after every accepted transition. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-001",
+          "SCN-002",
+          "SCN-007"
+        ]
+      }
+    },
+    {
+      "id": "TEST-007",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Two simultaneous reservations cannot overbook",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Two simultaneous reservations cannot overbook. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-002"
+        ]
+      }
+    },
+    {
+      "id": "TEST-008",
+      "kind": "TestCase",
+      "revision": 2,
+      "status": "active",
+      "title": "Identical retries return the same record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Identical retries return the same record. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-005"
+        ]
+      }
+    },
+    {
+      "id": "TEST-009",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Conflicting retries are rejected without mutation",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Conflicting retries are rejected without mutation. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-005"
+        ]
+      }
+    },
+    {
+      "id": "TEST-010",
+      "kind": "TestCase",
+      "revision": 2,
+      "status": "active",
+      "title": "Public entrypoint reserves and commits within capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "e2e",
+        "oracle": "Public entrypoint reserves and commits within capacity. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-002"
+        ]
+      }
+    },
+    {
+      "id": "TEST-011",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Cross-tenant request exposes no record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "e2e",
+        "oracle": "Cross-tenant request exposes no record. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-006",
+          "SCN-008",
+          "SCN-009"
+        ]
+      }
+    },
+    {
+      "id": "TEST-012",
+      "kind": "TestCase",
+      "revision": 2,
+      "status": "active",
+      "title": "Cancellation releases once and preserves retained key",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Cancellation releases once and preserves retained key. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [
+          "SCN-001",
+          "SCN-007",
+          "SCN-005"
+        ]
+      }
+    },
+    {
+      "id": "TEST-013",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Audit messages exclude credentials and raw payload",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Audit messages exclude credentials and raw payload. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-006",
+          "SCN-009"
+        ]
+      }
+    },
+    {
+      "id": "TEST-014",
+      "kind": "TestCase",
+      "revision": 2,
+      "status": "active",
+      "title": "Restart after write preserves retry semantics",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Restart after write preserves retry semantics. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "planned",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [
+          "SCN-003",
+          "SCN-005"
+        ]
+      }
+    },
+    {
+      "id": "DEC-001",
+      "kind": "Decision",
+      "revision": 1,
+      "status": "active",
+      "title": "Capacity-consuming states",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "question": "Which local states consume captured capacity?",
+        "options": [
+          "Only committed",
+          "Reserved and committed"
+        ],
+        "answer": "Reserved and committed",
+        "blocking": true,
+        "rationale": "The example includes in-flight reservations to make concurrency obligations visible. This is a fictional reference decision."
+      }
+    },
+    {
+      "id": "ASM-001",
+      "kind": "Assumption",
+      "revision": 1,
+      "status": "active",
+      "title": "Synthetic demonstration data only",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "claim": "All actor and payment identifiers in the example are fictional.",
+        "validation_method": "Inspect the small reference fixture and its declared mode.",
+        "state": "validated",
+        "blocking": false
+      }
+    },
+    {
+      "id": "RISK-001",
+      "kind": "Risk",
+      "revision": 1,
+      "status": "active",
+      "title": "Over-authorization under concurrency",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "asset": "Captured local authorization capacity",
+        "threat": "Two requests act on the same stale remaining amount.",
+        "impact": "Accepted commitments exceed the declared captured capacity.",
+        "severity": "high"
+      }
+    },
+    {
+      "id": "CTRL-001",
+      "kind": "Control",
+      "revision": 1,
+      "status": "active",
+      "title": "Atomic admission boundary",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "description": "Check capacity and create a reservation in one serialized aggregate operation.",
+        "enforcement_location": "Persistent ledger transaction boundary, to implement and qualify.",
+        "verification": "Race, retry and restart tests on the actual chosen store."
+      }
+    },
+    {
+      "id": "SCN-009",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Authenticated caller and request agree but target ledger belongs to another tenant",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-001",
+        "given": {
+          "state": {
+            "tenant_id": "tenant-demo",
+            "payment_id": "pay-demo",
+            "currency": "EUR",
+            "captured_minor": 1000,
+            "refunds": []
+          },
+          "input": {
+            "tenant_id": "tenant_other",
+            "key": "new-key",
+            "amount_minor": 10
+          },
+          "auth": {
+            "verified": true,
+            "tenant_id": "tenant_other"
+          }
+        },
+        "event": "authorize",
+        "expected": "Deny access before disclosure or mutation because the target ledger is outside the authenticated tenant.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-001",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-002",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-003",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-004",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-005",
+            "expected": false
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "EDGE-001",
+      "from": "REQ-001",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-002",
+      "from": "REQ-001",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-003",
+      "from": "REQ-001",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-004",
+      "from": "REQ-001",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-005",
+      "from": "REQ-001",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-006",
+      "from": "REQ-001",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-007",
+      "from": "REQ-002",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-008",
+      "from": "REQ-002",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-009",
+      "from": "REQ-002",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-010",
+      "from": "REQ-002",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-011",
+      "from": "REQ-002",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-012",
+      "from": "REQ-002",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-013",
+      "from": "REQ-003",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-014",
+      "from": "REQ-003",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-015",
+      "from": "REQ-003",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-016",
+      "from": "REQ-003",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-017",
+      "from": "REQ-003",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-018",
+      "from": "REQ-003",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-019",
+      "from": "REQ-004",
+      "relation": "satisfies",
+      "to": "GOAL-002",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-020",
+      "from": "REQ-004",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-021",
+      "from": "REQ-004",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-022",
+      "from": "REQ-004",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-023",
+      "from": "REQ-004",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-024",
+      "from": "REQ-004",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-025",
+      "from": "REQ-005",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-026",
+      "from": "REQ-005",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-027",
+      "from": "REQ-005",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-028",
+      "from": "REQ-005",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-029",
+      "from": "REQ-005",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-030",
+      "from": "REQ-005",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-031",
+      "from": "REQ-006",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-032",
+      "from": "REQ-006",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-033",
+      "from": "REQ-006",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-034",
+      "from": "REQ-006",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-035",
+      "from": "REQ-006",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-036",
+      "from": "REQ-006",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-037",
+      "from": "REQ-007",
+      "relation": "satisfies",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Declared goal of the demonstration requirement."
+    },
+    {
+      "id": "EDGE-038",
+      "from": "REQ-007",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-039",
+      "from": "REQ-007",
+      "relation": "uses_term",
+      "to": "TERM-002",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-040",
+      "from": "REQ-007",
+      "relation": "uses_term",
+      "to": "TERM-003",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-041",
+      "from": "REQ-007",
+      "relation": "uses_term",
+      "to": "TERM-004",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-042",
+      "from": "REQ-007",
+      "relation": "uses_term",
+      "to": "TERM-005",
+      "origin": "declared",
+      "rationale": "Domain definition needed to interpret the requirement."
+    },
+    {
+      "id": "EDGE-043",
+      "from": "COMP-001",
+      "relation": "implements",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned implementation, not verified code."
+    },
+    {
+      "id": "EDGE-044",
+      "from": "COMP-001",
+      "relation": "implements",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Planned implementation, not verified code."
+    },
+    {
+      "id": "EDGE-045",
+      "from": "COMP-001",
+      "relation": "implements",
+      "to": "REQ-003",
+      "origin": "declared",
+      "rationale": "Planned implementation, not verified code."
+    },
+    {
+      "id": "EDGE-046",
+      "from": "COMP-001",
+      "relation": "implements",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Planned implementation, not verified code."
+    },
+    {
+      "id": "EDGE-047",
+      "from": "COMP-001",
+      "relation": "implements",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Planned implementation, not verified code."
+    },
+    {
+      "id": "EDGE-048",
+      "from": "COMP-002",
+      "relation": "implements",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Planned trusted identity boundary."
+    },
+    {
+      "id": "EDGE-049",
+      "from": "COMP-003",
+      "relation": "implements",
+      "to": "REQ-007",
+      "origin": "declared",
+      "rationale": "Planned bounded diagnostic implementation."
+    },
+    {
+      "id": "EDGE-050",
+      "from": "CON-001",
+      "relation": "formalizes",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-051",
+      "from": "CON-001",
+      "relation": "formalizes",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-052",
+      "from": "CON-001",
+      "relation": "formalizes",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-053",
+      "from": "CON-001",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "All monetary operands use the same declared minor unit."
+    },
+    {
+      "id": "EDGE-054",
+      "from": "CON-002",
+      "relation": "formalizes",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-055",
+      "from": "CON-002",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "All monetary operands use the same declared minor unit."
+    },
+    {
+      "id": "EDGE-056",
+      "from": "CON-003",
+      "relation": "formalizes",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-057",
+      "from": "CON-003",
+      "relation": "uses_term",
+      "to": "TERM-001",
+      "origin": "declared",
+      "rationale": "All monetary operands use the same declared minor unit."
+    },
+    {
+      "id": "EDGE-058",
+      "from": "CON-004",
+      "relation": "formalizes",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-059",
+      "from": "CON-004",
+      "relation": "formalizes",
+      "to": "REQ-003",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-060",
+      "from": "CON-005",
+      "relation": "formalizes",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Explicit proposed formalization for this demonstration model."
+    },
+    {
+      "id": "EDGE-061",
+      "from": "CON-006",
+      "relation": "formalizes",
+      "to": "REQ-007",
+      "origin": "declared",
+      "rationale": "Soft presentation guidance; does not replace hard privacy tests."
+    },
+    {
+      "id": "EDGE-062",
+      "from": "MODEL-001",
+      "relation": "models",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "State topology documents intended behavior; effects are references, not executable transition definitions."
+    },
+    {
+      "id": "EDGE-063",
+      "from": "MODEL-001",
+      "relation": "models",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "State topology documents intended behavior; effects are references, not executable transition definitions."
+    },
+    {
+      "id": "EDGE-064",
+      "from": "MODEL-001",
+      "relation": "models",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "State topology documents intended behavior; effects are references, not executable transition definitions."
+    },
+    {
+      "id": "EDGE-065",
+      "from": "SCN-001",
+      "relation": "illustrates",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-070",
+      "from": "SCN-001",
+      "relation": "illustrates",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-072",
+      "from": "SCN-002",
+      "relation": "illustrates",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-079",
+      "from": "SCN-003",
+      "relation": "illustrates",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-086",
+      "from": "SCN-004",
+      "relation": "illustrates",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-094",
+      "from": "SCN-005",
+      "relation": "illustrates",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-095",
+      "from": "SCN-005",
+      "relation": "illustrates",
+      "to": "REQ-003",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-103",
+      "from": "SCN-006",
+      "relation": "illustrates",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-111",
+      "from": "SCN-007",
+      "relation": "illustrates",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-117",
+      "from": "SCN-008",
+      "relation": "illustrates",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Reference state illustrates this requirement only; no code execution is claimed."
+    },
+    {
+      "id": "EDGE-121",
+      "from": "TEST-001",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-122",
+      "from": "TEST-001",
+      "relation": "verifies",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-123",
+      "from": "TEST-001",
+      "relation": "verifies",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-124",
+      "from": "TEST-001",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-125",
+      "from": "TEST-002",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-126",
+      "from": "TEST-002",
+      "relation": "checks",
+      "to": "CON-002",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-127",
+      "from": "TEST-003",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-128",
+      "from": "TEST-003",
+      "relation": "checks",
+      "to": "CON-003",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-129",
+      "from": "TEST-004",
+      "relation": "verifies",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-130",
+      "from": "TEST-004",
+      "relation": "verifies",
+      "to": "REQ-003",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-131",
+      "from": "TEST-004",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-132",
+      "from": "TEST-005",
+      "relation": "verifies",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-133",
+      "from": "TEST-005",
+      "relation": "checks",
+      "to": "CON-005",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-134",
+      "from": "TEST-006",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-135",
+      "from": "TEST-006",
+      "relation": "verifies",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-136",
+      "from": "TEST-006",
+      "relation": "verifies",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-137",
+      "from": "TEST-006",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-138",
+      "from": "TEST-006",
+      "relation": "checks",
+      "to": "CON-003",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-139",
+      "from": "TEST-007",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-140",
+      "from": "TEST-007",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-141",
+      "from": "TEST-008",
+      "relation": "verifies",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-142",
+      "from": "TEST-008",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-143",
+      "from": "TEST-009",
+      "relation": "verifies",
+      "to": "REQ-003",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-144",
+      "from": "TEST-009",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-145",
+      "from": "TEST-010",
+      "relation": "verifies",
+      "to": "REQ-001",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-146",
+      "from": "TEST-010",
+      "relation": "verifies",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-148",
+      "from": "TEST-010",
+      "relation": "verifies",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-149",
+      "from": "TEST-010",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-150",
+      "from": "TEST-010",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-151",
+      "from": "TEST-011",
+      "relation": "verifies",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-152",
+      "from": "TEST-011",
+      "relation": "checks",
+      "to": "CON-005",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-153",
+      "from": "TEST-012",
+      "relation": "verifies",
+      "to": "REQ-005",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-154",
+      "from": "TEST-012",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-155",
+      "from": "TEST-012",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-156",
+      "from": "TEST-013",
+      "relation": "verifies",
+      "to": "REQ-007",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-157",
+      "from": "TEST-014",
+      "relation": "verifies",
+      "to": "REQ-002",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-159",
+      "from": "TEST-014",
+      "relation": "verifies",
+      "to": "REQ-006",
+      "origin": "declared",
+      "rationale": "Planned test; no execution receipt exists in this reference package."
+    },
+    {
+      "id": "EDGE-160",
+      "from": "TEST-014",
+      "relation": "checks",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-161",
+      "from": "TEST-014",
+      "relation": "checks",
+      "to": "CON-004",
+      "origin": "declared",
+      "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-162",
+      "from": "DEC-001",
+      "relation": "governs",
+      "to": "CON-001",
+      "origin": "declared",
+      "rationale": "Defines which states participate in aggregation."
+    },
+    {
+      "id": "EDGE-163",
+      "from": "REQ-007",
+      "relation": "assumes",
+      "to": "ASM-001",
+      "origin": "declared",
+      "rationale": "The example carries no production credential or personal record."
+    },
+    {
+      "id": "EDGE-164",
+      "from": "RISK-001",
+      "relation": "threatens",
+      "to": "GOAL-001",
+      "origin": "declared",
+      "rationale": "Concurrent operations can violate the aggregate invariant."
+    },
+    {
+      "id": "EDGE-165",
+      "from": "CTRL-001",
+      "relation": "mitigates",
+      "to": "RISK-001",
+      "origin": "declared",
+      "rationale": "Proposed mechanism; its label alone is not evidence of enforcement."
+    },
+    {
+      "id": "EDGE-166",
+      "from": "REQ-001",
+      "relation": "realizes",
+      "to": "CTRL-001",
+      "origin": "declared",
+      "rationale": "Admission behavior is part of the control contract."
+    },
+    {
+      "id": "EDGE-167",
+      "from": "SCN-009",
+      "relation": "illustrates",
+      "to": "REQ-004",
+      "origin": "declared",
+      "rationale": "Target resource tenant is part of the authorization decision."
+    }
+  ],
+  "bindings": [
+    {
+      "id": "BIND-001",
+      "kind": "code",
+      "node_id": "COMP-001",
+      "path": "src/refund_ledger/ledger.py",
+      "symbol": "Ledger",
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-002",
+      "kind": "code",
+      "node_id": "COMP-002",
+      "path": "src/refund_ledger/access.py",
+      "symbol": "authorize",
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-003",
+      "kind": "code",
+      "node_id": "COMP-003",
+      "path": "src/refund_ledger/audit.py",
+      "symbol": "record_outcome",
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-004",
+      "kind": "enforcement",
+      "node_id": "CON-001",
+      "path": "src/refund_ledger/ledger.py",
+      "symbol": "Ledger.reserve",
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-005",
+      "kind": "enforcement",
+      "node_id": "CON-005",
+      "path": "src/refund_ledger/access.py",
+      "symbol": "authorize",
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-006",
+      "kind": "test",
+      "node_id": "TEST-001",
+      "path": "tests/test_test_001.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-007",
+      "kind": "test",
+      "node_id": "TEST-002",
+      "path": "tests/test_test_002.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-008",
+      "kind": "test",
+      "node_id": "TEST-003",
+      "path": "tests/test_test_003.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-009",
+      "kind": "test",
+      "node_id": "TEST-004",
+      "path": "tests/test_test_004.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-010",
+      "kind": "test",
+      "node_id": "TEST-005",
+      "path": "tests/test_test_005.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-011",
+      "kind": "test",
+      "node_id": "TEST-006",
+      "path": "tests/test_test_006.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-012",
+      "kind": "test",
+      "node_id": "TEST-007",
+      "path": "tests/test_test_007.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-013",
+      "kind": "test",
+      "node_id": "TEST-008",
+      "path": "tests/test_test_008.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-014",
+      "kind": "test",
+      "node_id": "TEST-009",
+      "path": "tests/test_test_009.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-015",
+      "kind": "test",
+      "node_id": "TEST-010",
+      "path": "tests/test_test_010.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-016",
+      "kind": "test",
+      "node_id": "TEST-011",
+      "path": "tests/test_test_011.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-017",
+      "kind": "test",
+      "node_id": "TEST-012",
+      "path": "tests/test_test_012.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-018",
+      "kind": "test",
+      "node_id": "TEST-013",
+      "path": "tests/test_test_013.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    },
+    {
+      "id": "BIND-019",
+      "kind": "test",
+      "node_id": "TEST-014",
+      "path": "tests/test_test_014.py",
+      "symbol": null,
+      "language": "python",
+      "expected_resolution": "planned"
+    }
+  ],
+  "context_assets": [
+    {
+      "id": "ASSET-001",
+      "title": "Reference context for TERM-001",
+      "representation": "structured",
+      "classification": "public",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "supports": [
+        "TERM-001"
+      ],
+      "allowed_roles": [
+        "ACTOR-001",
+        "ACTOR-002"
+      ],
+      "locator": "node:TERM-001",
+      "binding_id": null,
+      "max_age_seconds": null,
+      "instruction_trust": "data_only"
+    },
+    {
+      "id": "ASSET-002",
+      "title": "Reference context for CON-001",
+      "representation": "rule",
+      "classification": "public",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "supports": [
+        "CON-001"
+      ],
+      "allowed_roles": [
+        "ACTOR-001",
+        "ACTOR-002"
+      ],
+      "locator": "node:CON-001",
+      "binding_id": null,
+      "max_age_seconds": null,
+      "instruction_trust": "data_only"
+    },
+    {
+      "id": "ASSET-003",
+      "title": "Reference context for CON-005",
+      "representation": "rule",
+      "classification": "public",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "supports": [
+        "CON-005"
+      ],
+      "allowed_roles": [
+        "ACTOR-001",
+        "ACTOR-002"
+      ],
+      "locator": "node:CON-005",
+      "binding_id": null,
+      "max_age_seconds": null,
+      "instruction_trust": "data_only"
+    },
+    {
+      "id": "ASSET-004",
+      "title": "Reference context for MODEL-001",
+      "representation": "structured",
+      "classification": "public",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "supports": [
+        "MODEL-001"
+      ],
+      "allowed_roles": [
+        "ACTOR-001",
+        "ACTOR-002"
+      ],
+      "locator": "node:MODEL-001",
+      "binding_id": null,
+      "max_age_seconds": null,
+      "instruction_trust": "data_only"
+    },
+    {
+      "id": "ASSET-005",
+      "title": "Reference context for DEC-001",
+      "representation": "document",
+      "classification": "public",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "supports": [
+        "DEC-001"
+      ],
+      "allowed_roles": [
+        "ACTOR-001",
+        "ACTOR-002"
+      ],
+      "locator": "node:DEC-001",
+      "binding_id": null,
+      "max_age_seconds": null,
+      "instruction_trust": "data_only"
+    }
+  ]
+}

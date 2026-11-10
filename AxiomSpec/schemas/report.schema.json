@@ -1,0 +1,377 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiomspec.invalid/schema/report-0.2.json",
+  "title": "AxiomSpec scoped verification report 0.2",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "axiomspec-report/0.2"
+    },
+    "scope": {
+      "enum": [
+        "package",
+        "baseline",
+        "change",
+        "implementation",
+        "runtime"
+      ]
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail",
+        "unknown",
+        "error",
+        "not_applicable"
+      ]
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "spec_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_tree_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toolchain_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observations_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "spec_sha256",
+        "source_tree_sha256",
+        "policy_sha256",
+        "toolchain_sha256",
+        "observations_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "trust": {
+          "enum": [
+            "untrusted_local",
+            "trusted_adapter"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "trust"
+      ],
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "gate": {
+            "enum": [
+              "PKG",
+              "G01",
+              "G02",
+              "G03",
+              "G04",
+              "G05",
+              "G06",
+              "G07",
+              "G08",
+              "G09",
+              "G10",
+              "G11",
+              "G12",
+              "G13"
+            ]
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail",
+              "unknown",
+              "error",
+              "not_applicable"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pointer": {
+            "type": "string",
+            "maxLength": 2048
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 1024
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384
+            },
+            "minItems": 0,
+            "maxItems": 128
+          }
+        },
+        "required": [
+          "id",
+          "gate",
+          "status",
+          "required",
+          "subject_id",
+          "pointer",
+          "message",
+          "evidence",
+          "limitations"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100000
+    },
+    "bounds": {
+      "type": "object",
+      "properties": {
+        "max_input_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_expression_depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_expression_nodes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_steps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_collection_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "max_input_bytes",
+        "max_expression_depth",
+        "max_expression_nodes",
+        "max_steps",
+        "max_collection_items"
+      ],
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "attempt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "evaluated_at",
+        "attempt"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16384
+      },
+      "minItems": 0,
+      "maxItems": 256
+    },
+    "profile": {
+      "const": "AX-CORE-0.1"
+    },
+    "requested_phase": {
+      "enum": [
+        "package",
+        "design_ready",
+        "coding_packet_ready",
+        "implementation_accepted",
+        "runtime_conformance_observed"
+      ]
+    },
+    "available_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "unsupported_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "configuration": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16384
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "format",
+    "scope",
+    "status",
+    "subject",
+    "runner",
+    "checks",
+    "bounds",
+    "metadata",
+    "limitations",
+    "profile",
+    "requested_phase",
+    "available_capabilities",
+    "unsupported_capabilities",
+    "configuration"
+  ],
+  "additionalProperties": false
+}

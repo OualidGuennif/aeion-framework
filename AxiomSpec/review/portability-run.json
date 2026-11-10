@@ -1,0 +1,96 @@
+{
+  "format": "axiomspec-portability-run/0.1",
+  "scope": "relocated_code_and_data_inputs",
+  "status": "pass",
+  "evaluated_at": "2026-11-09T19:08:36.315470+00:00",
+  "path_with_spaces": true,
+  "command": [
+    "python3",
+    "qa/run_checks.py"
+  ],
+  "test_count": 47,
+  "tested_inputs": [
+    {
+      "path": "examples/refund-ledger/croa-readiness.json",
+      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55"
+    },
+    {
+      "path": "examples/refund-ledger/execution.json",
+      "sha256": "4ee851e833b1944bfee01b797fb151a0bd304a73d3ee218d16042b12f3f34d4c"
+    },
+    {
+      "path": "examples/refund-ledger/observations.json",
+      "sha256": "ff31b1c4ac2a0dd151e209d8acdee96eb116d18ed295249b66a454cc0298cae2"
+    },
+    {
+      "path": "examples/refund-ledger/spec.json",
+      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e"
+    },
+    {
+      "path": "fixtures/conformance.json",
+      "sha256": "0b15f6cadda4577ff3508fdbf4f3b50d3be21ee7498ece63086891772d3ab22a"
+    },
+    {
+      "path": "qa/check_package.py",
+      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100"
+    },
+    {
+      "path": "qa/croa_readiness.py",
+      "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45"
+    },
+    {
+      "path": "qa/requirements-qa.txt",
+      "sha256": "7467fc0132d4dc44309dbc436294ea21cbe39ce1f76ca6d9d7258b1949cf1e3a"
+    },
+    {
+      "path": "qa/run_checks.py",
+      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3"
+    },
+    {
+      "path": "qa/test_review_regressions.py",
+      "sha256": "8453863961815f1322f658e94935f987ef5fd90c7d03b3e6619f063fc6ea21ed"
+    },
+    {
+      "path": "qa/test_second_review.py",
+      "sha256": "4179a85b9d5f2a496d2661c0b965af537c0fc239c8f90b5dd5c98684be19eb0f"
+    },
+    {
+      "path": "qa/test_third_review.py",
+      "sha256": "53a4aedd0f97781582e400b6786f566397f40a9375e1987eaf972a28b98418c4"
+    },
+    {
+      "path": "schemas/croa-readiness.schema.json",
+      "sha256": "84b112c8d737c28ad91b45139f85990132d5b1ac806747a2ac5b0cfb1bddaef3"
+    },
+    {
+      "path": "schemas/execution.schema.json",
+      "sha256": "2d097ae71aab6ff5525a1fc8d26ff75f1d41bc8e44c94036fb139b6ac82f7ae4"
+    },
+    {
+      "path": "schemas/report.schema.json",
+      "sha256": "c104ae2ccad5694908178f1bffb8c00f32cb21b45dd6fa9cb8f46a3882b539b3"
+    },
+    {
+      "path": "schemas/spec.schema.json",
+      "sha256": "8248fdebd510087f6c08a8f2b01bc6268485dadbf0bfd2ab3a699285aa9eb0cc"
+    }
+  ],
+  "toolchain": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "attrs": "26.1.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.9.1",
+      "typing-extensions": "4.16.0"
+    }
+  },
+  "limitations": [
+    "Local untrusted runner on the same operating system and dependency environment.",
+    "No claim of cross-platform compatibility or deployment qualification."
+  ]
+}

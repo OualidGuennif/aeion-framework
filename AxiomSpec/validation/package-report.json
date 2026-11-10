@@ -1,0 +1,163 @@
+{
+  "format": "axiomspec-report/0.2",
+  "scope": "package",
+  "status": "pass",
+  "profile": "AX-CORE-0.1",
+  "requested_phase": "package",
+  "available_capabilities": [
+    "strict_json",
+    "shape_validation",
+    "local_schema_resolution",
+    "selected_reference_checks",
+    "reference_fixture_evaluation",
+    "editorial_checks",
+    "optional_declaration_checks",
+    "croa_guide_red_flag_calculation",
+    "local_receipt_consistency",
+    "input_manifest_change_detection"
+  ],
+  "unsupported_capabilities": [
+    "static_type_unit_compiler",
+    "graph_queries",
+    "binding_resolution",
+    "application_tests",
+    "authority_attestation",
+    "croa_deployment_assessment",
+    "croa_weighted_scorecard"
+  ],
+  "configuration": {
+    "path": "validation/package-config.json",
+    "sha256": "74f2203f9d9455f98799297eeba2bc0c948bcc5c85d2a9d03e63073483e40793"
+  },
+  "subject": {
+    "spec_sha256": "1ea4f94443e2d0ca9f1b730705c3a381f53d7d8b0e1f91f9d9c2bfdbe546ebcd",
+    "source_tree_sha256": "cd755caca6ad1649de42f50175686485c36440ce27db53b88bd0d2a51f9cee4e",
+    "policy_sha256": null,
+    "toolchain_sha256": "78fdfd4387da084b26ce4865daf39dba7cd4d0f4cb0f7707cd6dd53eefcff6a6",
+    "observations_sha256": "dda046cf718abdecdbb29e7b50967a1eea8fa777ada77a2748ae0a240ef6bea5"
+  },
+  "runner": {
+    "name": "qa/check_package.py",
+    "version": "0.3.0",
+    "trust": "untrusted_local"
+  },
+  "checks": [
+    {
+      "id": "PKG.EDITORIAL",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "153 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.ENVIRONMENTS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "Restricted environment shapes and all scenario observations valid.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.NEGATIVE_FIXTURES",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "10 mutations verified with expected diagnostics; 30 future product obligations NOT executed.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.OBSERVATIONS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "45 reference expectations checked across all 9 synthetic observations; no application tests.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.OPTIONAL_EXTENSIONS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "Execution declaration and CROA input fixture valid; 37 unassessed items, 13 unknown findings. No execution authority or CROA conformance.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.QA_SELF_CHECKS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "16 targeted QA parser/evaluator self-checks passed; no full static typing qualification.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.REFERENCES",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "Selected reference checks passed: 51 nodes, 119 edges. No completeness claim.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.REGRESSION_RECEIPT",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "47 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.SCHEMAS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "Four schema documents valid under Draft 2020-12; example shape valid.",
+      "evidence": [],
+      "limitations": []
+    }
+  ],
+  "bounds": {
+    "max_input_bytes": 1048576,
+    "max_expression_depth": 24,
+    "max_expression_nodes": 2000,
+    "max_steps": 1000000,
+    "max_collection_items": 10000
+  },
+  "metadata": {
+    "evaluated_at": "2026-11-09T19:10:18.053812+00:00",
+    "attempt": "local-package-qa"
+  },
+  "limitations": [
+    "Artifact QA only. The product CLI, static type/unit compiler, graph/query engine and test adapters are not implemented.",
+    "30 future product obligations are descriptions, not executed tests.",
+    "No application unit/integration/E2E tests were run; planned bindings are fictitious.",
+    "Local untrusted runner; no identity attestation, runtime isolation or production approval.",
+    "Reference evaluation is not proof of business completeness, formal equivalence or all executions."
+  ]
+}

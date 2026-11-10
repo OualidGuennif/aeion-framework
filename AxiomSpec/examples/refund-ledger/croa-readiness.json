@@ -1,0 +1,280 @@
+{
+  "format": "axiomspec-croa-readiness/0.1",
+  "framework": {
+    "reference": "https://doi.org/10.5281/zenodo.21063423",
+    "editorial_version": "1.0.0-draft.3",
+    "sha256": "75198ad1712c82250c59e534ce82d85c4eedd1db61dd149cf1f36ff0202e4778"
+  },
+  "guide": {
+    "title": "CROA Readiness Assessment Guide",
+    "sha256": "aaf1efd3b65fdf10361d113bdc670a3fb4f1de0b86920af1739cf8b962755b6a"
+  },
+  "spec_sha256": "1ea4f94443e2d0ca9f1b730705c3a381f53d7d8b0e1f91f9d9c2bfdbe546ebcd",
+  "assessment_kind": "illustrative",
+  "subject": {
+    "project_id": "PROJECT-001",
+    "perspective": "target_product",
+    "boundary": "Fictional ledger design; no deployed agent execution environment is assessed.",
+    "action_class": "refund.reserve",
+    "consequence_class": null
+  },
+  "answers": {
+    "A1": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A2": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A3": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A4": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A5": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A6": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "A7": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B1": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B2": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B3": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B4": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B5": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B6": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "B7": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R1": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R2": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R3": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R4": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R5": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "R6": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D1": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D2": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D3": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D4": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D5": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D6": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D7": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D8": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D9": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "D10": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E1": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E2": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E3": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E4": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E5": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E6": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    },
+    "E7": {
+      "score": null,
+      "source_ids": [],
+      "note": "Not assessed; requires evidence about the actual deployment or organization."
+    }
+  },
+  "traceability": [
+    {
+      "item_id": "D6",
+      "node_ids": [
+        "CON-001",
+        "CON-003",
+        "CON-004"
+      ],
+      "note": "Candidate modeled constraints; presence does not establish CROA E1/E2 evaluability."
+    },
+    {
+      "item_id": "D7",
+      "node_ids": [
+        "REQ-007",
+        "COMP-003"
+      ],
+      "note": "Audit intent only; append-only enforcement is not implemented or evidenced."
+    }
+  ],
+  "framework_links": [
+    {
+      "section": "Part I §2.6",
+      "node_ids": [
+        "CON-001"
+      ],
+      "binding_ids": [],
+      "note": "Evaluability metadata remains unclassified."
+    },
+    {
+      "section": "Part VI §29.2, RTM and C-29 -> C-32",
+      "node_ids": [
+        "REQ-001",
+        "CON-001",
+        "COMP-001",
+        "TEST-007"
+      ],
+      "binding_ids": [],
+      "note": "Declared traceability and planned tests; not executed CROA evidence."
+    }
+  ],
+  "invariant_metadata": [
+    {
+      "constraint_id": "CON-001",
+      "evaluability_class": null,
+      "trajectory_profile": null,
+      "method_binding_id": null,
+      "abstraction": "Finite local ledger observations; no deployed state-projection or trajectory evaluator.",
+      "residuals": [
+        "Application concurrency and runtime enforcement are not qualified."
+      ]
+    },
+    {
+      "constraint_id": "CON-003",
+      "evaluability_class": null,
+      "trajectory_profile": null,
+      "method_binding_id": null,
+      "abstraction": "Finite local ledger observations; no deployed state-projection or trajectory evaluator.",
+      "residuals": [
+        "Application concurrency and runtime enforcement are not qualified."
+      ]
+    },
+    {
+      "constraint_id": "CON-004",
+      "evaluability_class": null,
+      "trajectory_profile": null,
+      "method_binding_id": null,
+      "abstraction": "Finite local ledger observations; no deployed state-projection or trajectory evaluator.",
+      "residuals": [
+        "Application concurrency and runtime enforcement are not qualified."
+      ]
+    }
+  ]
+}

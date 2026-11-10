@@ -1,0 +1,326 @@
+{
+  "format": "axiomspec-observation-fixtures/0.1",
+  "synthetic": true,
+  "cases": [
+    {
+      "scenario_id": "SCN-001",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 1
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": false,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-002",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 401,
+              "status": "committed"
+            }
+          ]
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 1
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": false,
+        "CON-002": false,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-003",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": []
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 400
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-004",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 0,
+              "status": "reserved"
+            }
+          ]
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 0
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": false,
+        "CON-003": false,
+        "CON-004": true,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-005",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "same",
+              "amount_minor": 10,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "same",
+              "amount_minor": 20,
+              "status": "reserved"
+            }
+          ]
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 1
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": false,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-006",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": []
+        },
+        "input": {
+          "tenant_id": "other-tenant",
+          "key": "new-key",
+          "amount_minor": 10
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": false
+      }
+    },
+    {
+      "scenario_id": "SCN-007",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 700,
+              "status": "released"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 600
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": true
+      }
+    },
+    {
+      "scenario_id": "SCN-008",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": []
+        },
+        "input": {
+          "tenant_id": "tenant-demo",
+          "key": "new-key",
+          "amount_minor": 100
+        },
+        "auth": {
+          "verified": false,
+          "tenant_id": "tenant-demo"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": false
+      }
+    },
+    {
+      "scenario_id": "SCN-009",
+      "environment_id": "ENV-001",
+      "environment": {
+        "state": {
+          "tenant_id": "tenant-demo",
+          "payment_id": "pay-demo",
+          "currency": "EUR",
+          "captured_minor": 1000,
+          "refunds": []
+        },
+        "input": {
+          "tenant_id": "tenant_other",
+          "key": "new-key",
+          "amount_minor": 10
+        },
+        "auth": {
+          "verified": true,
+          "tenant_id": "tenant_other"
+        }
+      },
+      "expected": {
+        "CON-001": true,
+        "CON-002": true,
+        "CON-003": true,
+        "CON-004": true,
+        "CON-005": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "format": "axiomspec-execution/0.1",
+  "execution_mode": "bounded_autonomous",
+  "decision_policy_ref": {
+    "id": "example-policy/v1",
+    "sha256": null
+  }
+}

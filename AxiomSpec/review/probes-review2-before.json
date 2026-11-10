@@ -1,0 +1,23 @@
+{
+  "format": "axiomspec-review2-probes/0.1",
+  "scope": "package_checker",
+  "results": [
+    {
+      "probe": "invalid_future_vector_metadata",
+      "result": "accepted"
+    },
+    {
+      "probe": "replace_missing_target",
+      "result": "accepted"
+    },
+    {
+      "probe": "valid_1200_dependency_chain",
+      "bytes": 968501,
+      "within_byte_limit": true,
+      "schema_valid": true,
+      "result": "RecursionError"
+    }
+  ],
+  "baseline_checker_sha256": "178684d042cbb429ebcd5e119b12968a173b6a45568749d9874ad351804a41ef",
+  "baseline_manifest_sha256": "a39d0d680d284f380401aef1135194f509a64ff566595ce177e764cc9bd24078"
+}

@@ -1,0 +1,28 @@
+{
+  "regression_tests_recorded": 47,
+  "observations": 9,
+  "boolean_expectations": 45,
+  "mutations_executed": 10,
+  "product_obligations_pending": 30,
+  "croa_items": 37,
+  "croa_red_flag_rules": 13,
+  "qa_self_checks": 16,
+  "normative_rules": 104,
+  "local_links": 153,
+  "json_blocks": 3,
+  "toolchain": {
+    "python": "3.12.14",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "attrs": "26.1.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.9.1",
+      "typing-extensions": "4.16.0"
+    },
+    "jsonschema": "4.26.0"
+  }
+}
