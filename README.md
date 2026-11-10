@@ -1,13 +1,13 @@
 # Æion Framework
 
 **The idea behind Æion's way of specifying software, and nothing else.** This repository holds the
-method: the AxiomSpec package and the playbook for starting a new project with it. The code that
-executes the method lives in other repositories, so the framework can be read, criticised and
-reused without adopting any tool.
+method: the AxiomSpec package and its two playbooks, for a new project and for an existing one. The
+code that executes the method lives in other repositories, so the framework can be read, criticised
+and reused without adopting any tool.
 
 | | Repository | What it holds |
 | --- | --- | --- |
-| The framework | **aeion-framework** (here) | The AxiomSpec contracts, schemas, worked example and playbook |
+| The framework | **aeion-framework** (here) | The AxiomSpec contracts, schemas, worked example and playbooks |
 | The template | [aeion-factory](https://github.com/OualidGuennif/aeion-factory) | A project template that makes the method executable (`tools/axiom`, Python standard library only) |
 | The execution | [aeion-core](https://github.com/OualidGuennif/aeion-core) | A local web app that takes a feature from brainstorm to a checked specification |
 
@@ -51,16 +51,18 @@ flowchart LR
 | Path | Content |
 | --- | --- |
 | [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.3.0: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger), a conformance corpus, package QA and its review records |
-| [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
+| [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
+| [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
 
-Both are verbatim copies of the source material Æion Factory 3.0.0 and Æion Core were built from.
-The playbook mentions a second one, for existing projects; it is not part of this repository and is
-published in [aeion-factory](https://github.com/OualidGuennif/aeion-factory/blob/main/knowledge/axiomspec/playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md).
+All three are verbatim copies of the source material Æion Factory 3.0.0 and Æion Core were built from.
+The existing-project playbook cites a research note (`../research/auto-ontology-comparison-2026-11-09.md`)
+that is not published; that one link does not resolve.
 
 ## Where to start
 
 1. Read the [package overview](AxiomSpec/README.md) and its reading guide.
-2. Follow the [new-project playbook](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) for a first specification.
+2. Follow the [new-project playbook](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) for a first specification, or the
+   [existing-project playbook](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) when the product already exists.
 3. Look at the [worked example](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) and its
    [canonical data](AxiomSpec/examples/refund-ledger/spec.json).
 4. To run the method instead of reading it, use [aeion-factory](https://github.com/OualidGuennif/aeion-factory).
