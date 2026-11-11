@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "044499a899f11bd377168db2923bdc97e470b275a6d540993fa0e0d1c29ec6a7",
-      "bytes": 5740
+      "sha256": "fa8d19b18c6e8fef2528c80f63fd41c15c33b9f5132a752b86ad21682c2a32e6",
+      "bytes": 5816
     },
     {
       "path": "REVIEW.md",
-      "sha256": "9e5dd4b64560c7d99014bbd6ce48e91028c8c717af985da9dfc881a9381f10a1",
-      "bytes": 22811
+      "sha256": "a849e77bfeb72ad97f709a8cede0aa9589723279bed7037d2d017efd44f4c414",
+      "bytes": 24660
     },
     {
       "path": "RULE_INDEX.md",
@@ -33,8 +33,8 @@
     },
     {
       "path": "docs/03_CANONICAL_MODEL.md",
-      "sha256": "c1a02336cdc5f3d97e3a95b023102db553b8ac801848e1d1f18444dcb939e373",
-      "bytes": 14042
+      "sha256": "22f85130bf3b3f5f60887a88689780de1ab4813dcf5d0547ae2c1bf56b687cbf",
+      "bytes": 14089
     },
     {
       "path": "docs/04_AUTHORING_WORKFLOW.md",
@@ -83,13 +83,13 @@
     },
     {
       "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
-      "sha256": "861ff3a76d38efbc15c4c208241c99a8c0f45d7a19f18fa1812ee06301326c59",
-      "bytes": 13195
+      "sha256": "f1d8be8573837971ba1fb3e9435c4eb00994ce2e4b896c000e79bbe74e3238a1",
+      "bytes": 14475
     },
     {
       "path": "docs/14_CONFORMANCE_SUITE.md",
-      "sha256": "6a587eb3c0e46a1a32a010c930007c19f3f69c9df9946dd41420c86886aae568",
-      "bytes": 8578
+      "sha256": "a952c294c381b1713239e81efed091594aacb6f07696653584f92efde06277c9",
+      "bytes": 8643
     },
     {
       "path": "docs/15_TEMPLATES_AND_PROMPTS.md",
@@ -113,12 +113,12 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511",
-      "bytes": 9722
+      "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa",
+      "bytes": 9765
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "d40b87f6b7d7e2f50cfae42dc192d0c17f824259a6d9ba1c6f0049cde6de3b2b",
+      "sha256": "ba8e39a2bf9bc9d080dc7c17e26b72d33e6105b7ad7709c62d268223edf55c90",
       "bytes": 8664
     },
     {
@@ -128,8 +128,8 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "2871264c343d9b30dc36ae7b08fbb6e1e4ed16963994bf88c7da42f150d9f496",
-      "bytes": 25613
+      "sha256": "49295cc11ab9a6ed3b890f0babdb0572bf08b44e661f321a642b157654d1b2b1",
+      "bytes": 27806
     },
     {
       "path": "examples/refund-ledger/releases/1.0.0.json",
@@ -138,13 +138,13 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63",
-      "bytes": 193758
+      "sha256": "96b4dca9b86ed49764e3acbff79cd0854100472bef468422f1a69a2adbc396df",
+      "bytes": 207265
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604",
-      "bytes": 23775
+      "sha256": "cecb4c86c89de95fef38cbc78fb5feccb66d7e192d2f659581b5566425f384d3",
+      "bytes": 24976
     },
     {
       "path": "fixtures/conformance.json",
@@ -163,8 +163,8 @@
     },
     {
       "path": "qa/migrate_0_1.py",
-      "sha256": "4b65123019063394e14ef41a8792613ce04aac859846625c2c14e6064e39360e",
-      "bytes": 4441
+      "sha256": "83b433272947f71fe25a1afe08ee8659428cf8a4ad7e7298331b4a9419ee30b6",
+      "bytes": 4458
     },
     {
       "path": "qa/release_diff.py",
@@ -178,7 +178,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "838ccc3327cec5bd4e357910eaa15ff22958c2617059ae3a3db844f19ab60db6",
+      "sha256": "71ea57d5856df1f85abe665ab6e271f9d61f843051e9d60095d6c8494d99669f",
       "bytes": 13135
     },
     {
@@ -188,12 +188,12 @@
     },
     {
       "path": "qa/test_releases_weights_flags.py",
-      "sha256": "476d79a0ba67c4cbc8243ef8b31ccfddd0640b58cd7b3040438fbb24a34cb591",
-      "bytes": 39716
+      "sha256": "590be854d68afe03a18ad1c68d45ac8e254510b900661ffdc59ee21e31f2a340",
+      "bytes": 42321
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "7bed81147bd475186feb076d37edd3fc906651f899fef54f7c976a51ef012d33",
+      "sha256": "af10376898c203c36ab81307faca4e060529b198bfb90055b5919c8dbd471fb4",
       "bytes": 7479
     },
     {
@@ -203,7 +203,7 @@
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "a303b0208afb4988175e5880fe9fbdb36aa4508f6db827023a39639cb605fb55",
+      "sha256": "ce1f25eff588b11424044b26133f9ee2adaf2be07d84084c31fd379b867cdee3",
       "bytes": 11775
     },
     {
@@ -213,8 +213,8 @@
     },
     {
       "path": "review/ASSURANCE_MATRIX.md",
-      "sha256": "f5227da147d93843d8179a88cd2740de0994b4e368edb0d186fc9945fbc860f4",
-      "bytes": 4031
+      "sha256": "2610bb6309b5787ee5c474824ace02932125c6b48c5479a33675981fea8b874c",
+      "bytes": 4054
     },
     {
       "path": "review/SOURCE_AUDIT.md",
@@ -223,7 +223,7 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "dec4e4ead3f6a142f92c221027d6b1c6f5766761934bd08b106b0bb08423117c",
+      "sha256": "01a01b0e7e9033b041abfad533ab978672133e11c01652aed170cdb14ddc1270",
       "bytes": 4289
     },
     {
@@ -248,13 +248,13 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "e4acc11041c62e516c1b775fa058aefe77ba103b48f433a86de132227f6dc3f2",
-      "bytes": 15579
+      "sha256": "7b13990a8272bcf477dc536e6f0cd95c2761bf7fdaee0a2e25b188bb6fbe6fe4",
+      "bytes": 16027
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "710d1fae6e6db17f9630d4b60645ba4ca88d33c38bdbf428effc211a4c8b36c0",
-      "bytes": 14950
+      "sha256": "0fb82712424050030a9e0a43a3ad6aa257695d06922513ee6391cce137ac7e47",
+      "bytes": 15227
     },
     {
       "path": "schemas/croa-readiness.schema.json",
@@ -273,8 +273,8 @@
     },
     {
       "path": "schemas/spec.schema.json",
-      "sha256": "e6d22627841340c770d97058b7b9e73d52f378bc25a992b86c692035147e4ea6",
-      "bytes": 63096
+      "sha256": "d529053da4a74d096ce10067d60ebb78781e183209399049ff5b6fb5d053b770",
+      "bytes": 63115
     }
   ],
   "exclusions": [

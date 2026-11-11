@@ -19,6 +19,12 @@
         "classification": "compatible",
         "decision_id": "DEC-004",
         "migration": null
+      },
+      {
+        "subject_id": "CON-011",
+        "classification": "compatible",
+        "decision_id": "DEC-004",
+        "migration": null
       }
     ]
   },
@@ -569,6 +575,96 @@
           "term_id": "TERM-001"
         }
       ]
+    },
+    {
+      "id": "ENV-004",
+      "title": "One audited operation and the audit rows it added",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "attempt": {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "operation": {
+                "enum": [
+                  "reserve",
+                  "cancel",
+                  "commit",
+                  "remaining"
+                ],
+                "type": "string",
+                "maxLength": 9
+              },
+              "outcome": {
+                "enum": [
+                  "reserved",
+                  "replayed",
+                  "conflict",
+                  "rejected",
+                  "denied",
+                  "released",
+                  "committed",
+                  "repeated",
+                  "refused",
+                  "not_found",
+                  "reported",
+                  "unavailable"
+                ],
+                "type": "string",
+                "maxLength": 11
+              }
+            },
+            "required": [
+              "operation_id",
+              "operation",
+              "outcome"
+            ],
+            "additionalProperties": false
+          },
+          "added": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "operation_id": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 256
+                },
+                "operation": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 256
+                },
+                "outcome": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 256
+                }
+              },
+              "required": [
+                "operation_id",
+                "operation",
+                "outcome"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 10
+          }
+        },
+        "required": [
+          "attempt",
+          "added"
+        ],
+        "additionalProperties": false
+      },
+      "units": []
     }
   ],
   "flags": [
@@ -2275,7 +2371,11 @@
         "state": "implemented",
         "runner": "unittest",
         "negative": true,
-        "witness_scenario_ids": [],
+        "witness_scenario_ids": [
+          "SCN-027",
+          "SCN-029",
+          "SCN-031"
+        ],
         "flag_states": []
       }
     },
@@ -4902,21 +5002,21 @@
       "kind": "Decision",
       "revision": 1,
       "status": "active",
-      "title": "Compatibility of the lifecycle predicates with release 1.0.0",
+      "title": "Compatibility of the new predicates with release 1.0.0",
       "owner": "ACTOR-001",
       "created_by": "ACTOR-002",
       "source_ids": [
         "SRC-001"
       ],
       "data": {
-        "question": "Do CON-009 and CON-010 require anything that release 1.0.0 did not?",
+        "question": "Do CON-009, CON-010 and CON-011 require anything that release 1.0.0 did not?",
         "options": [
           "Yes: treat release 1.1.0 as breaking",
-          "No: they state what REQ-004, REQ-005 and REQ-006 already required"
+          "No: they state what REQ-004, REQ-005, REQ-006 and REQ-007 already required"
         ],
-        "answer": "No: they state what REQ-004, REQ-005 and REQ-006 already required",
+        "answer": "No: they state what REQ-004, REQ-005, REQ-006 and REQ-007 already required",
         "blocking": true,
-        "rationale": "CON-010 formalizes the transitions REQ-005 and REQ-006 already described. CON-009 reaches REQ-004 only to say that a denied command changes nothing, which REQ-004 already required. An implementation that satisfied 1.0.0 is not made non-conforming. This is a fictional reference decision."
+        "rationale": "CON-010 formalizes the transitions REQ-005 and REQ-006 already described. CON-009 reaches REQ-004 only to say that a denied command changes nothing, which REQ-004 already required. CON-011 fixes the audit record of an attempt to one row holding the identifier, the operation kind and the outcome: REQ-007 already required the identifier and the outcome on record and nothing copied from the request. An implementation that satisfied 1.0.0 is not made non-conforming. This is a fictional reference decision."
       }
     },
     {
@@ -4993,6 +5093,319 @@
           {
             "flag_id": "FLAG-001",
             "state": "disabled"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CON-011",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "An audited operation adds one row holding its identifier, kind and outcome",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "predicate_role": "observation_assertion",
+        "representation": "bcir",
+        "environment_id": "ENV-004",
+        "expression": {
+          "kind": "apply",
+          "operator": "and",
+          "arguments": [
+            {
+              "kind": "apply",
+              "operator": "eq",
+              "arguments": [
+                {
+                  "kind": "aggregate",
+                  "operator": "count",
+                  "bind": "x",
+                  "collection": {
+                    "kind": "path",
+                    "root": "env",
+                    "pointer": "/added"
+                  },
+                  "filter": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "projection": {
+                    "kind": "literal",
+                    "value": 1
+                  }
+                },
+                {
+                  "kind": "literal",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "kind": "quantifier",
+              "operator": "all",
+              "bind": "r",
+              "collection": {
+                "kind": "path",
+                "root": "env",
+                "pointer": "/added"
+              },
+              "predicate": {
+                "kind": "apply",
+                "operator": "and",
+                "arguments": [
+                  {
+                    "kind": "apply",
+                    "operator": "eq",
+                    "arguments": [
+                      {
+                        "kind": "path",
+                        "root": "r",
+                        "pointer": "/operation_id"
+                      },
+                      {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/attempt/operation_id"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "apply",
+                    "operator": "eq",
+                    "arguments": [
+                      {
+                        "kind": "path",
+                        "root": "r",
+                        "pointer": "/operation"
+                      },
+                      {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/attempt/operation"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "apply",
+                    "operator": "eq",
+                    "arguments": [
+                      {
+                        "kind": "path",
+                        "root": "r",
+                        "pointer": "/outcome"
+                      },
+                      {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/attempt/outcome"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null
+      }
+    },
+    {
+      "id": "SCN-027",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "A denied attempt is recorded by identifier, kind and outcome",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-004",
+        "given": {
+          "attempt": {
+            "operation_id": "op-7",
+            "operation": "reserve",
+            "outcome": "denied"
+          },
+          "added": [
+            {
+              "operation_id": "op-7",
+              "operation": "reserve",
+              "outcome": "denied"
+            }
+          ]
+        },
+        "event": "reserve",
+        "expected": "One row is added; it holds the identifier, the operation kind and the outcome.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-011",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-028",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "A completed attempt is recorded the same way",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-004",
+        "given": {
+          "attempt": {
+            "operation_id": "op-8",
+            "operation": "commit",
+            "outcome": "committed"
+          },
+          "added": [
+            {
+              "operation_id": "op-8",
+              "operation": "commit",
+              "outcome": "committed"
+            }
+          ]
+        },
+        "event": "commit",
+        "expected": "One row is added; it holds the identifier, the operation kind and the outcome.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-011",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-029",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Audit row that copied the credential",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-004",
+        "given": {
+          "attempt": {
+            "operation_id": "op-7",
+            "operation": "reserve",
+            "outcome": "denied"
+          },
+          "added": [
+            {
+              "operation_id": "Bearer s3cr3t-token-91",
+              "operation": "reserve",
+              "outcome": "denied"
+            }
+          ]
+        },
+        "event": "reserve",
+        "expected": "Detect that the row holds something other than the operation identifier.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-011",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-030",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Audit row that copied the request body",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-004",
+        "given": {
+          "attempt": {
+            "operation_id": "op-9",
+            "operation": "reserve",
+            "outcome": "reserved"
+          },
+          "added": [
+            {
+              "operation_id": "op-9",
+              "operation": "reserve",
+              "outcome": "reserved {\"key\": \"key-437\", \"amount_minor\": 437}"
+            }
+          ]
+        },
+        "event": "reserve",
+        "expected": "Detect that the row holds more than the outcome.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-011",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-031",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Denied attempt that left no audit row",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-004",
+        "given": {
+          "attempt": {
+            "operation_id": "op-7",
+            "operation": "reserve",
+            "outcome": "denied"
+          },
+          "added": []
+        },
+        "event": "reserve",
+        "expected": "Detect that the attempt was not recorded.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-011",
+            "expected": false
           }
         ]
       }
@@ -6390,6 +6803,70 @@
       "rationale": "The test evaluates this predicate on observations taken from the store.",
       "from": "TEST-011",
       "to": "CON-009"
+    },
+    {
+      "id": "EDGE-248",
+      "relation": "formalizes",
+      "origin": "declared",
+      "rationale": "Predicate on the audit rows one attempt added; the interpretation is reviewed, not proved.",
+      "from": "CON-011",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-249",
+      "relation": "governs",
+      "origin": "declared",
+      "rationale": "The decision records why this predicate is not a breaking change.",
+      "from": "DEC-004",
+      "to": "CON-011"
+    },
+    {
+      "id": "EDGE-250",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Observation of the audit rows one attempt added.",
+      "from": "SCN-027",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-251",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Observation of the audit rows one attempt added.",
+      "from": "SCN-028",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-252",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Observation of the audit rows one attempt added.",
+      "from": "SCN-029",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-253",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Observation of the audit rows one attempt added.",
+      "from": "SCN-030",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-254",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Observation of the audit rows one attempt added.",
+      "from": "SCN-031",
+      "to": "REQ-007"
+    },
+    {
+      "id": "EDGE-255",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on audit rows read from the store.",
+      "from": "TEST-013",
+      "to": "CON-011"
     }
   ],
   "bindings": [
@@ -6651,6 +7128,15 @@
       "node_id": "CON-010",
       "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "Ledger.snapshot",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-030",
+      "kind": "observation",
+      "node_id": "CON-011",
+      "path": "examples/refund-ledger/app/ledger.py",
+      "symbol": "Ledger.audit_events",
       "language": "python",
       "expected_resolution": "must_resolve"
     }

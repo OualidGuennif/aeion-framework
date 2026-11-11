@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-test-receipt/0.1",
   "scope": "example_application",
-  "edition": "0.5.0",
+  "edition": "0.5.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-11T05:12:24.925404+00:00",
+  "evaluated_at": "2026-11-11T09:03:01.846677+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -37,6 +37,7 @@
       "test_ledger.Test011CrossTenant.test_other_tenants_are_denied_and_learn_nothing",
       "test_ledger.Test012Cancellation.test_cancellation_releases_capacity_once_and_keeps_the_key",
       "test_ledger.Test013AuditContent.test_audit_rows_hold_identifier_kind_and_outcome_only",
+      "test_ledger.Test013AuditContent.test_copied_credential_copied_body_and_missing_row_are_detected",
       "test_ledger.Test014Restart.test_crash_before_commit_leaves_nothing_and_the_retry_is_admitted",
       "test_ledger.Test014Restart.test_retry_after_restart_finds_the_record",
       "test_ledger.Test015NewKeyAdmitted.test_new_key_is_admitted_beside_an_existing_record",
@@ -49,7 +50,7 @@
       "test_ledger.Test020RemainingReportOff.test_flag_is_the_one_the_specification_declares",
       "test_ledger.Test020RemainingReportOff.test_report_is_unavailable_and_discloses_nothing"
     ],
-    "tests_run": 32,
+    "tests_run": 33,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -59,15 +60,15 @@
   "inputs": [
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511"
+      "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa"
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63"
+      "sha256": "96b4dca9b86ed49764e3acbff79cd0854100472bef468422f1a69a2adbc396df"
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604"
+      "sha256": "cecb4c86c89de95fef38cbc78fb5feccb66d7e192d2f659581b5566425f384d3"
     },
     {
       "path": "qa/check_package.py",
@@ -91,7 +92,7 @@
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "020bee9309f973b3a0d6ba2b0bf9dab761e164e7dc977bfcb1febb1f931397bc"
+    "sha256": "14e68aed56cf7f761a4070b0d29c08539fcc4b94b51ef89135928a9426cd6386"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

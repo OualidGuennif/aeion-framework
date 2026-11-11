@@ -1118,6 +1118,105 @@
         "CON-009": true,
         "CON-010": true
       }
+    },
+    {
+      "scenario_id": "SCN-027",
+      "environment_id": "ENV-004",
+      "environment": {
+        "attempt": {
+          "operation_id": "op-7",
+          "operation": "reserve",
+          "outcome": "denied"
+        },
+        "added": [
+          {
+            "operation_id": "op-7",
+            "operation": "reserve",
+            "outcome": "denied"
+          }
+        ]
+      },
+      "expected": {
+        "CON-011": true
+      }
+    },
+    {
+      "scenario_id": "SCN-028",
+      "environment_id": "ENV-004",
+      "environment": {
+        "attempt": {
+          "operation_id": "op-8",
+          "operation": "commit",
+          "outcome": "committed"
+        },
+        "added": [
+          {
+            "operation_id": "op-8",
+            "operation": "commit",
+            "outcome": "committed"
+          }
+        ]
+      },
+      "expected": {
+        "CON-011": true
+      }
+    },
+    {
+      "scenario_id": "SCN-029",
+      "environment_id": "ENV-004",
+      "environment": {
+        "attempt": {
+          "operation_id": "op-7",
+          "operation": "reserve",
+          "outcome": "denied"
+        },
+        "added": [
+          {
+            "operation_id": "Bearer s3cr3t-token-91",
+            "operation": "reserve",
+            "outcome": "denied"
+          }
+        ]
+      },
+      "expected": {
+        "CON-011": false
+      }
+    },
+    {
+      "scenario_id": "SCN-030",
+      "environment_id": "ENV-004",
+      "environment": {
+        "attempt": {
+          "operation_id": "op-9",
+          "operation": "reserve",
+          "outcome": "reserved"
+        },
+        "added": [
+          {
+            "operation_id": "op-9",
+            "operation": "reserve",
+            "outcome": "reserved {\"key\": \"key-437\", \"amount_minor\": 437}"
+          }
+        ]
+      },
+      "expected": {
+        "CON-011": false
+      }
+    },
+    {
+      "scenario_id": "SCN-031",
+      "environment_id": "ENV-004",
+      "environment": {
+        "attempt": {
+          "operation_id": "op-7",
+          "operation": "reserve",
+          "outcome": "denied"
+        },
+        "added": []
+      },
+      "expected": {
+        "CON-011": false
+      }
     }
   ]
 }

@@ -19,8 +19,8 @@ def migrate(source, version, weight_minor_units=1):
     """Return (candidate, decisions). `source` is left untouched."""
     if (source.get('format'), source.get('profile')) != SOURCE:
         raise ValueError('Unsupported source format: expected axiomspec/0.1 with AX-CORE-0.1')
-    if weight_minor_units not in (1, 10, 100):
-        raise ValueError('weight_minor_units is 1, 10 or 100')
+    if weight_minor_units not in (1, 10, 100, 1000):
+        raise ValueError('weight_minor_units is 1, 10, 100 or 1000')
     old = copy.deepcopy(source)
     decisions, flags, by_feature = [], [], {}
     project = dict(old['project'], weight_minor_units=weight_minor_units)
@@ -61,7 +61,7 @@ def migrate(source, version, weight_minor_units=1):
 
 def main(arguments):
     if len(arguments) not in (3, 4):
-        print('Usage: python3 qa/migrate_0_1.py <source-0.1.json> <new-candidate-0.2.json> <version> [1|10|100]',
+        print('Usage: python3 qa/migrate_0_1.py <source-0.1.json> <new-candidate-0.2.json> <version> [1|10|100|1000]',
               file=sys.stderr)
         return 2
     source_path, target_path, version = Path(arguments[0]), Path(arguments[1]), arguments[2]

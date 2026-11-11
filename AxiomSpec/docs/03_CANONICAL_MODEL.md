@@ -184,13 +184,14 @@ Three things identify three different objects. A node's `revision` counts change
 
 ### AX-M-018 — Weights in minor units
 
-Every requirement carries an integer `weight_minor`: how much the product depends on that requirement holding, from 1 to 100 points. `project.weight_minor_units` states once how many minor units make one point: 1, 10 or 100.
+Every requirement carries an integer `weight_minor`: how much the product depends on that requirement holding, from 1 to 100 points. `project.weight_minor_units` states once how many minor units make one point: 1, 10, 100 or 1000.
 
 | `weight_minor_units` | One point is written | 37.5 points is written | Valid `weight_minor` |
 |---|---|---|---|
 | 1 | 1 | not expressible | 1 to 100 |
 | 10 | 10 | 375 | 10 to 1000 |
 | 100 | 100 | 3750 | 100 to 10000 |
+| 1000 | 1000 | 37500 | 1000 to 100000 |
 
 No number in a specification is a fraction. Any quantity attached to a requirement is an integer in declared minor units, as monetary amounts are, and a derived quantity states its own units (AX-L-009).
 

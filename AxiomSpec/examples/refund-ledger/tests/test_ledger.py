@@ -273,7 +273,8 @@ class Test010EntrypointReserveCommit(EntrypointCase):
 
     def test_malformed_request_reaches_no_operation(self):
         for request in [dict(operation='reserve', key='a', amount_minor='600'), dict(operation='reserve', key='a', amount_minor=True),
-                        dict(operation='erase'), dict(operation='commit')]:
+                        dict(operation='erase'), dict(operation='commit'),
+                        dict(operation='reserve', key='a', amount_minor=600, operation_id='x' * 65)]:
             with self.subTest(request=request):
                 self.assertEqual(self.send(**request), dict(outcome='invalid'))
         self.assertEqual(self.ledger.snapshot(PAYMENT)['refunds'], [])
@@ -320,13 +321,21 @@ class Test012Cancellation(LedgerCase):
 
 
 class Test013AuditContent(EntrypointCase):
+    def audited(self, principal=OWNER, **request):
+        """Send one request and require CON-011 of the audit rows it added."""
+        known = len(self.ledger.audit_events())
+        result = self.send(principal, **request)
+        attempt = dict(operation_id=request['operation_id'], operation=request['operation'], outcome=result['outcome'])
+        self.assertTrue(holds('CON-011', dict(attempt=attempt, added=self.ledger.audit_events()[known:])), attempt)
+        return result
+
     def test_audit_rows_hold_identifier_kind_and_outcome_only(self):
         secret, body = 'Bearer s3cr3t-token-91', 'free text with card 4111111111111111'
         extra = dict(credential=secret, note=body)
-        self.send(operation='reserve', key='key-437', amount_minor=437, operation_id='op-1', **extra)
-        self.send(STRANGER, operation='reserve', key='key-438', amount_minor=438, operation_id='op-2', **extra)
+        first = self.audited(operation='reserve', key='key-437', amount_minor=437, operation_id='op-1', **extra)
+        self.audited(STRANGER, operation='reserve', key='key-438', amount_minor=438, operation_id='op-2', **extra)
         before = self.ledger.snapshot(PAYMENT)
-        replay = self.send(operation='reserve', key='key-437', amount_minor=437, operation_id='op-3', **extra)
+        replay = self.audited(operation='reserve', key='key-437', amount_minor=437, operation_id='op-3', **extra)
         self.assertEqual(replay['outcome'], 'replayed')
         self.assertEqual(self.ledger.snapshot(PAYMENT), before)  # auditing a replay changes no business state
         events = self.ledger.audit_events()
@@ -336,6 +345,14 @@ class Test013AuditContent(EntrypointCase):
         stored = json.dumps(self.ledger.connection.execute('SELECT * FROM audit').fetchall())
         for forbidden in (secret, 's3cr3t', body, '4111111111111111', 'key-437', '437', TENANT):
             self.assertNotIn(forbidden, stored)
+        for request in (dict(operation='commit', record_id=first['record_id']), dict(operation='remaining'),
+                        dict(operation='cancel', record_id='r-9'), dict(operation='reserve', key='big', amount_minor=10**6)):
+            self.audited(operation_id='op-' + request['operation'], **request, **extra)
+
+    def test_copied_credential_copied_body_and_missing_row_are_detected(self):
+        for scenario in ('SCN-029', 'SCN-030', 'SCN-031'):
+            with self.subTest(scenario=scenario):
+                self.assertFalse(holds('CON-011', NODES[scenario]['data']['given']))
 
 
 class Test014Restart(LedgerCase):

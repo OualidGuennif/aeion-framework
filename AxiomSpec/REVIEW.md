@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.5.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the two sections after it editions 0.4.0 and 0.5.0. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.5.1 · 11 November 2026. The fourth review describes edition 0.3.1 and the two sections after it editions 0.4.0 and 0.5.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -115,7 +115,7 @@ Cancellation, commitment and audit output have no before/after observation. No r
 |---|---|---|---|
 | Release | `release.version`, `release.previous` | One version step after the named baseline | AX-M-017 |
 | Compatibility | `release.compatibility` | Each entry rests on an active answered Decision; a break states its migration | AX-M-017, AX-L-007 |
-| Weight | `project.weight_minor_units`, `weight_minor` on every requirement | 1 to 100 points in units of 1, 10 or 100; the risk label is the band of the weight | AX-M-018 |
+| Weight | `project.weight_minor_units`, `weight_minor` on every requirement | 1 to 100 points in units of 1, 10, 100 or, from 0.5.1, 1000; the risk label is the band of the weight | AX-M-018 |
 | Flag | `flags`, `flag_id` on requirements, `flag_states` on tests | Declared, owned, used, tested in both states for a must requirement, removed by its target version | AX-M-019 |
 | Release comparison | Gate G14, two documents | Identity and revision rules, classification by ID, recorded overrides, version step, change risk score | AX-L-006 to AX-L-009 |
 
@@ -137,7 +137,7 @@ Three items left open by 0.4.0 are closed.
 - **Commands on a record in the wrong state** have a requirement (REQ-009) and a decision (DEC-003): a repeated command is reported as already done, a contradictory one is refused, and neither changes the ledger.
 - **The tests run.** A reference implementation on SQLite and 32 test methods cover all 20 TestCases. Package QA resolves every binding by parsing, runs the tests and binds the receipt to the digest of every executed input. The concurrency test forces the interleaving and is also run against a variant without the transaction, which it must and does catch.
 
-The example now has two releases. Comparing them raises two breaking candidates, both new predicates on requirements 1.0.0 already had; DEC-004 records why they are compatible. The step is minor and the score is 179.25 of 592.5 active points.
+The example now has two releases. Comparing them raises two breaking candidates, both new predicates on requirements 1.0.0 already had; DEC-004 records why they are compatible. The step is minor and the score is 179.25 of 592.5 active points. *(0.5.1: three candidates, 194.25 points.)*
 
 ### What this edition does not establish
 
@@ -147,6 +147,19 @@ The example now has two releases. Comparing them raises two breaking candidates,
 - One specification is one file of at most one megabyte. References between specifications are undefined.
 - aeion-factory and aeion-core read format 0.1. The external `design_ready` result reported for 0.4.0 does not carry over to release 1.1.0.
 - This is still a review by the assistant that wrote the change.
+
+### Edition 0.5.1
+
+11 November 2026. Two changes and no new rule.
+
+- **A fourth weight unit.** `weight_minor_units` also accepts 1000, so 37.5 points can be written 37500 and `weight_minor` reaches 100000. This widens format 0.2 without renaming it: every 0.2 specification stays valid, and a checker built from edition 0.5.0 rejects one that uses 1000. The score keeps exact integers; its own unit is then 100000 per point.
+- **Audit output has scenarios.** REQ-007 had an executed test and no scenario. ENV-004 observes one attempt and the audit rows it added. CON-011 requires exactly one row, equal field by field to the attempt's identifier, operation kind and outcome. Of five scenarios, three are counterexamples: a row that copied the credential, a row that copied the request body, and a denied attempt that left no row. TEST-013 now evaluates CON-011 on rows read from the store for seven attempts across the four operations.
+
+Writing the predicate exposed one loose end in the implementation: an operation identifier longer than the 64 characters the audit row keeps was stored truncated. The entrypoint now refuses it as invalid.
+
+Release 1.1.0 of the example was amended in place, not followed by a 1.2.0. The example's releases illustrate the comparison; no one depends on them. A product would not do this. CON-011 is a third breaking candidate, accepted as compatible under the same DEC-004, and REQ-007 now counts at 50% instead of 10%: the score is 194.25 of 592.5 points.
+
+BCIR still has no substring operator. "No stored column contains the credential" remains an assertion in test code on the raw rows; CON-011 says the stronger thing that can be said in the formula language, which is what each field must equal.
 
 ## Confirmed findings and corrections
 

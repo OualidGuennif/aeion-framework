@@ -58,7 +58,7 @@ flowchart LR
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.5.0: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger in two releases, with a reference implementation and executed tests), a conformance corpus, a release comparison, a migration from format 0.1, package QA and its review records |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.5.1: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger in two releases, with a reference implementation and executed tests), a conformance corpus, a release comparison, a migration from format 0.1, package QA and its review records |
 | [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
 | [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
 | [`tools/check_repo.py`](tools/check_repo.py) | A check of this README and the playbooks (links, JSON examples, the specification draft), which the self-contained package QA cannot read |
@@ -67,7 +67,7 @@ The two playbooks are the source material Æion Factory 3.0.0 and Æion Core wer
 existing-project playbook is a verbatim copy; the specification draft in the new-project playbook was
 moved to format 0.2 in edition 0.5.0.
 
-The package is edition 0.5.0, with specification format `axiomspec/0.2`. Release, weights and flags
+The package is edition 0.5.1, with specification format `axiomspec/0.2`. Release, weights and flags
 are required fields, so a 0.1 specification is not valid 0.2: `AxiomSpec/qa/migrate_0_1.py` writes a
 candidate and lists what a person must still decide. Æion Factory and Æion Core vendor edition 0.3.0
 (this repository at commit `43cfb58`) and read format 0.1; they have not been moved yet. The

@@ -19,6 +19,7 @@ test_denied_attempts_satisfy_the_before_after_predicates (test_ledger.Test011Cro
 test_other_tenants_are_denied_and_learn_nothing (test_ledger.Test011CrossTenant.test_other_tenants_are_denied_and_learn_nothing) ... ok
 test_cancellation_releases_capacity_once_and_keeps_the_key (test_ledger.Test012Cancellation.test_cancellation_releases_capacity_once_and_keeps_the_key) ... ok
 test_audit_rows_hold_identifier_kind_and_outcome_only (test_ledger.Test013AuditContent.test_audit_rows_hold_identifier_kind_and_outcome_only) ... ok
+test_copied_credential_copied_body_and_missing_row_are_detected (test_ledger.Test013AuditContent.test_copied_credential_copied_body_and_missing_row_are_detected) ... ok
 test_crash_before_commit_leaves_nothing_and_the_retry_is_admitted (test_ledger.Test014Restart.test_crash_before_commit_leaves_nothing_and_the_retry_is_admitted) ... ok
 test_retry_after_restart_finds_the_record (test_ledger.Test014Restart.test_retry_after_restart_finds_the_record) ... ok
 test_new_key_is_admitted_beside_an_existing_record (test_ledger.Test015NewKeyAdmitted.test_new_key_is_admitted_beside_an_existing_record) ... ok
@@ -32,6 +33,6 @@ test_flag_is_the_one_the_specification_declares (test_ledger.Test020RemainingRep
 test_report_is_unavailable_and_discloses_nothing (test_ledger.Test020RemainingReportOff.test_report_is_unavailable_and_discloses_nothing) ... ok
 
 ----------------------------------------------------------------------
-Ran 32 tests in 2.182s
+Ran 33 tests in 2.205s
 
 OK

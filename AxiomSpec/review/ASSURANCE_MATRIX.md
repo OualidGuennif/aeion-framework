@@ -9,11 +9,11 @@ This is a manual scope map, not a product-gate report. Package pass means the li
 | G03 static semantics | Runtime checks in a reference subset; unit-annotation targets, effective-window shape and path-only collections | Complete BCIR type/unit analysis and qualified methods |
 | G04 authoring/decisions | Shape fields, templates, requirement-pattern consistency, weight range and risk band, flag on optional requirements | Blocking decisions and assumption semantics |
 | G05 state models | State/transition/guard references, terminal states and topological reachability | Executable effects before simulation or exploration claims |
-| G06 scenarios | 26 observations/79 expectations, seventeen of them before/after pairs; 100 seeded states and 200 seeded transitions in tests | General processing with qualified applicability and semantics |
+| G06 scenarios | 31 observations/84 expectations, seventeen of them before/after pairs and five of audit rows; 100 seeded states and 200 seeded transitions in tests | General processing with qualified applicability and semantics |
 | G07 test plan | Declared links, scenario-to-requirement agreement and a test in each flag state for a flagged must requirement | Required normal/negative/integration cases by risk, complete behavioral scenarios and oracles |
 | G08 context | Contract and closure algorithm | Engine, access control, pagination and omission tests |
 | G09 bindings/impact | Lexical checks; for the example, Python symbols resolved by parsing and every TestCase bound | Resolution for other languages, coverage, call relationships and unmapped-change handling |
-| G10 product tests | The example's 32 tests executed on local SQLite with a receipt bound to its inputs | Runner adapters, other stores, isolation and a trusted producer |
+| G10 product tests | The example's 33 tests executed on local SQLite with a receipt bound to its inputs | Runner adapters, other stores, isolation and a trusted producer |
 | G11 evidence | Local receipt consistency, hashes and detected-change checks | Independent producer/storage and product freshness qualification |
 | G12 authority | Explicit untrusted-local mode | Authenticated actors, trusted policy and scoped authorization |
 | G13 operation | No operational observations | Actual traces, coverage, timing and runtime checks |

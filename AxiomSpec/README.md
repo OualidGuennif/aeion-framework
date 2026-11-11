@@ -2,7 +2,7 @@
 
 Augmented specifications with explicit models, bounded constraints and traceable verification.
 
-**Edition 0.5.0 · 11 November 2026**  
+**Edition 0.5.1 · 11 November 2026**  
 Specification format: `axiomspec/0.2` · Profile: `AX-CORE-0.2` · Report format: `axiomspec-report/0.3`.
 
 This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example with a reference implementation and executed tests, reference observations, a reference release comparison, a migration from format 0.1 and package QA. It contains no product CLI, graph engine or runner adapter. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); it reads format 0.1 and this package's QA does not qualify it.
@@ -57,7 +57,7 @@ The [rule index](RULE_INDEX.md) links all normative `AX-*` rules. Schemas define
 
 The ledger is fictional. Its formulas have reference checks, and its 20 test cases run against a reference implementation on SQLite each time the package is verified. This package's QA emits no phase status, and the [walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md) lists what is still open.
 
-Edition 0.5.0 changes the core format to `axiomspec/0.2`: release, weights and flags are required fields. A 0.1 specification is not valid 0.2; `python3 qa/migrate_0_1.py` writes a candidate and lists what a person must still decide. Editions 0.3.1 and 0.4.0 kept format 0.1. The [review](REVIEW.md#edition-050) lists each change.
+Edition 0.5.0 changes the core format to `axiomspec/0.2`: release, weights and flags are required fields. A 0.1 specification is not valid 0.2; `python3 qa/migrate_0_1.py` writes a candidate and lists what a person must still decide. Edition 0.5.1 adds 1000 as a weight unit and audit scenarios to the ledger. Editions 0.3.1 and 0.4.0 kept format 0.1. The [review](REVIEW.md#edition-050) lists each change.
 
 Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
 

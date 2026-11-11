@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.5.0",
+  "edition": "0.5.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-11T05:12:22.633212+00:00",
+  "evaluated_at": "2026-11-11T09:02:59.516146+00:00",
   "tests": {
     "test_ids": [
       "test_fourth_review.CheckerDefects.test_add_creates_a_member_and_never_overwrites",
@@ -25,7 +25,9 @@
       "test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix",
       "test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf",
       "test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement",
+      "test_releases_weights_flags.ExampleEvidence.test_audit_predicate_fails_on_each_way_of_recording_too_much_or_too_little",
       "test_releases_weights_flags.ExampleEvidence.test_every_active_test_case_is_bound_resolved_and_executed",
+      "test_releases_weights_flags.ExampleEvidence.test_every_unflagged_requirement_has_a_scenario_a_hard_predicate_and_a_test_citing_a_scenario",
       "test_releases_weights_flags.ExampleEvidence.test_missing_unbound_or_unresolved_tests_are_rejected",
       "test_releases_weights_flags.ExampleEvidence.test_receipt_is_bound_to_the_inputs_it_executed",
       "test_releases_weights_flags.ExampleEvidence.test_symbols_are_resolved_by_parsing",
@@ -48,7 +50,7 @@
       "test_releases_weights_flags.ReleaseComparison.test_environment_changes",
       "test_releases_weights_flags.ReleaseComparison.test_flag_changes",
       "test_releases_weights_flags.ReleaseComparison.test_identity_and_revision_rules",
-      "test_releases_weights_flags.ReleaseComparison.test_ledger_release_1_1_0_is_a_minor_step_with_two_recorded_overrides",
+      "test_releases_weights_flags.ReleaseComparison.test_ledger_release_1_1_0_is_a_minor_step_with_three_recorded_overrides",
       "test_releases_weights_flags.ReleaseComparison.test_model_term_and_decision_changes",
       "test_releases_weights_flags.ReleaseComparison.test_requirement_changes",
       "test_releases_weights_flags.ReleaseComparison.test_retired_id_is_never_brought_back",
@@ -119,7 +121,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 106,
+    "tests_run": 108,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -129,11 +131,11 @@
   "inputs": [
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511"
+      "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa"
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "d40b87f6b7d7e2f50cfae42dc192d0c17f824259a6d9ba1c6f0049cde6de3b2b"
+      "sha256": "ba8e39a2bf9bc9d080dc7c17e26b72d33e6105b7ad7709c62d268223edf55c90"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -141,7 +143,7 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "2871264c343d9b30dc36ae7b08fbb6e1e4ed16963994bf88c7da42f150d9f496"
+      "sha256": "49295cc11ab9a6ed3b890f0babdb0572bf08b44e661f321a642b157654d1b2b1"
     },
     {
       "path": "examples/refund-ledger/releases/1.0.0.json",
@@ -149,11 +151,11 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63"
+      "sha256": "96b4dca9b86ed49764e3acbff79cd0854100472bef468422f1a69a2adbc396df"
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604"
+      "sha256": "cecb4c86c89de95fef38cbc78fb5feccb66d7e192d2f659581b5566425f384d3"
     },
     {
       "path": "fixtures/conformance.json",
@@ -169,7 +171,7 @@
     },
     {
       "path": "qa/migrate_0_1.py",
-      "sha256": "4b65123019063394e14ef41a8792613ce04aac859846625c2c14e6064e39360e"
+      "sha256": "83b433272947f71fe25a1afe08ee8659428cf8a4ad7e7298331b4a9419ee30b6"
     },
     {
       "path": "qa/release_diff.py",
@@ -181,7 +183,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "838ccc3327cec5bd4e357910eaa15ff22958c2617059ae3a3db844f19ab60db6"
+      "sha256": "71ea57d5856df1f85abe665ab6e271f9d61f843051e9d60095d6c8494d99669f"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -189,11 +191,11 @@
     },
     {
       "path": "qa/test_releases_weights_flags.py",
-      "sha256": "476d79a0ba67c4cbc8243ef8b31ccfddd0640b58cd7b3040438fbb24a34cb591"
+      "sha256": "590be854d68afe03a18ad1c68d45ac8e254510b900661ffdc59ee21e31f2a340"
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "7bed81147bd475186feb076d37edd3fc906651f899fef54f7c976a51ef012d33"
+      "sha256": "af10376898c203c36ab81307faca4e060529b198bfb90055b5919c8dbd471fb4"
     },
     {
       "path": "qa/test_second_review.py",
@@ -201,7 +203,7 @@
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "a303b0208afb4988175e5880fe9fbdb36aa4508f6db827023a39639cb605fb55"
+      "sha256": "ce1f25eff588b11424044b26133f9ee2adaf2be07d84084c31fd379b867cdee3"
     },
     {
       "path": "qa/test_transition_scenarios.py",
@@ -221,7 +223,7 @@
     },
     {
       "path": "schemas/spec.schema.json",
-      "sha256": "e6d22627841340c770d97058b7b9e73d52f378bc25a992b86c692035147e4ea6"
+      "sha256": "d529053da4a74d096ce10067d60ebb78781e183209399049ff5b6fb5d053b770"
     }
   ],
   "toolchain": {
@@ -240,7 +242,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "e4acc11041c62e516c1b775fa058aefe77ba103b48f433a86de132227f6dc3f2"
+    "sha256": "7b13990a8272bcf477dc536e6f0cd95c2761bf7fdaee0a2e25b188bb6fbe6fe4"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

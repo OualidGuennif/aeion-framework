@@ -43,7 +43,7 @@ V-101-103 cover parsing/confinement; 104-108 types, units, budget and missing da
 
 ## Observations and regressions
 
-Twenty-six observations carry 79 Boolean expectations: nine ledger snapshots for the five BCIR constraints of ENV-001, eight before/after observations of a reservation attempt for the two of ENV-002, and nine of a cancel or commit command for the two of ENV-003. Require one observation per canonical Scenario and one expectation per active BCIR constraint in its environment. Reject duplicate/missing cases or expectations removed from both copies. This establishes declared-corpus coverage, not completeness of the business model.
+Thirty-one observations carry 84 Boolean expectations: nine ledger snapshots for the five BCIR constraints of ENV-001, eight before/after observations of a reservation attempt for the two of ENV-002, nine of a cancel or commit command for the two of ENV-003, and five of the audit rows one attempt added for the one of ENV-004. Require one observation per canonical Scenario and one expectation per active BCIR constraint in its environment. Reject duplicate/missing cases or expectations removed from both copies. This establishes declared-corpus coverage, not completeness of the business model.
 
 The reference evaluator does not implement complete static typing, unit analysis or reachability. Package self-checks and review regressions cover specific defects. The 500-row uniqueness test expects an explicit budget limit; it does not claim the performance issue is fixed.
 

@@ -175,9 +175,9 @@ class Ledger:
 
 def handle(ledger, principal, request):
     """Public entrypoint: one command as a dict in, one result as a dict out. Unknown fields are ignored."""
-    text = lambda name: isinstance(request.get(name), str) and 0 < len(request[name]) <= 256
+    text = lambda name, limit=256: isinstance(request.get(name), str) and 0 < len(request[name]) <= limit
     operation = request.get('operation')
-    common = text('tenant_id') and text('payment_id') and text('operation_id')
+    common = text('tenant_id') and text('payment_id') and text('operation_id', 64)  # the audit row keeps 64
     if operation == 'reserve' and common and text('key') and type(request.get('amount_minor')) is int:
         result = ledger.reserve(principal, request['tenant_id'], request['payment_id'], request['key'],
                                 request['amount_minor'], request['operation_id'])

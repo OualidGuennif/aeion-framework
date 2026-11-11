@@ -124,7 +124,8 @@
           "enum": [
             1,
             10,
-            100
+            100,
+            1000
           ]
         }
       },
@@ -667,7 +668,7 @@
                   "weight_minor": {
                     "type": "integer",
                     "minimum": 1,
-                    "maximum": 10000
+                    "maximum": 100000
                   },
                   "flag_id": {
                     "anyOf": [

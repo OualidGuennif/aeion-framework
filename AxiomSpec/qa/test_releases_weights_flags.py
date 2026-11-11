@@ -56,15 +56,20 @@ class WeightsInMinorUnits(Ledger):
                     self.assertEqual(self.errors(), [] if label == band else ['RISK_BAND_MISMATCH'])
 
     def test_same_weights_are_valid_in_each_unit(self):
-        # 1 unit: 70 is 70 points. 100 units: 7000 is 70 points. The value, not the integer, carries the meaning.
-        for units in (1, 10, 100):
+        # 1 unit: 70 is 70 points. 1000 units: 70000 is 70 points. The value, not the integer, carries the meaning.
+        validator = qa.make_validator(qa.read('schemas/spec.schema.json'))
+        for units in (1, 10, 100, 1000):
             with self.subTest(units=units):
                 spec = qa.read(SPEC)
                 spec['project']['weight_minor_units'] = units
                 for node in spec['nodes']:
                     if node['kind'] == 'Requirement':
                         node['data']['weight_minor'] = node['data']['weight_minor'] * units // 10
+                self.assertTrue(validator.is_valid(spec))
                 self.assertEqual(qa.reference_errors(spec), [])
+        self.node('REQ-004', spec)['data']['weight_minor'] = 100001  # 100.001 points at 1000 units per point
+        self.assertEqual(qa.reference_errors(spec), ['WEIGHT_RANGE'])
+        self.assertEqual(qa.weight_band(25001, 1000), 'medium')
         self.assertEqual(qa.weight_band(26, 1), qa.weight_band(260, 10))
         self.assertEqual(qa.weight_band(25, 1), 'low')
         self.assertEqual(qa.weight_band(2501, 100), 'medium')
@@ -209,18 +214,18 @@ class ReleaseComparison(unittest.TestCase):
     def level(self, report, subject_id):
         return next(c['level'] for c in report['changes'] if c['subject_id'] == subject_id)
 
-    def test_ledger_release_1_1_0_is_a_minor_step_with_two_recorded_overrides(self):
+    def test_ledger_release_1_1_0_is_a_minor_step_with_three_recorded_overrides(self):
         report = diff.compare(self.base, qa.read(SPEC))
         self.assertEqual((report['status'], report['declared_step'], report['required_step']), ('pass', 'minor', 'minor'))
         overridden = {c['subject_id']: c['accepted_as'] for c in report['changes'] if c['breaking_candidate']}
-        self.assertEqual(overridden, {'CON-009': 'compatible', 'CON-010': 'compatible'})
+        self.assertEqual(overridden, dict.fromkeys(('CON-009', 'CON-010', 'CON-011'), 'compatible'))
         self.assertEqual(report['counts']['major'], 0)
         self.assertEqual(report['risk']['weight_minor_units'], 10)
         self.assertEqual(report['risk']['unmapped_changes'], [])
         # Without the recorded decision the same release does not pass.
         candidate = qa.read(SPEC)
         candidate['release']['compatibility'] = []
-        # Unacknowledged, the two candidates also count as breaking, so the minor step is too small.
+        # Unacknowledged, the three candidates also count as breaking, so the minor step is too small.
         self.assertEqual(set(self.codes(diff.compare(self.base, candidate))), {'UNACKNOWLEDGED_BREAKING', 'VERSION_BUMP_TOO_SMALL'})
 
     def test_unchanged_content_requires_no_step_and_scores_zero(self):
@@ -501,6 +506,15 @@ class ReleaseComparison(unittest.TestCase):
         others = sum(n['data']['weight_minor'] for n in self.base['nodes'] if n['kind'] == 'Requirement') - 950
         self.assertEqual(b['score_minor'], 9500 * 100 + others * 10 * 10)
         self.assertEqual(b['score_minor_units'], 10000)
+        finest = copy.deepcopy(coarse)
+        finest['project']['weight_minor_units'] = 1000
+        for node in finest['nodes']:
+            if node['kind'] == 'Requirement':
+                node['data']['weight_minor'] *= 100
+                node['revision'] = self.node(self.base, node['id'])['revision'] + 1
+        c = diff.compare(self.base, finest)['risk']
+        self.assertEqual((c['weight_minor_units'], c['score_minor_units']), (1000, 100000))
+        self.assertEqual((c['score_minor'], c['exposure_permille']), (b['score_minor'] * 10, b['exposure_permille']))
 
     def test_command_line_reports_pass_fail_and_input_errors(self):
         import contextlib, io
@@ -561,7 +575,7 @@ class Migration(unittest.TestCase):
     def test_unsupported_input_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'Unsupported source format'):
             migration.migrate(qa.read(BASE), '1.0.0')
-        with self.assertRaisesRegex(ValueError, '1, 10 or 100'):
+        with self.assertRaisesRegex(ValueError, '1, 10, 100 or 1000'):
             migration.migrate(self.source(), '1.0.0', 5)
 
     def test_command_line_never_overwrites(self):
@@ -584,6 +598,27 @@ class ExampleEvidence(unittest.TestCase):
     def setUp(self):
         self.spec = qa.read(SPEC)
         self.ids = [f"test_ledger.{b['symbol']}.test_case" for b in self.spec['bindings'] if b['kind'] == 'test']
+
+    def test_every_unflagged_requirement_has_a_scenario_a_hard_predicate_and_a_test_citing_a_scenario(self):
+        # The audit requirement (REQ-007) had an executed test and no scenario until edition 0.5.1.
+        nodes = {n['id']: n for n in self.spec['nodes']}
+        linked = lambda relation, target: [e['from'] for e in self.spec['edges'] if (e['relation'], e['to']) == (relation, target)]
+        for requirement in (n for n in nodes.values() if n['kind'] == 'Requirement' and n['data']['flag_id'] is None):
+            with self.subTest(requirement=requirement['id']):
+                self.assertTrue(linked('illustrates', requirement['id']))
+                self.assertTrue(any(nodes[c]['data']['classification']['strength'] == 'hard'
+                                    for c in linked('formalizes', requirement['id'])))
+                self.assertTrue(any(nodes[t]['data']['witness_scenario_ids'] for t in linked('verifies', requirement['id'])))
+
+    def test_audit_predicate_fails_on_each_way_of_recording_too_much_or_too_little(self):
+        attempt = dict(operation_id='op-1', operation='reserve', outcome='denied')
+        expression = next(n for n in self.spec['nodes'] if n['id'] == 'CON-011')['data']['expression']
+        holds = lambda rows: qa.ReferenceEvaluator().evaluate(expression, dict(attempt=attempt, added=rows))
+        self.assertTrue(holds([dict(attempt)]))
+        self.assertFalse(holds([]))
+        self.assertFalse(holds([dict(attempt), dict(attempt)]))
+        for field in attempt:
+            self.assertFalse(holds([dict(attempt, **{field: attempt[field] + ' Bearer s3cr3t'})]))
 
     def test_symbols_are_resolved_by_parsing(self):
         app = ROOT / 'examples/refund-ledger/app/ledger.py'

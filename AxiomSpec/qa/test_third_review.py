@@ -79,7 +79,7 @@ class ThirdReview(unittest.TestCase):
             for field in ['nodes', 'edges', 'actors', 'sources', 'bindings']:
                 rng.shuffle(spec[field])
             self.assertEqual(qa.reference_errors(spec), [])
-            self.assertEqual(qa.check_observation_corpus(spec, observations), (26, 79))
+            self.assertEqual(qa.check_observation_corpus(spec, observations), (31, 84))
 
     def test_100_seeded_states_match_direct_domain_oracles(self):
         spec = qa.read('examples/refund-ledger/spec.json')
