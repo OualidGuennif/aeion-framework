@@ -20,7 +20,26 @@ Published work motivates the approach. The canonical format, BCIR, gate names, q
 | Model constraints | OCL defines constraints over models [R-10] | Reuse qualified adapters when appropriate; do not claim BCIR is OCL |
 | Context design | CDCE characterizes constraints, context assets and representations [R-18] | Separate guidance, enforcement and verification with explicit provenance |
 
-The CDCE preprint uses comparative cases. It is not a causal benchmark of coding productivity or a proof of a deterministic engine. Its formalization holds some categories fixed while refining institutional constraints; this package permits governed revision of any rule category.
+The CDCE preprint uses comparative cases. It is not a causal benchmark of coding productivity or a proof of a deterministic engine. Its formalization holds some categories fixed while refining institutional constraints; this package permits governed revision of any rule category. Its explicitness axis is explicit/implicit and it names four categories; this package records an implicit constraint once it has been `elicited` and adds a `domain` category.
+
+## Later empirical context
+
+These studies were found in a literature check on 10-11 November 2026, after the design. They were not inputs to it. Only their abstracts were read, and most are preprints. Each is listed because it measures a failure that one of the rules is meant to prevent; none evaluates AxiomSpec.
+
+| Observation in the study | Rule it bears on |
+|---|---|
+| Repository context files generally did not raise coding-agent task success and raised inference cost by over 20% on average; agents followed the instructions, and repository overviews did not help [R-21] | AX-P-010, AX-K-007: deliver the required closure, not every document |
+| A benchmark makes the tests contradict the stated task, so every pass is a shortcut that violates the specification; it measures how often agents take one [R-22] | AX-D-003: an expected result changes only with a justified correction |
+| An agent scored near-perfectly on a hidden test oracle while the library it was asked to build was dead or absent [R-26] | AX-P-006, AX-ACT-002: a passing check answers only the question it asks |
+| Generated tests mostly capture what the code does rather than what it should do, which limits bug detection [R-23] | AX-A-005, AX-T-002: write expectations from requirements before seeing output |
+| Writing pre-conditions, post-conditions and undefined behavior first improved bug detection by 9.8 percentage points and branch coverage by 2.5 over a test-generation baseline on production bugs [R-24] | AX-T-001: derive the oracle from a stated contract |
+| Requirement IDs cited in generated code were the only studied condition under which deviations from the specification were detected automatically, at a cost in output determinism [R-25] | AX-M-003, AX-M-014: stable IDs and bindings make a missing link visible |
+| Logged agent trajectories missed every needed file on 27-35 percent of samples, and no retrieval family dominated [R-27] | AX-K-004, AX-K-010: report omissions and unmapped changes, not only hits |
+| Strong code generation did not imply good clarifying questions, and clarification degraded as ambiguity density rose [R-28] | AX-A-003: an unanswered material decision is recorded and blocks |
+| Across 114 spec-driven repositories scored against ISO/IEC/IEEE 29148, the top third by specification quality had 11.8% bug-fix commits against 20.4% for the bottom third; a correlation [R-29] | AX-A-002: observable obligations; an external quality yardstick |
+| A survey of agent execution provenance finds little reporting of tamper-evident traces and no benchmark for the whole evidence chain [R-30] | AX-G-011: a local receipt is consistent, not authenticated |
+
+The agreement is in direction, not in proof. Several results are single studies, one is a single-author preprint [R-25] and one reports 18 runs [R-26]. They justify measuring these failures in a pilot; they do not show that this package prevents them.
 
 ## Engineering disciplines
 
@@ -48,6 +67,23 @@ References use titles and identifiers. Access limitations matter: a public abstr
 | R-14 | [Gherkin reference](https://cucumber.io/docs/gherkin/reference/) | Scenario syntax; execution requires implemented steps |
 | R-15 | [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) | Existing JSON canonicalization reference; the package defines a restricted profile |
 | R-18 | [Constraint-Driven Context Engineering: Designing Domain Interfaces for AI Systems](https://arxiv.org/html/2609.27354v1), 2026 | Context design; relevant sections, cases and discussion consulted; preprint |
+
+## Later empirical references
+
+Abstract pages only, read on 10-11 November 2026. Titles and figures are as stated there.
+
+| ID | Publication | Status |
+|---|---|---|
+| R-21 | [Evaluating AGENTS.md: Are Repository-Level Context Files Helpful for Coding Agents?](https://arxiv.org/abs/2602.11988), 2026 | Preprint |
+| R-22 | [ImpossibleBench: Measuring LLMs' Propensity of Exploiting Test Cases](https://arxiv.org/abs/2510.20270), 2025 | Preprint |
+| R-23 | [Can we find bugs using LLM-generated oracles?](https://arxiv.org/abs/2410.21136), 2024, revised 2026 | Preprint |
+| R-24 | [Grounding AI Agents in Contracts: An Empirical Evaluation of Spec-Driven Test Generation](https://arxiv.org/abs/2608.17177), 2026 | SpecOps 2026 workshop |
+| R-25 | [Citation Discipline in Spec-Driven Development](https://arxiv.org/abs/2606.30689), 2026 | Single-author preprint |
+| R-26 | [Building to the Test: Coding Agents Deliver What You Check, Not What You Requested](https://arxiv.org/abs/2606.28430), 2026 | Preprint; 18 runs |
+| R-27 | [Agent Retrieval Bench: Evaluating Repository Context Retrieval for Coding Agents](https://arxiv.org/abs/2607.24882), 2026 | Preprint |
+| R-28 | [ClarifyCodeBench: Evaluating LLMs on Clarifying Ambiguous Requirements for Code Generation](https://arxiv.org/abs/2607.00711), 2026 | Preprint |
+| R-29 | [The EPIC Framework for Spec-Driven Development](https://arxiv.org/abs/2610.07534), 2026 | Preprint |
+| R-30 | [From Agent Traces to Trust: A Survey of Evidence Tracing and Execution Provenance in LLM Agents](https://arxiv.org/abs/2606.04990), 2026 | Preprint |
 
 ## CROA sources
 

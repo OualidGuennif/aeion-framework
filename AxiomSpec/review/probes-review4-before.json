@@ -1,0 +1,88 @@
+{
+  "format": "axiomspec-review4-probes/0.1",
+  "scope": "package_checker",
+  "baseline_edition": "0.3.0",
+  "baseline_checker_sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100",
+  "results": [
+    {
+      "probe": "witness_scenario_not_illustrating",
+      "rule": "AX-G-007",
+      "reference_errors": [],
+      "result": "accepted",
+      "violations_in_shipped_example": 12
+    },
+    {
+      "probe": "must_requirement_satisfies_draft_goal",
+      "rule": "AX-G-003",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "constraint_formalizes_draft_requirement",
+      "rule": "AX-G-003",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "event_pattern_without_trigger",
+      "rule": "AX-M-006",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "reversed_effective_window",
+      "rule": "AX-C-013",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "non_utc_effective_bound",
+      "rule": "AX-C-013",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "transition_id_without_trn_prefix",
+      "rule": "AX-M-003",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "product_baseline_without_active_goal",
+      "rule": "AX-G-003",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "asset_binding_locator_disagrees",
+      "rule": "AX-X-002",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "unit_annotation_on_missing_path",
+      "rule": "AX-C-008",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "conflicting_unit_annotations",
+      "rule": "AX-C-008",
+      "reference_errors": [],
+      "result": "accepted"
+    },
+    {
+      "probe": "mutation_add_on_array_index",
+      "rule": "fixture mutation contract",
+      "result": "replaced_existing_element",
+      "actors_before": 2,
+      "actors_after": 2
+    },
+    {
+      "probe": "local_link_with_wrong_letter_case",
+      "rule": "AX-S-001 portability",
+      "result": "accepted",
+      "note": "Accepted only on a case-insensitive filesystem; the same link is broken on a case-sensitive one."
+    }
+  ]
+}

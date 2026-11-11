@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.3.0 · 9 November 2026.
+Edition 0.3.1 · 11 November 2026. Sections below the fourth review describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -9,6 +9,64 @@ Edition 0.3.0 · 9 November 2026.
 The useful core is explicit requirements, stable IDs, typed links, named decisions and evidence tied to revisions. Those mechanisms are worth testing on a real change. Generality, lower maintenance cost and reliability at scale remain hypotheses.
 
 This review checked contracts against schemas, reference data, checker behavior, test receipts and distribution artifacts. It used isolated fault injection, ordering checks and direct calculations rather than treating previous green reports as proof. It is a third review by the same assistant, not an independent external assessment.
+
+## Fourth review
+
+11 November 2026. A fourth pass by an assistant, again not an independent external assessment. It read every contract, schema, fixture and QA program, mutated the reference ledger against each stated rule, and compared the contracts with the engine that aeion-factory 3.0.0 built from them. That engine is separate code by a separate implementation effort; it is used here as a cross-check, not as an authority.
+
+### Stated rules that nothing checked
+
+Each row is a rule already in the contracts. Before correction the reference checks accepted a ledger that broke it; the [before-correction probes](review/probes-review4-before.json) record that.
+
+| Rule | Accepted before correction | Diagnostic now |
+|---|---|---|
+| AX-G-007 | A test citing scenarios that illustrate none of the requirements it verifies; **twelve such references in the shipped example** | SCENARIO_NOT_ILLUSTRATING |
+| AX-G-003 | A must requirement whose only goal is draft; a constraint whose only requirement is draft; a product baseline with no active goal | REQUIREMENT_PROVENANCE, UNLINKED_CONSTRAINT, EMPTY_BASELINE |
+| AX-M-006 | An `event` requirement with no trigger, or any pattern with a field it does not use | PATTERN_FIELDS |
+| AX-C-013 | A reversed or empty effective window; a bound with a non-UTC offset | INVALID_WINDOW |
+| AX-M-003 | A transition ID without the `TRN-` prefix | WRONG_PREFIX |
+| AX-C-008 | A unit annotation on a missing path or a non-integer; two units for one path | UNIT_ANNOTATION |
+| AX-X-002 | A `binding:` locator naming an unknown binding or disagreeing with `binding_id` | UNKNOWN_ASSET_LOCATOR, ASSET_BINDING_MISMATCH |
+
+### Checker defects
+
+| Finding | Before correction | Correction |
+|---|---|---|
+| Local links were compared through the filesystem | A link whose letter case differs from the file name passed on a case-insensitive disk and breaks on a case-sensitive one | Compare each path component with the directory listing |
+| Mutation `add` on an array index | Silently replaced the existing element | `add` creates a new object member only; `replace` and `append` cover the rest |
+
+### Worked example
+
+- Removed the twelve scenario references above. The tests keep the scenarios that do illustrate their requirements; TEST-013 keeps none, because no audit scenario exists.
+- Removed 25 `uses_term` links. All seven requirements were linked to all five terms with one shared rationale, so a context closure for any requirement returned the whole vocabulary. Ten links remain, each to a term the requirement's wording relies on.
+- REQ-007 (audit output without credentials) was linked to the capacity goal to satisfy AX-G-003. It now satisfies a new GOAL-003 about non-disclosure.
+- The canonical digest changed to `af5192c2...`; the CROA sidecar pins the new value. Node and edge positions used by the conformance vectors are unchanged.
+
+Run on the corrected ledger, the aeion-factory engine computes the same canonical digest, matches all 45 reference expectations, passes G01-G06 and fails G07 on two diagnostics: REQ-003 and REQ-004 have no normal case. Before the correction it reported fourteen.
+
+### Contract changes
+
+Four clarifications where the text was silent and the engine had to choose; each follows the engine's choice and the example already complies:
+
+- AX-C-010: the root expression is at depth 0.
+- AX-C-013: a rule outside its window is not evaluated; a required check that depends on it is unknown.
+- AX-C-005: a collection is a declared environment array. Literal arrays as collections are left undecided (see below).
+- AX-G-007: for a requirement that itself states a refusal, the normal case is a nearby request that must still succeed.
+
+The conformance document also states that a fixture `add` creates a new object member.
+
+One addition, AX-G-005: a terminal state has no outgoing transition and every state is reachable from the initial state. `terminal` was a required field with no stated meaning. The example and three specifications in sibling repositories already satisfy it. This tightens profile `AX-CORE-0.1` without renaming it; an implementation built from 0.3.0 does not check it yet.
+
+### Left open
+
+1. **Literal arrays as collections.** AX-C-003 gives a bound variable "the element type", which a literal array has; the reference evaluator and one QA self-check use a literal collection; the aeion-factory analyzer rejects it. The contract now says a portable specification avoids it. A profile revision should decide.
+2. **Binding kinds and node kinds.** AX-M-014 does not say which node kinds a `code`, `test` or `observation` binding may target; only `enforcement` is constrained, through the Constraint that names it. A `test` binding on a Requirement is accepted.
+3. **Repeated edges.** Two edges with the same source, relation and target and different IDs are accepted. AX-K-001's sort order tolerates them; no rule says whether they are meaningful.
+4. **Behavior over time.** Every scenario is one snapshot evaluated by snapshot predicates. Retry, refusal-without-mutation and recovery need a before and an after. This is why the ledger's remaining G07 gaps cannot be closed by adding links. An environment holding both states, with `observation_assertion` constraints over the pair, would express them inside the current format; it has not been tried.
+
+### Literature check
+
+Google Scholar and arXiv were searched on 10-11 November 2026 for work on specification-driven development, requirement traceability, test oracles and agent context. Ten studies were added to [Foundations](docs/01_FOUNDATIONS.md) as later context, from their abstracts only. The five arXiv links already cited were reloaded and match. No study evaluates this package, and none changes a rule.
 
 ## Confirmed findings and corrections
 
@@ -34,11 +92,12 @@ The suite retains earlier cases and adds:
 - portable links, read/write symlinks and detected source changes;
 - selected reference checks under five deterministic order permutations;
 - 100 seeded ledger states checked against five direct domain calculations;
-- CROA evidence eligibility, retired mappings and method ownership.
+- CROA evidence eligibility, retired mappings and method ownership;
+- fourth review: one case per stated rule listed above, all eight field combinations of all six requirement patterns, window boundaries, state topology, letter-case links and the `add` mutation.
 
 The 45 hand-authored reference expectations and ten mutation vectors remain separate from the regression-suite count. Thirty future product obligations remain unexecuted. The additional states exercise formulas, not the ledger application.
 
-See [VALIDATION.md](VALIDATION.md), [raw output](review/regression-output.txt) and the [assurance matrix](review/ASSURANCE_MATRIX.md) for current results and scope. The archive was extracted into a different directory with spaces and the shipped verification command passed there with the same tested code/data input inventory; see the [portability record](review/portability-run.json). This is a same-platform check, not cross-platform qualification. The final archive and manifest include the resulting evidence records.
+See [VALIDATION.md](VALIDATION.md), [raw output](review/regression-output.txt) and the [assurance matrix](review/ASSURANCE_MATRIX.md) for current results and scope. The package was copied into a different directory with spaces and the shipped verification command passed there with the same tested code/data input inventory; see the [portability record](review/portability-run.json), repeated for edition 0.3.1. This is a same-platform check, not cross-platform qualification. The final archive and manifest include the resulting evidence records.
 
 ## Global design assessment
 
@@ -64,8 +123,8 @@ The optional sidecar carries selected readiness inputs and evidence links, with 
 
 1. **Ledger design readiness:** authorized-access, retry, invalid-transition and recovery cases need full behavioral oracles. Its 14 application tests remain planned. No design_ready status is emitted.
 2. **Evaluation cost:** CON-004 is quadratic and exhausts the reference budget at 500 rows although the environment admits 1,000. This remains unknown, not pass. Qualify the algorithm and its declared budget together before claiming the full bound.
-3. **Engine implementation:** complete static analysis, graph/query APIs, real binding resolution, product runners, trusted identity and operational evidence are absent. The matrix lists gaps per gate.
-4. **External validity:** no second product domain, independent assessor or comparative study establishes generality or scale benefits.
+3. **Engine implementation:** complete static analysis, graph/query APIs, real binding resolution, product runners, trusted identity and operational evidence are absent from this package. The matrix lists gaps per gate. *(0.3.1: aeion-factory 3.0.0 implements G01-G07, graph queries, context packets and one test adapter outside this package; it reports identity, policy and runtime observation as unsupported. This package does not qualify it.)*
+4. **External validity:** no independent assessor or comparative study establishes generality or scale benefits. *(0.3.1: aeion-factory carries a second domain as a field test, a holiday planner built by a coding agent against a checked specification. It is the authors' own demonstration, not a comparative study.)*
 
 These are qualification work, not problems solved by another editorial review.
 

@@ -53,7 +53,7 @@ A blocking active Decision with null answer prevents design readiness. So does a
 
 ### AX-G-005 — State models
 
-Require existing initial state, unique state names and transition IDs, valid endpoints and compatible guards. Topological reachability ignores guard feasibility. Simulation, determinization and exhaustive exploration are additional capabilities; descriptive effects do not support those claims.
+Require existing initial state, unique state names and transition IDs, valid endpoints and compatible guards. A terminal state has no outgoing transition, and every state is reachable from the initial state along declared transitions. Topological reachability ignores guard feasibility: a reachable state in the drawing may still be unreachable in behavior. Simulation, determinization and exhaustive exploration are additional capabilities; descriptive effects do not support those claims.
 
 ### AX-G-006 — Scenarios
 
@@ -63,7 +63,7 @@ Validate given data against its environment and referenced expectations against 
 
 Each active must requirement has an active TestCase with an explicit oracle. High/critical requirements need normal and negative behavior cases, plus integration or E2E verification appropriate to the behavior. Policy adds relevant concurrency, authorization and recovery obligations.
 
-`TestCase.negative` distinguishes normal cases from refusal/violation cases. Its referenced scenarios must illustrate the requirement being verified. `Scenario.intent` is a different axis: admissible state or counterexample. A shared link or snapshot alone does not establish a meaningful retry/recovery oracle. This gate checks the plan; G10 checks real execution.
+`TestCase.negative` distinguishes normal cases from refusal/violation cases. For a requirement that itself states a refusal (pattern `unwanted`), the negative case is the trigger firing and the normal case is a nearby admissible request that must still succeed; a refusal rule tested only by refusals does not show that it refuses the right requests. Its referenced scenarios must illustrate the requirement being verified. `Scenario.intent` is a different axis: admissible state or counterexample. A shared link or snapshot alone does not establish a meaningful retry/recovery oracle. This gate checks the plan; G10 checks real execution.
 
 ### AX-G-008 — Digests
 

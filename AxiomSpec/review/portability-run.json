@@ -2,17 +2,17 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-09T19:08:36.315470+00:00",
+  "evaluated_at": "2026-11-10T23:59:45.733014+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 47,
+  "test_count": 60,
   "tested_inputs": [
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55"
+      "sha256": "a0c90977967a6bf9fd8cdce25dea95d625433f8e4ec610fe3d1386e3350bd02a"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -24,7 +24,7 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e"
+      "sha256": "b73c43a36b3a6ad7d7ee81ccc433746e05bb28ab4beff8cedee8b879bb1aa25c"
     },
     {
       "path": "fixtures/conformance.json",
@@ -32,7 +32,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100"
+      "sha256": "598f10396e4df2c08924eecedd87069f5ae6c35980c75cb2cb809c08c10df2a4"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -44,7 +44,11 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3"
+      "sha256": "10cec6dbc443e5b2ee9dc854b57ee757c5b835554a82bb124f93ab27d2849e03"
+    },
+    {
+      "path": "qa/test_fourth_review.py",
+      "sha256": "4f264e67a27dde241eab70fbf102544d4e398750f5479c69e958fbecb2601409"
     },
     {
       "path": "qa/test_review_regressions.py",
@@ -76,7 +80,7 @@
     }
   ],
   "toolchain": {
-    "python": "3.12.14",
+    "python": "3.12.8",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",

@@ -49,7 +49,7 @@ A qualified optimized adapter must preserve completed Boolean/error semantics an
 
 ### AX-C-005 — Aggregates
 
-Collection is finite; filter is Boolean. `sum` adds integer projections in a common unit, preserving duplicates. Empty sum is zero in the statically established projection unit. `count` counts retained elements and requires projection to be the literal integer 1. Validate all intermediate integers against the safe range; overflow is an error.
+Collection is finite; filter is Boolean. Bind a declared environment array reached by a path. Whether a literal array may serve as a collection is undecided in this profile: the package reference evaluator accepts one and the first engine rejects it. An implementation may refuse it; a portable specification does not use it. `sum` adds integer projections in a common unit, preserving duplicates. Empty sum is zero in the statically established projection unit. `count` counts retained elements and requires projection to be the literal integer 1. Validate all intermediate integers against the safe range; overflow is an error.
 
 ### AX-C-006 — Quantifiers
 
@@ -96,7 +96,7 @@ Invalid input is not downgraded to unknown. A valid unsupported extension may be
 | Steps per evaluation | 1,000,000 |
 | Bounded exploration combinations | 100,000 |
 
-Count a step per expression-node visit and collection iteration. Reset per evaluation. Record actual bounds. A wall-clock timeout never yields pass. Larger limits require explicit configuration and qualification.
+Count a step per expression-node visit and collection iteration. Reset per evaluation. Depth counts nesting from the root expression, which is at depth 0; a node at depth 25 exceeds the default. Record actual bounds. A wall-clock timeout never yields pass. Larger limits require explicit configuration and qualification.
 
 These bounds do not promise completion for every structurally valid input. The reference uniqueness constraint CON-004 is quadratic: 500 ledger rows exceed the default step budget although the environment permits 1,000. Preserve unknown on exhaustion. Qualify the algorithm and its declared work budget together before claiming full-bound coverage; either an explicit measured budget or a versioned equivalent method needs evidence. Never raise a bound silently.
 
@@ -131,4 +131,4 @@ Record solver version, logic, assumptions, domain, timeout and status when an ad
 
 ### AX-C-013 — Effective window
 
-An active rule applies when `effective_from <= evaluated_at < effective_until`, with null bounds open. Validate UTC instants and reject empty or reversed intervals. If a bound exists and evaluation time is missing, applicability is unknown. Out-of-window is not pass. Observation freshness is a separate condition.
+An active rule applies when `effective_from <= evaluated_at < effective_until`, with null bounds open. Validate UTC instants and reject empty or reversed intervals. If a bound exists and evaluation time is missing, applicability is unknown. Out-of-window is not pass and not fail: the rule is not evaluated, and a required check or scenario expectation that depends on it is unknown. `not_applicable` needs the policy-grounded reason of AX-C-009, not the window alone. Observation freshness is a separate condition.

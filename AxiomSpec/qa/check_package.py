@@ -110,6 +110,15 @@ def check_local_link(path, destination, root=None):
     target = (path.parent / clean).resolve()
     require(target.is_relative_to(root), 'Local documentation link escapes the package')
     require(target.exists(), f'Broken local link: {destination}')
+    # A case-insensitive filesystem accepts a link that breaks elsewhere: compare each name exactly.
+    current = path.parent
+    for part in PurePosixPath(clean).parts:
+        if part == '..':
+            current = current.parent
+        elif part != '.':
+            require(current.is_dir() and part in {entry.name for entry in current.iterdir()},
+                    f'Local link differs in letter case from the file name: {destination}')
+            current = current / part
 
 
 def canonical(value):
@@ -154,6 +163,37 @@ PREFIXES = dict(Goal='GOAL', Term='TERM', Requirement='REQ', Constraint='CON',
                 Decision='DEC', Assumption='ASM', Risk='RISK', Control='CTRL')
 
 
+PATTERN_FIELDS = {  # AX-M-006: pattern -> (conditions, trigger, feature) populated
+    'ubiquitous': (False, False, False), 'event': (False, True, False), 'state': (True, False, False),
+    'unwanted': (False, True, False), 'optional': (False, False, True), 'composite': (True, True, False)}
+
+
+def utc_instant(value):
+    """AX-C-013: an ISO 8601 instant in UTC (Z or +00:00); ValueError otherwise."""
+    moment = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    if moment.utcoffset() is None or moment.utcoffset().total_seconds() != 0:
+        raise ValueError('Not a UTC instant')
+    return moment
+
+
+def annotated_leaf(schema, pointer):
+    """AX-C-008: the environment schema node a unit annotation names; `*` is one array-element level."""
+    if not pointer.startswith('/') or re.search(r'~(?![01])', pointer):
+        return None
+    node = schema
+    for token in pointer.split('/')[1:]:
+        token = token.replace('~1', '/').replace('~0', '~')
+        if not isinstance(node, dict):
+            return None
+        if token == '*' and node.get('type') == 'array':
+            node = node.get('items')
+        elif node.get('type') == 'object' and token in node.get('properties', {}):
+            node = node['properties'][token]
+        else:
+            return None
+    return node if isinstance(node, dict) else None
+
+
 def reference_errors(spec):
     """Selected semantic checks for fixtures, not complete G02-G07 qualification."""
     errors = []
@@ -174,9 +214,18 @@ def reference_errors(spec):
     if not spec['project']['id'].startswith('PROJECT-'):
         errors.append('WRONG_PREFIX')
     for env in spec['environments']:
+        annotated = {}
         for annotation in env['units']:
             if nodes.get(annotation['term_id'], {}).get('kind') != 'Term':
                 errors.append('UNKNOWN_UNIT_TERM')
+            leaf = annotated_leaf(env['schema'], annotation['pointer'])
+            if leaf is None or leaf.get('type') != 'integer':
+                errors.append('UNIT_ANNOTATION')
+            if annotated.setdefault(annotation['pointer'], annotation['term_id']) != annotation['term_id']:
+                errors.append('UNIT_ANNOTATION')
+    active = {n['kind'] for n in spec['nodes'] if n['status'] == 'active'}
+    if spec['project']['mode'] == 'product' and not {'Goal', 'Requirement'} <= active:
+        errors.append('EMPTY_BASELINE')
     if spec['project']['owner'] not in actors:
         errors.append('UNKNOWN_OWNER')
     for n in nodes.values():
@@ -197,6 +246,17 @@ def reference_errors(spec):
             for expected in data['constraint_expectations']:
                 if nodes.get(expected['constraint_id'], {}).get('kind') != 'Constraint':
                     errors.append('UNKNOWN_CONSTRAINT')
+        if n['kind'] == 'Requirement' and n['status'] != 'retired':
+            populated = (bool(data['conditions']), data['trigger'] is not None, data['feature'] is not None)
+            if populated != PATTERN_FIELDS[data['pattern']]:
+                errors.append('PATTERN_FIELDS')
+        if n['kind'] == 'Constraint' and n['status'] != 'retired':
+            try:
+                bounds = [None if data[f] is None else utc_instant(data[f]) for f in ('effective_from', 'effective_until')]
+                if None not in bounds and bounds[0] >= bounds[1]:
+                    errors.append('INVALID_WINDOW')
+            except ValueError:
+                errors.append('INVALID_WINDOW')
         if n['kind'] == 'Constraint':
             review = data['predicate_role'] == 'review'
             if review:
@@ -215,6 +275,21 @@ def reference_errors(spec):
             tids = [t['id'] for t in transitions]
             if len(tids) != len(set(tids)):
                 errors.append('DUPLICATE_TRANSITION')
+            if any(not tid.startswith('TRN-') for tid in tids):
+                errors.append('WRONG_PREFIX')
+            # AX-G-005 topology: guards are ignored, so this is reachability of the drawing, not of behavior.
+            terminal = {s['name'] for s in data['states'] if s['terminal']}
+            if any(t['from'] in terminal for t in transitions):
+                errors.append('TERMINAL_HAS_EXIT')
+            reached, frontier = {data['initial']}, [data['initial']]
+            while frontier:
+                state = frontier.pop()
+                for t in transitions:
+                    if t['from'] == state and t['to'] not in reached:
+                        reached.add(t['to'])
+                        frontier.append(t['to'])
+            if data['initial'] in states and not set(states) <= reached:
+                errors.append('UNREACHABLE_STATE')
             for t in transitions:
                 if t['from'] not in states or t['to'] not in states:
                     errors.append('UNKNOWN_STATE')
@@ -254,13 +329,26 @@ def reference_errors(spec):
                 ready.append(other)
     if visited != len(adjacency):
         errors.append('DEPENDENCY_CYCLE')
+    outgoing = {}
+    for edge in spec['edges']:
+        outgoing.setdefault((edge['from'], edge['relation']), set()).add(edge['to'])
+    def active_targets(nid, relation):
+        return {t for t in outgoing.get((nid, relation), ()) if nodes.get(t, {}).get('status') == 'active'}
     for n in nodes.values():
-        relations = [e for e in spec['edges'] if e['from'] == n['id']]
-        if n['kind'] == 'Requirement' and n['status'] == 'active':
-            if not n['source_ids'] or (n['data']['priority'] == 'must' and not any(e['relation'] == 'satisfies' for e in relations)):
+        if n['status'] != 'active':
+            continue
+        # AX-G-003: the goal or requirement on the other end must itself be active.
+        if n['kind'] == 'Requirement':
+            if not n['source_ids'] or (n['data']['priority'] == 'must' and not active_targets(n['id'], 'satisfies')):
                 errors.append('REQUIREMENT_PROVENANCE')
-        if n['kind'] == 'Constraint' and n['status'] == 'active' and not any(e['relation'] == 'formalizes' for e in relations):
+        if n['kind'] == 'Constraint' and not active_targets(n['id'], 'formalizes'):
             errors.append('UNLINKED_CONSTRAINT')
+        if n['kind'] == 'TestCase':
+            # AX-G-007: a cited scenario illustrates a requirement this test verifies.
+            verified = outgoing.get((n['id'], 'verifies'), set())
+            for sid in n['data']['witness_scenario_ids']:
+                if sid in nodes and not verified & outgoing.get((sid, 'illustrates'), set()):
+                    errors.append('SCENARIO_NOT_ILLUSTRATING')
     for b in spec['bindings']:
         path = PurePosixPath(b['path'])
         if b['node_id'] not in nodes:
@@ -276,6 +364,12 @@ def reference_errors(spec):
             errors.append('UNKNOWN_ASSET_BINDING')
         if asset['locator'].startswith('node:') and asset['locator'][5:] not in nodes:
             errors.append('UNKNOWN_ASSET_LOCATOR')
+        if asset['locator'].startswith('binding:'):
+            # AX-X-002: the locator names a declared binding, and a supplied binding_id agrees with it.
+            if asset['locator'][8:] not in bindings:
+                errors.append('UNKNOWN_ASSET_LOCATOR')
+            elif asset['binding_id'] is not None and asset['binding_id'] != asset['locator'][8:]:
+                errors.append('ASSET_BINDING_MISMATCH')
     return sorted(set(errors))
 
 
@@ -438,9 +532,12 @@ def mutate(baseline, mutation):
     for part in parts[:-1]:
         target = target[index(target, part)]
     key = index(target, parts[-1])
+    exists = (0 <= key < len(target)) if isinstance(target, list) else key in target
     if mutation['op'] in {'replace', 'remove', 'append'}:
-        exists = (0 <= key < len(target)) if isinstance(target, list) else key in target
         require(exists, 'Mutation target does not exist')
+    else:
+        # add creates a member; overwriting one is replace, and growing an array is append.
+        require(isinstance(target, dict) and not exists, 'Add target must be a new object member')
     if mutation['op'] == 'remove':
         del target[key]
     elif mutation['op'] == 'append':
@@ -693,7 +790,7 @@ def main():
         research = (ROOT / 'docs/01_FOUNDATIONS.md').read_text()
         cited = set(re.findall(r'\[R-(\d{2})\]', research))
         registered = set(re.findall(r'^\| R-(\d{2}) \|', research, re.M))
-        require(cited.issubset(registered) and len(registered) == 16, 'Research reference registry')
+        require(cited.issubset(registered) and len(registered) == 26, 'Research reference registry')
         stats.update(local_links=links, json_blocks=examples)
         return f"{links} local link targets, {examples} JSON blocks and {stats['normative_rules']} unique normative rule headings checked. External URLs not revalidated by this script."
     check('PKG.EDITORIAL', editorial)

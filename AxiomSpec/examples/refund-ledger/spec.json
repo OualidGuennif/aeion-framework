@@ -1571,7 +1571,7 @@
     {
       "id": "TEST-002",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Admission guard checks amount and remaining capacity",
       "owner": "ACTOR-001",
@@ -1588,8 +1588,7 @@
         "witness_scenario_ids": [
           "SCN-001",
           "SCN-003",
-          "SCN-004",
-          "SCN-007"
+          "SCN-004"
         ]
       }
     },
@@ -1619,7 +1618,7 @@
     {
       "id": "TEST-004",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Duplicate keys are detected",
       "owner": "ACTOR-001",
@@ -1634,7 +1633,6 @@
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-005"
         ]
       }
@@ -1642,7 +1640,7 @@
     {
       "id": "TEST-005",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Principal guard is explicit",
       "owner": "ACTOR-001",
@@ -1657,7 +1655,6 @@
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-006",
           "SCN-008",
           "SCN-009"
@@ -1714,7 +1711,7 @@
     {
       "id": "TEST-008",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Identical retries return the same record",
       "owner": "ACTOR-001",
@@ -1729,7 +1726,6 @@
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-005"
         ]
       }
@@ -1737,7 +1733,7 @@
     {
       "id": "TEST-009",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Conflicting retries are rejected without mutation",
       "owner": "ACTOR-001",
@@ -1752,7 +1748,6 @@
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-005"
         ]
       }
@@ -1783,7 +1778,7 @@
     {
       "id": "TEST-011",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Cross-tenant request exposes no record",
       "owner": "ACTOR-001",
@@ -1798,7 +1793,6 @@
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-006",
           "SCN-008",
           "SCN-009"
@@ -1808,7 +1802,7 @@
     {
       "id": "TEST-012",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Cancellation releases once and preserves retained key",
       "owner": "ACTOR-001",
@@ -1823,16 +1817,14 @@
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
-          "SCN-001",
-          "SCN-007",
-          "SCN-005"
+          "SCN-007"
         ]
       }
     },
     {
       "id": "TEST-013",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Audit messages exclude credentials and raw payload",
       "owner": "ACTOR-001",
@@ -1846,17 +1838,13 @@
         "state": "planned",
         "runner": "unittest",
         "negative": true,
-        "witness_scenario_ids": [
-          "SCN-003",
-          "SCN-006",
-          "SCN-009"
-        ]
+        "witness_scenario_ids": []
       }
     },
     {
       "id": "TEST-014",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Restart after write preserves retry semantics",
       "owner": "ACTOR-001",
@@ -1871,7 +1859,6 @@
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
-          "SCN-003",
           "SCN-005"
         ]
       }
@@ -2008,6 +1995,22 @@
           }
         ]
       }
+    },
+    {
+      "id": "GOAL-003",
+      "kind": "Goal",
+      "revision": 1,
+      "status": "active",
+      "title": "Keep diagnostics free of sensitive data",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "description": "Audit and diagnostic output identifies an operation and its outcome without exposing credentials or complete request bodies.",
+        "success_measure": "Inspection of emitted audit events finds no credential and no complete request payload."
+      }
     }
   ],
   "edges": [
@@ -2018,14 +2021,6 @@
       "to": "GOAL-001",
       "origin": "declared",
       "rationale": "Declared goal of the demonstration requirement."
-    },
-    {
-      "id": "EDGE-002",
-      "from": "REQ-001",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
     },
     {
       "id": "EDGE-003",
@@ -2044,22 +2039,6 @@
       "rationale": "Domain definition needed to interpret the requirement."
     },
     {
-      "id": "EDGE-005",
-      "from": "REQ-001",
-      "relation": "uses_term",
-      "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-006",
-      "from": "REQ-001",
-      "relation": "uses_term",
-      "to": "TERM-005",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
       "id": "EDGE-007",
       "from": "REQ-002",
       "relation": "satisfies",
@@ -2068,42 +2047,10 @@
       "rationale": "Declared goal of the demonstration requirement."
     },
     {
-      "id": "EDGE-008",
-      "from": "REQ-002",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-009",
-      "from": "REQ-002",
-      "relation": "uses_term",
-      "to": "TERM-002",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-010",
-      "from": "REQ-002",
-      "relation": "uses_term",
-      "to": "TERM-003",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
       "id": "EDGE-011",
       "from": "REQ-002",
       "relation": "uses_term",
       "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-012",
-      "from": "REQ-002",
-      "relation": "uses_term",
-      "to": "TERM-005",
       "origin": "declared",
       "rationale": "Domain definition needed to interpret the requirement."
     },
@@ -2116,42 +2063,10 @@
       "rationale": "Declared goal of the demonstration requirement."
     },
     {
-      "id": "EDGE-014",
-      "from": "REQ-003",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-015",
-      "from": "REQ-003",
-      "relation": "uses_term",
-      "to": "TERM-002",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-016",
-      "from": "REQ-003",
-      "relation": "uses_term",
-      "to": "TERM-003",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
       "id": "EDGE-017",
       "from": "REQ-003",
       "relation": "uses_term",
       "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-018",
-      "from": "REQ-003",
-      "relation": "uses_term",
-      "to": "TERM-005",
       "origin": "declared",
       "rationale": "Domain definition needed to interpret the requirement."
     },
@@ -2162,38 +2077,6 @@
       "to": "GOAL-002",
       "origin": "declared",
       "rationale": "Declared goal of the demonstration requirement."
-    },
-    {
-      "id": "EDGE-020",
-      "from": "REQ-004",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-021",
-      "from": "REQ-004",
-      "relation": "uses_term",
-      "to": "TERM-002",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-022",
-      "from": "REQ-004",
-      "relation": "uses_term",
-      "to": "TERM-003",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-023",
-      "from": "REQ-004",
-      "relation": "uses_term",
-      "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
     },
     {
       "id": "EDGE-024",
@@ -2210,14 +2093,6 @@
       "to": "GOAL-001",
       "origin": "declared",
       "rationale": "Declared goal of the demonstration requirement."
-    },
-    {
-      "id": "EDGE-026",
-      "from": "REQ-005",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
     },
     {
       "id": "EDGE-027",
@@ -2244,28 +2119,12 @@
       "rationale": "Domain definition needed to interpret the requirement."
     },
     {
-      "id": "EDGE-030",
-      "from": "REQ-005",
-      "relation": "uses_term",
-      "to": "TERM-005",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
       "id": "EDGE-031",
       "from": "REQ-006",
       "relation": "satisfies",
       "to": "GOAL-001",
       "origin": "declared",
       "rationale": "Declared goal of the demonstration requirement."
-    },
-    {
-      "id": "EDGE-032",
-      "from": "REQ-006",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
     },
     {
       "id": "EDGE-033",
@@ -2284,68 +2143,12 @@
       "rationale": "Domain definition needed to interpret the requirement."
     },
     {
-      "id": "EDGE-035",
-      "from": "REQ-006",
-      "relation": "uses_term",
-      "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-036",
-      "from": "REQ-006",
-      "relation": "uses_term",
-      "to": "TERM-005",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
       "id": "EDGE-037",
       "from": "REQ-007",
       "relation": "satisfies",
-      "to": "GOAL-001",
+      "to": "GOAL-003",
       "origin": "declared",
-      "rationale": "Declared goal of the demonstration requirement."
-    },
-    {
-      "id": "EDGE-038",
-      "from": "REQ-007",
-      "relation": "uses_term",
-      "to": "TERM-001",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-039",
-      "from": "REQ-007",
-      "relation": "uses_term",
-      "to": "TERM-002",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-040",
-      "from": "REQ-007",
-      "relation": "uses_term",
-      "to": "TERM-003",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-041",
-      "from": "REQ-007",
-      "relation": "uses_term",
-      "to": "TERM-004",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
-    },
-    {
-      "id": "EDGE-042",
-      "from": "REQ-007",
-      "relation": "uses_term",
-      "to": "TERM-005",
-      "origin": "declared",
-      "rationale": "Domain definition needed to interpret the requirement."
+      "rationale": "Bounded diagnostics serve non-disclosure, not capacity."
     },
     {
       "id": "EDGE-043",

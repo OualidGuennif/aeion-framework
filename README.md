@@ -50,11 +50,17 @@ flowchart LR
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.3.0: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger), a conformance corpus, package QA and its review records |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.3.1: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger), a conformance corpus, package QA and its review records |
 | [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
 | [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
 
-All three are verbatim copies of the source material Æion Factory 3.0.0 and Æion Core were built from.
+The two playbooks are verbatim copies of the source material Æion Factory 3.0.0 and Æion Core were built
+from. The package is edition 0.3.1; those tools vendor edition 0.3.0, which is this repository at commit
+`43cfb58`. Edition 0.3.1 keeps the same format and profile. It corrects the worked example, makes the
+package QA check rules the contracts already stated, and adds one rule about state models; the
+[fourth review](AxiomSpec/REVIEW.md#fourth-review) lists every change, so a tool built from 0.3.0 can
+see what it does not check yet.
+
 The existing-project playbook cites a research note (`../research/auto-ontology-comparison-2026-11-09.md`)
 that is not published; that one link does not resolve.
 
@@ -72,7 +78,9 @@ that is not published; that one link does not resolve.
 - This is a design package. It defines contracts and includes checks of the package itself; it
   contains no product CLI, compiler, graph engine or test adapter. The commands the package names
   `axiom ...` are proposed interfaces here, and exist as code in aeion-factory.
-- The refund ledger is fictional, its application tests are planned, and it is not `design_ready`.
+- The refund ledger is fictional, its application tests are planned, and it is not `design_ready`:
+  two refusal rules lack a normal case, and its scenarios are single snapshots that cannot express
+  behaviour across a retry or a failure.
   The package's own [review](AxiomSpec/REVIEW.md) and
   [assurance matrix](AxiomSpec/review/ASSURANCE_MATRIX.md) list what is declared, what is checked and
   what is not built.

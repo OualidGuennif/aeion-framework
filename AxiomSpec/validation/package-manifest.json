@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "e269a9f78610f0fe881b71183997a5d6e83dfc7c90516930a8d62bebdf0a64c7",
-      "bytes": 4241
+      "sha256": "08a0495f82d2db1c6b7c4def1c8f01bd8e4f7ae378b1f64e2adaefaf492582f6",
+      "bytes": 4694
     },
     {
       "path": "REVIEW.md",
-      "sha256": "c1a96a83dc676f6b5ace2f5b90c5623a4009cc6ac0fe92a471c05425d2c8bddd",
-      "bytes": 7334
+      "sha256": "d8a3a7b84dcc622720ea06467bf937b50c090628de0c09e0454313640f14383a",
+      "bytes": 13844
     },
     {
       "path": "RULE_INDEX.md",
@@ -23,8 +23,8 @@
     },
     {
       "path": "docs/01_FOUNDATIONS.md",
-      "sha256": "13e12b943e1113dd0de24b95382c43abf7ebbb5a9433ce87222e36ecf1df6e82",
-      "bytes": 6457
+      "sha256": "b1682b42137179b03f28d808eb013cc2404eb3cefd1d4cda71857b19eec4a012",
+      "bytes": 11151
     },
     {
       "path": "docs/02_PRINCIPLES_AND_SCOPE.md",
@@ -43,13 +43,13 @@
     },
     {
       "path": "docs/05_CONSTRAINTS_AND_SEMANTICS.md",
-      "sha256": "b9633a343dca44db57f5eec03c6e93d6871611bc990599018a1383704986f18b",
-      "bytes": 9466
+      "sha256": "b78da63274d3ee08409cc80878d591f0a418e4e60ef4923efbb1c97238be34e1",
+      "bytes": 10060
     },
     {
       "path": "docs/06_GATES_AND_EVIDENCE.md",
-      "sha256": "db8bc7e3fecf0d04b342f0d85e1a575ee78ef1ac6ede22ce81bbae46a278efed",
-      "bytes": 7732
+      "sha256": "ad3c4349b2c9759d8ba75461ce51be359f7d35b7ac72f570f0d8a0c87e0484b8",
+      "bytes": 8202
     },
     {
       "path": "docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md",
@@ -83,13 +83,13 @@
     },
     {
       "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
-      "sha256": "56738a38aaaac7169a243c0c65bbf3c7cf411ec6cbce68b2068e0e901f885f3f",
-      "bytes": 5196
+      "sha256": "bb5bc596f6b0bc594e50e6fb94a2a17cb893404c579a7e8d19a8926c3a710c2b",
+      "bytes": 5886
     },
     {
       "path": "docs/14_CONFORMANCE_SUITE.md",
-      "sha256": "ddd04a23b4619d4cfb4b39f7c6cf8db7295df38664dcccb90ddc3a74952f5b05",
-      "bytes": 5294
+      "sha256": "511aa08837674ab46732e5f9e9e92ac7ece0464a0aa88d10901178531a434c81",
+      "bytes": 6007
     },
     {
       "path": "docs/15_TEMPLATES_AND_PROMPTS.md",
@@ -113,7 +113,7 @@
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55",
+      "sha256": "a0c90977967a6bf9fd8cdce25dea95d625433f8e4ec610fe3d1386e3350bd02a",
       "bytes": 8664
     },
     {
@@ -128,8 +128,8 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e",
-      "bytes": 88848
+      "sha256": "b73c43a36b3a6ad7d7ee81ccc433746e05bb28ab4beff8cedee8b879bb1aa25c",
+      "bytes": 83637
     },
     {
       "path": "fixtures/conformance.json",
@@ -138,8 +138,8 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100",
-      "bytes": 42423
+      "sha256": "598f10396e4df2c08924eecedd87069f5ae6c35980c75cb2cb809c08c10df2a4",
+      "bytes": 47659
     },
     {
       "path": "qa/croa_readiness.py",
@@ -153,8 +153,13 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3",
+      "sha256": "10cec6dbc443e5b2ee9dc854b57ee757c5b835554a82bb124f93ab27d2849e03",
       "bytes": 8807
+    },
+    {
+      "path": "qa/test_fourth_review.py",
+      "sha256": "4f264e67a27dde241eab70fbf102544d4e398750f5479c69e958fbecb2601409",
+      "bytes": 7541
     },
     {
       "path": "qa/test_review_regressions.py",
@@ -173,18 +178,18 @@
     },
     {
       "path": "review/ASSURANCE_MATRIX.md",
-      "sha256": "be366b0e9bab3d0b9bad5418530caf809be3e3aa23eb4a7e2bec54c917fe3a1a",
-      "bytes": 2971
+      "sha256": "d42d7f987b40cca2a4ac1e9f643d39e5b151fd5298cce4f8e4e6915bfcfee202",
+      "bytes": 3174
     },
     {
       "path": "review/SOURCE_AUDIT.md",
-      "sha256": "8b9322de0885cd86de859e7a71055ccd2e6cf05bbacb8add80d0867aa8aa7f06",
-      "bytes": 1913
+      "sha256": "d4332edd0bf9b17c1c5476f0fdd737a9bb31575d89adf747c95d228c02dc265c",
+      "bytes": 2284
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "9a2a9860b709d7ad9eb0475ba5591f68dfb71f915ed898cbf00dd6edebd61c30",
-      "bytes": 3105
+      "sha256": "ae7e6b5ac481afcc29daa8d28b456cca31190000db8f14eaf6af896c422351a6",
+      "bytes": 3242
     },
     {
       "path": "review/probes-before.json",
@@ -202,14 +207,19 @@
       "bytes": 932
     },
     {
+      "path": "review/probes-review4-before.json",
+      "sha256": "9be16e07eebebda7adea4db9fce5ecd90935e9f19dd0273dd506a127b2c4dc65",
+      "bytes": 2317
+    },
+    {
       "path": "review/regression-output.txt",
-      "sha256": "9665443fb3f398047ad52fbe545fbf1a38433c16d14a79c52d5003242081f369",
-      "bytes": 6957
+      "sha256": "c8162b25d4e1568ac79960e7381f10d8a5d4a3ef78782523e886bb64cb5bd4a6",
+      "bytes": 8859
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "61785b60dc59a23c5074c583d7d619498bc7676532961f8745bfc711e0d02485",
-      "bytes": 7916
+      "sha256": "28774b0db0c906eddd9eac7e880c9062038bb560d3e6cb35beaf46a097b00b90",
+      "bytes": 9322
     },
     {
       "path": "schemas/croa-readiness.schema.json",

@@ -1,5 +1,5 @@
 {
-  "regression_tests_recorded": 47,
+  "regression_tests_recorded": 60,
   "observations": 9,
   "boolean_expectations": 45,
   "mutations_executed": 10,
@@ -8,10 +8,10 @@
   "croa_red_flag_rules": 13,
   "qa_self_checks": 16,
   "normative_rules": 104,
-  "local_links": 153,
+  "local_links": 156,
   "json_blocks": 3,
   "toolchain": {
-    "python": "3.12.14",
+    "python": "3.12.8",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",

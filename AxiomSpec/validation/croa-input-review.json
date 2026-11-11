@@ -6,7 +6,7 @@
   "assessment_kind": "illustrative",
   "assessment_status": "not_scored",
   "conformance_status": "not_assessed",
-  "spec_sha256": "1ea4f94443e2d0ca9f1b730705c3a381f53d7d8b0e1f91f9d9c2bfdbe546ebcd",
+  "spec_sha256": "af5192c25a178b4f7becd26b2354974d2675dd837220f25a267e00484044ec3e",
   "framework_sha256": "75198ad1712c82250c59e534ce82d85c4eedd1db61dd149cf1f36ff0202e4778",
   "guide_sha256": "aaf1efd3b65fdf10361d113bdc670a3fb4f1de0b86920af1739cf8b962755b6a",
   "missing_scores": [

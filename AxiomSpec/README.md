@@ -2,10 +2,10 @@
 
 Augmented specifications with explicit models, bounded constraints and traceable verification.
 
-**Edition 0.3.0 · final review, 9 November 2026**  
+**Edition 0.3.1 · fourth review, 11 November 2026**  
 Specification format: `axiomspec/0.1` · Profile: `AX-CORE-0.1` · Report format: `axiomspec-report/0.2`.
 
-This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example, reference observations and package QA. The product CLI, graph engine and application test adapters remain to be built.
+This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example, reference observations and package QA. It contains no product CLI, graph engine or application test adapter. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); this package's QA does not qualify it.
 
 An augmented specification connects an intended outcome to defined terms, requirements, constraints, scenarios, implementation bindings and evidence. It records uncertainty and decisions explicitly. Deterministic checks make declared properties reproducible; they do not establish that the chosen requirements are complete or correct for the business.
 
@@ -52,6 +52,8 @@ flowchart LR
 The [rule index](RULE_INDEX.md) links all normative `AX-*` rules. Schemas define structure; the contracts define additional semantics. Resolve a disagreement between a schema, contract and fixture explicitly before shipping an implementation.
 
 The ledger is fictional. Its formulas have reference checks; its application tests are planned. It is not `design_ready`. See the review for the remaining scenario and performance gaps.
+
+Edition 0.3.1 keeps format `axiomspec/0.1` and profile `AX-CORE-0.1`. It corrects the worked example, adds checks for rules the contracts already stated, clarifies four rules and adds one (state-model topology in AX-G-005). The [review](REVIEW.md#fourth-review) lists each change.
 
 Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
 

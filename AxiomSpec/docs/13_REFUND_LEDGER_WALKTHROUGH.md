@@ -22,7 +22,7 @@ Amounts are safe integer euro cents in this example. A real product must explici
 | REQ-006 | Commit without double consumption | Durable transition and preserved sum |
 | REQ-007 | Bounded audit without secrets/raw payload | Event inspection and sensitive-data tests |
 
-All 14 TestCases are planned. Four normal-path markers and two overly broad verification links were corrected during review. Missing behavioral scenarios remain visible rather than being replaced by extra links.
+All 14 TestCases are planned. Four normal-path markers and two overly broad verification links were corrected during review. The fourth review removed twelve scenario references from tests whose requirements those scenarios do not illustrate, 25 `uses_term` links that connected every requirement to every term, and the link from the audit requirement to the capacity goal; REQ-007 now satisfies its own GOAL-003. TEST-013 is left with no scenario: none exists for audit output. Missing behavioral scenarios remain visible rather than being replaced by extra links.
 
 ## Predicates
 
@@ -73,7 +73,7 @@ The model references effects but does not define executable transition transform
 
 Two requests of 600 may each satisfy a guard against the same initial capacity of 1,000. Without atomic admission, their writes overbook. CTRL-001 therefore requires a persistent atomic boundary and forced-interleaving integration tests. The formula alone does not implement that boundary.
 
-The example lacks a linked authorized-access scenario and complete behavioral retry, invalid-transition and crash-recovery cases. G07 is not satisfied; the example is not design_ready. G10 has no executed application evidence.
+The example lacks a linked authorized-access scenario and complete behavioral retry, invalid-transition and crash-recovery cases. Two plan gaps are mechanical: REQ-003 and REQ-004 are high and critical refusal rules verified only by refusal cases, with no normal case showing a request that must still succeed. The others are not: every scenario here is one ledger snapshot, so "the retry added no row" or "the refusal changed nothing" has no predicate to evaluate. G07 is not satisfied; the example is not design_ready. G10 has no executed application evidence.
 
 CON-004 is quadratic and exceeds the reference step budget at 500 rows although the schema admits 1,000. Qualify a more efficient realization before claiming full-bound coverage.
 

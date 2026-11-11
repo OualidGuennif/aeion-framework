@@ -30,15 +30,15 @@
     "sha256": "74f2203f9d9455f98799297eeba2bc0c948bcc5c85d2a9d03e63073483e40793"
   },
   "subject": {
-    "spec_sha256": "1ea4f94443e2d0ca9f1b730705c3a381f53d7d8b0e1f91f9d9c2bfdbe546ebcd",
-    "source_tree_sha256": "cd755caca6ad1649de42f50175686485c36440ce27db53b88bd0d2a51f9cee4e",
+    "spec_sha256": "af5192c25a178b4f7becd26b2354974d2675dd837220f25a267e00484044ec3e",
+    "source_tree_sha256": "1001f0ef0c20b0e3431bd1117e9cbeba0a647cc1002718a18087e49851c14e26",
     "policy_sha256": null,
-    "toolchain_sha256": "78fdfd4387da084b26ce4865daf39dba7cd4d0f4cb0f7707cd6dd53eefcff6a6",
+    "toolchain_sha256": "3e9c27dc980b9fa1cd8e75883abb20ba3e6ce0aad31d01c17086ebd80ec7885c",
     "observations_sha256": "dda046cf718abdecdbb29e7b50967a1eea8fa777ada77a2748ae0a240ef6bea5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -49,7 +49,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "153 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "156 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -115,7 +115,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "Selected reference checks passed: 51 nodes, 119 edges. No completeness claim.",
+      "message": "Selected reference checks passed: 52 nodes, 94 edges. No completeness claim.",
       "evidence": [],
       "limitations": []
     },
@@ -126,7 +126,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "47 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "message": "60 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
       "evidence": [],
       "limitations": []
     },
@@ -150,7 +150,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-09T19:10:18.053812+00:00",
+    "evaluated_at": "2026-11-10T23:59:55.303428+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

@@ -1,6 +1,6 @@
 # Source audit
 
-9 November 2026. References are listed by publication title in [Foundations](../docs/01_FOUNDATIONS.md).
+9 November 2026; R-21 to R-30 added 11 November 2026. References are listed by publication title in [Foundations](../docs/01_FOUNDATIONS.md). The five arXiv links of R-03, R-04, R-07, R-08 and R-18 were reloaded on 10 November 2026 and resolve to the stated titles.
 
 | IDs | Access and interpretation |
 |---|---|
@@ -11,6 +11,7 @@
 | R-09 | Bibliographic EARS reference; structured syntax checked in an earlier public guide; DOI full text unavailable in this pass |
 | R-10 to R-15 | Official standards/documentation; selected relevant sections, not complete conformance audits |
 | R-18 | Relevant sections, cases and discussion; preprint, not an AxiomSpec correctness result |
+| R-21 to R-30 | arXiv abstract pages only, read 10-11 November 2026; no full text or experiment reviewed; listed as later context for existing rules, never as design inputs or as evidence about this package |
 | R-19 | Supplied 315-page CROA draft; definitions, evaluability, architecture/conformance, evidence, trajectory and Core-profile sections examined |
 | R-20 | Supplied six-page readiness guide read in full; red-flag table visually inspected; companion workbook not supplied |
 

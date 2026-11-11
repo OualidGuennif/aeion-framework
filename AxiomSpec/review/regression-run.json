@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.3.0",
+  "edition": "0.3.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,9 +9,22 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-09T19:06:41.433283+00:00",
+  "evaluated_at": "2026-11-10T23:59:54.884223+00:00",
   "tests": {
     "test_ids": [
+      "test_fourth_review.CheckerDefects.test_add_creates_a_member_and_never_overwrites",
+      "test_fourth_review.CheckerDefects.test_local_link_must_match_file_name_case",
+      "test_fourth_review.StatedRulesAreChecked.test_asset_binding_locator_is_declared_and_agrees",
+      "test_fourth_review.StatedRulesAreChecked.test_constraint_needs_an_active_requirement",
+      "test_fourth_review.StatedRulesAreChecked.test_effective_window_is_utc_and_not_reversed",
+      "test_fourth_review.StatedRulesAreChecked.test_must_requirement_needs_an_active_goal",
+      "test_fourth_review.StatedRulesAreChecked.test_product_baseline_needs_an_active_goal_and_requirement",
+      "test_fourth_review.StatedRulesAreChecked.test_reference_ledger_has_no_reference_error",
+      "test_fourth_review.StatedRulesAreChecked.test_requirement_pattern_fixes_its_populated_fields",
+      "test_fourth_review.StatedRulesAreChecked.test_terminal_state_has_no_exit_and_every_state_is_reachable",
+      "test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix",
+      "test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf",
+      "test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement",
       "test_review_regressions.ReviewRegressions.test_500_row_uniqueness_is_explicitly_unresolved_under_default_budget",
       "test_review_regressions.ReviewRegressions.test_bad_pointer_escape_is_rejected_even_if_matching_key_exists",
       "test_review_regressions.ReviewRegressions.test_canonical_bytes_have_fixed_unicode_and_control_escaping",
@@ -60,7 +73,7 @@
       "test_third_review.ThirdReview.test_reference_checks_do_not_depend_on_node_order",
       "test_third_review.ThirdReview.test_writers_refuse_symlinked_output_parent"
     ],
-    "tests_run": 47,
+    "tests_run": 60,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -70,7 +83,7 @@
   "inputs": [
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "0802ff2543230266d0653310798740ca09e61b2f06d2f405f93061bca7cf5b55"
+      "sha256": "a0c90977967a6bf9fd8cdce25dea95d625433f8e4ec610fe3d1386e3350bd02a"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -82,7 +95,7 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "c45a455900942d3fb2b78fc6a086e66ebf119ca50adf5b952d314e5342028b6e"
+      "sha256": "b73c43a36b3a6ad7d7ee81ccc433746e05bb28ab4beff8cedee8b879bb1aa25c"
     },
     {
       "path": "fixtures/conformance.json",
@@ -90,7 +103,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "48cec2ba6a8f848d9f39a40a4340cdc97f64cbb1ac037759fcb872b9c02bb100"
+      "sha256": "598f10396e4df2c08924eecedd87069f5ae6c35980c75cb2cb809c08c10df2a4"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -102,7 +115,11 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "c48817079426d80812031bab35c9b5fae83ffd641b3da4b4158f21f90c0693b3"
+      "sha256": "10cec6dbc443e5b2ee9dc854b57ee757c5b835554a82bb124f93ab27d2849e03"
+    },
+    {
+      "path": "qa/test_fourth_review.py",
+      "sha256": "4f264e67a27dde241eab70fbf102544d4e398750f5479c69e958fbecb2601409"
     },
     {
       "path": "qa/test_review_regressions.py",
@@ -134,7 +151,7 @@
     }
   ],
   "toolchain": {
-    "python": "3.12.14",
+    "python": "3.12.8",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",
@@ -149,7 +166,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "9665443fb3f398047ad52fbe545fbf1a38433c16d14a79c52d5003242081f369"
+    "sha256": "c8162b25d4e1568ac79960e7381f10d8a5d4a3ef78782523e886bb64cb5bd4a6"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

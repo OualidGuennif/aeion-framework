@@ -19,7 +19,7 @@ Package QA checks schemas, selected references, all declared reference observati
 | V-009 | Unknown author/owner reference | UNKNOWN_ACTOR |
 | V-010 | Self-dependency | DEPENDENCY_CYCLE |
 
-Apply mutations independently. Require the full versioned ID set, valid metadata, expected gate/verdict and targeted reference diagnostic. A replace/remove target must already exist. An unrelated failure is insufficient.
+Apply mutations independently. Require the full versioned ID set, valid metadata, expected gate/verdict and targeted reference diagnostic. A replace/remove target must already exist; an add target must be a new object member. An unrelated failure is insufficient.
 
 ### AX-F-001 — Turn an obligation into a test
 
@@ -56,5 +56,7 @@ The manifest excludes validation outputs and cache files to avoid circular hashe
 Local documentation links must be relative, even when an absolute path happens to exist on the current machine. Reject unsafe input/output symlinks before opening files or writing diagnostics. If the output path is unsafe or unwritable, report the failure on stderr and do not reuse an older result. Compare input manifests before and after verification and reject detected changes. This is a single-writer consistency check, not protection from an adversary controlling the host or verification code.
 
 Third-review tests also check ordering invariance of selected reference resolution and 100 seeded ledger observations against direct domain calculations. They broaden the exercised reference subset without qualifying a general BCIR compiler or product behavior.
+
+Fourth-review tests cover rules that the contracts stated and the reference checks did not enforce: a witness scenario must illustrate a requirement its test verifies, goals and requirements at the far end of a required link must be active, requirement patterns fix their populated fields, effective windows are UTC and ordered, transition IDs use `TRN-`, a terminal state has no exit, unit annotations name one integer leaf and a `binding:` locator agrees with its binding. Local links must also match the file name's letter case, which a case-insensitive filesystem would otherwise hide. These remain selected reference checks, not a complete G02-G07 implementation.
 
 The optional execution and CROA fixtures receive structural/reference checks. Their fields cannot authorize execution or certify CROA conformance.

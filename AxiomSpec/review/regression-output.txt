@@ -1,3 +1,16 @@
+test_add_creates_a_member_and_never_overwrites (test_fourth_review.CheckerDefects.test_add_creates_a_member_and_never_overwrites) ... ok
+test_local_link_must_match_file_name_case (test_fourth_review.CheckerDefects.test_local_link_must_match_file_name_case) ... ok
+test_asset_binding_locator_is_declared_and_agrees (test_fourth_review.StatedRulesAreChecked.test_asset_binding_locator_is_declared_and_agrees) ... ok
+test_constraint_needs_an_active_requirement (test_fourth_review.StatedRulesAreChecked.test_constraint_needs_an_active_requirement) ... ok
+test_effective_window_is_utc_and_not_reversed (test_fourth_review.StatedRulesAreChecked.test_effective_window_is_utc_and_not_reversed) ... ok
+test_must_requirement_needs_an_active_goal (test_fourth_review.StatedRulesAreChecked.test_must_requirement_needs_an_active_goal) ... ok
+test_product_baseline_needs_an_active_goal_and_requirement (test_fourth_review.StatedRulesAreChecked.test_product_baseline_needs_an_active_goal_and_requirement) ... ok
+test_reference_ledger_has_no_reference_error (test_fourth_review.StatedRulesAreChecked.test_reference_ledger_has_no_reference_error) ... ok
+test_requirement_pattern_fixes_its_populated_fields (test_fourth_review.StatedRulesAreChecked.test_requirement_pattern_fixes_its_populated_fields) ... ok
+test_terminal_state_has_no_exit_and_every_state_is_reachable (test_fourth_review.StatedRulesAreChecked.test_terminal_state_has_no_exit_and_every_state_is_reachable) ... ok
+test_transition_ids_use_the_trn_prefix (test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix) ... ok
+test_unit_annotation_names_one_integer_leaf (test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf) ... ok
+test_witness_scenario_must_illustrate_a_verified_requirement (test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement) ... ok
 test_500_row_uniqueness_is_explicitly_unresolved_under_default_budget (test_review_regressions.ReviewRegressions.test_500_row_uniqueness_is_explicitly_unresolved_under_default_budget) ... ok
 test_bad_pointer_escape_is_rejected_even_if_matching_key_exists (test_review_regressions.ReviewRegressions.test_bad_pointer_escape_is_rejected_even_if_matching_key_exists) ... ok
 test_canonical_bytes_have_fixed_unicode_and_control_escaping (test_review_regressions.ReviewRegressions.test_canonical_bytes_have_fixed_unicode_and_control_escaping) ... ok
@@ -47,6 +60,6 @@ test_reference_checks_do_not_depend_on_node_order (test_third_review.ThirdReview
 test_writers_refuse_symlinked_output_parent (test_third_review.ThirdReview.test_writers_refuse_symlinked_output_parent) ... ok
 
 ----------------------------------------------------------------------
-Ran 47 tests in 1.718s
+Ran 60 tests in 1.796s
 
 OK
