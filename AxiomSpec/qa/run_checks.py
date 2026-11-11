@@ -13,8 +13,11 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-EDITION = '0.4.0'
+EDITION = '0.5.0'
 TEST_COMMAND = ['python3', 'qa/run_checks.py', '--tests-only']
+EXAMPLE = 'examples/refund-ledger'
+EXAMPLE_COMMAND = ['python3', 'qa/run_checks.py', '--example-tests']
+EXAMPLE_RECEIPT, EXAMPLE_OUTPUT = 'validation/example-test-run.json', 'validation/example-test-output.txt'
 
 
 def require(condition, message):
@@ -89,8 +92,42 @@ def validate_receipt(root, receipt):
     return len(ids)
 
 
-def run_tests():
-    suite = unittest.defaultTestLoader.discover(str(ROOT / 'qa'), pattern='test_*.py')
+def example_manifest(root):
+    """Everything the example's tests execute or read: the application, the tests, the specification, the evaluator."""
+    paths = [path for folder in ('app', 'tests') for path in sorted((root / EXAMPLE / folder).rglob('*'))
+             if path.is_file() and '__pycache__' not in path.parts]
+    paths += [root / EXAMPLE / 'spec.json', root / 'qa/check_package.py']
+    for path in paths:
+        require(not path.is_symlink(), 'Example test inputs cannot contain symlinks')
+    return sorted((dict(path=path.relative_to(root).as_posix(), sha256=sha(path)) for path in paths),
+                  key=lambda entry: entry['path'])
+
+
+def validate_example_receipt(root, receipt):
+    """AX-G-010 for the worked example: a current, complete, successful local run. Returns the executed IDs."""
+    require(receipt.get('format') == 'axiomspec-test-receipt/0.1' and receipt.get('scope') == 'example_application'
+            and receipt.get('edition') == EDITION, 'Run qa/run_checks.py: unsupported or outdated example test receipt')
+    require(receipt.get('status') == 'pass' and type(receipt.get('exit_code')) is int and receipt['exit_code'] == 0,
+            'Example test receipt does not report a successful run')
+    require(receipt.get('command') == EXAMPLE_COMMAND and receipt.get('runner') == dict(name='unittest', trust='untrusted_local'),
+            'Example test command or runner mismatch')
+    require(receipt.get('inputs') == example_manifest(root), 'Stale example test receipt: an executed input changed')
+    require(receipt.get('toolchain') == toolchain(root), 'Example test toolchain mismatch')
+    details = receipt.get('tests', {})
+    ids = details.get('test_ids', [])
+    require(isinstance(ids, list) and ids and all(type(item) is str for item in ids)
+            and len(ids) == len(set(ids)), 'Missing or duplicate executed example test IDs')
+    require(type(details.get('tests_run')) is int and details['tests_run'] == len(ids), 'Collected/executed example test count mismatch')
+    for field in ['failures', 'errors', 'skipped', 'expected_failures', 'unexpected_successes']:
+        require(type(details.get(field)) is int and details[field] == 0, f'Example test result has {field}')
+    raw = receipt.get('raw_output', {})
+    require(raw.get('path') == EXAMPLE_OUTPUT and raw.get('sha256') == sha(root / EXAMPLE_OUTPUT),
+            'Example test raw-output digest mismatch')
+    return ids
+
+
+def run_tests(folder='qa'):
+    suite = unittest.defaultTestLoader.discover(str(ROOT / folder), pattern='test_*.py')
     def collect(group):
         for item in group:
             if isinstance(item, unittest.TestSuite):
@@ -146,7 +183,7 @@ def main():
             inputs=before, toolchain=runtime,
             raw_output=dict(path='review/regression-output.txt', sha256=sha(ROOT / 'review/regression-output.txt')),
             limitations=['Local untrusted producer. Hash consistency does not authenticate this receipt.',
-                         'No application tests, execution authority or deployed CROA assessment.'])
+                         'Tests of the package checker only; the example application has its own receipt.'])
         if successful:
             try:
                 validate_receipt(ROOT, receipt)
@@ -154,6 +191,26 @@ def main():
                 successful = False
                 receipt.update(status='fail', exit_code=1)
         write(ROOT / 'review/regression-run.json', receipt)
+        # The worked example's own tests: a real store, executed on the current inputs (AX-G-010).
+        inputs = example_manifest(ROOT)
+        example = subprocess.run([sys.executable, str(Path(__file__)), '--example-tests'], cwd=ROOT,
+              env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'), capture_output=True, text=True)
+        try:
+            example_details = json.loads(example.stdout)
+        except (ValueError, TypeError):
+            example_details = {}
+        stable = inputs == example_manifest(ROOT) and runtime == toolchain(ROOT)
+        write(ROOT / EXAMPLE_OUTPUT, example.stderr)
+        write(ROOT / EXAMPLE_RECEIPT, dict(format='axiomspec-test-receipt/0.1', scope='example_application',
+            edition=EDITION, status='pass' if example.returncode == 0 and stable else 'fail',
+            exit_code=example.returncode if stable else 1, command=EXAMPLE_COMMAND,
+            runner=dict(name='unittest', trust='untrusted_local'),
+            evaluated_at=datetime.now(timezone.utc).isoformat(), tests=example_details, inputs=inputs,
+            toolchain=runtime, environment='SQLite database files in a temporary directory on the local host',
+            raw_output=dict(path=EXAMPLE_OUTPUT, sha256=sha(ROOT / EXAMPLE_OUTPUT)),
+            limitations=['Local untrusted producer. Hash consistency does not authenticate this receipt.',
+                         'A reference implementation on local SQLite, not a production store or deployment.']))
+        successful = successful and example.returncode == 0 and stable
         checked = subprocess.run([sys.executable, 'qa/check_package.py'], cwd=ROOT,
               env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
         if checked.returncode:
@@ -168,6 +225,8 @@ def main():
 if __name__ == '__main__':
     if sys.argv[1:] == ['--tests-only']:
         sys.exit(run_tests())
+    if sys.argv[1:] == ['--example-tests']:
+        sys.exit(run_tests(EXAMPLE + '/tests'))
     if sys.argv[1:]:
         failure_marker('Unsupported verification arguments; no current verification completed.')
         print('Usage: python3 qa/run_checks.py', file=sys.stderr)

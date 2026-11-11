@@ -2,17 +2,21 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-11T00:18:51.934816+00:00",
+  "evaluated_at": "2026-11-11T05:11:50.531503+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 68,
+  "test_count": 106,
   "tested_inputs": [
     {
+      "path": "examples/refund-ledger/app/ledger.py",
+      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511"
+    },
+    {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "70b1287de8e54d89def69100abefe82e523cf1abdd20a8e0046ca3ffd18ecc2c"
+      "sha256": "d40b87f6b7d7e2f50cfae42dc192d0c17f824259a6d9ba1c6f0049cde6de3b2b"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -20,23 +24,39 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "086916fbb1554365ff8613b9737d5c42140713cdd4779c79c042b9ee13cacddc"
+      "sha256": "2871264c343d9b30dc36ae7b08fbb6e1e4ed16963994bf88c7da42f150d9f496"
+    },
+    {
+      "path": "examples/refund-ledger/releases/1.0.0.json",
+      "sha256": "93ea973d983ddcad61b159d760541061cb9f9470743b730dd4bcf5b193d491ef"
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "91b3f89483a88b6d4c2e672d9fbc89f23c8a5326ac9697b22ceb92aa4897a6c1"
+      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63"
+    },
+    {
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604"
     },
     {
       "path": "fixtures/conformance.json",
-      "sha256": "0b15f6cadda4577ff3508fdbf4f3b50d3be21ee7498ece63086891772d3ab22a"
+      "sha256": "f37cc069ddd01968c842915aa1ff1758b9785183bb6ef72ed0ec16decde1ab0d"
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "c2b2e172c9adfaa80e17dbb59335808eba1ebc9a67d62a392aaa395347b90c0f"
+      "sha256": "a92fe3193d9907776507f2a62f2bee11c5c741f3c9244bf4f9538def682dcc52"
     },
     {
       "path": "qa/croa_readiness.py",
       "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45"
+    },
+    {
+      "path": "qa/migrate_0_1.py",
+      "sha256": "4b65123019063394e14ef41a8792613ce04aac859846625c2c14e6064e39360e"
+    },
+    {
+      "path": "qa/release_diff.py",
+      "sha256": "99b17a91f85a6fa272660479915aa20ac8ebc3a95eec870d936bc0fe95b91c71"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -44,23 +64,27 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "f06e3570543ec64d2f1849488e772d22c8207ea1c8c1ab6e4cf653f2b2da6898"
+      "sha256": "838ccc3327cec5bd4e357910eaa15ff22958c2617059ae3a3db844f19ab60db6"
     },
     {
       "path": "qa/test_fourth_review.py",
-      "sha256": "4f264e67a27dde241eab70fbf102544d4e398750f5479c69e958fbecb2601409"
+      "sha256": "15364b0470f75196da6ada082144c9f0aa9cff709830be6758c5ccd27cc71973"
+    },
+    {
+      "path": "qa/test_releases_weights_flags.py",
+      "sha256": "476d79a0ba67c4cbc8243ef8b31ccfddd0640b58cd7b3040438fbb24a34cb591"
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "951af45aeb73de9da7639e81a44960dcbc52868668c18432b64e49df866df2b4"
+      "sha256": "7bed81147bd475186feb076d37edd3fc906651f899fef54f7c976a51ef012d33"
     },
     {
       "path": "qa/test_second_review.py",
-      "sha256": "4179a85b9d5f2a496d2661c0b965af537c0fc239c8f90b5dd5c98684be19eb0f"
+      "sha256": "31413d96d7453fc08b3f780a2dc28afc854316c04bab873615621ae077a8a320"
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "f090925f73e87bc75ce6e3ccbd2d8c28015f7956354efd10d170d87a9d328b16"
+      "sha256": "a303b0208afb4988175e5880fe9fbdb36aa4508f6db827023a39639cb605fb55"
     },
     {
       "path": "qa/test_transition_scenarios.py",
@@ -76,11 +100,11 @@
     },
     {
       "path": "schemas/report.schema.json",
-      "sha256": "c104ae2ccad5694908178f1bffb8c00f32cb21b45dd6fa9cb8f46a3882b539b3"
+      "sha256": "2aacaae48fef02a56d393ffded6d9e499cc0f431b9a39c69e4ace7a115aebe49"
     },
     {
       "path": "schemas/spec.schema.json",
-      "sha256": "8248fdebd510087f6c08a8f2b01bc6268485dadbf0bfd2ab3a699285aa9eb0cc"
+      "sha256": "e6d22627841340c770d97058b7b9e73d52f378bc25a992b86c692035147e4ea6"
     }
   ],
   "toolchain": {
@@ -100,5 +124,6 @@
   "limitations": [
     "Local untrusted runner on the same operating system and dependency environment.",
     "No claim of cross-platform compatibility or deployment qualification."
-  ]
+  ],
+  "example_test_count": 32
 }

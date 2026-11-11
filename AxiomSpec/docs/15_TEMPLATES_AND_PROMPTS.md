@@ -37,7 +37,9 @@ Source and decision:
 ## Requirement
 
 ```text
-ID, category, priority and risk:
+ID, category and priority:
+Weight in points (1-100) and the risk band it implies:
+Flag, if any, and behavior with the flag off:
 Goal and source:
 Terms:
 Applicability / state:
@@ -84,6 +86,19 @@ Revision triggers:
 ```
 
 Null is a valid unanswered state. An assistant may recommend an option without attributing acceptance to someone else.
+
+## Release
+
+```text
+Version and previous release (version, digest):
+Breaking candidates the comparison reports:
+For each: breaking with its migration, or compatible, and the decision:
+Flags added, switched or due for removal:
+Change risk score and what was reviewed because of it:
+Product compatibility to verify outside the specification (API, data, mixed versions):
+```
+
+The comparison fills the second line. People fill the rest.
 
 ## Reusable prompts
 

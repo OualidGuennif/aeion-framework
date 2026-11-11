@@ -2,10 +2,10 @@
 
 Augmented specifications with explicit models, bounded constraints and traceable verification.
 
-**Edition 0.4.0 · 11 November 2026**  
-Specification format: `axiomspec/0.1` · Profile: `AX-CORE-0.1` · Report format: `axiomspec-report/0.2`.
+**Edition 0.5.0 · 11 November 2026**  
+Specification format: `axiomspec/0.2` · Profile: `AX-CORE-0.2` · Report format: `axiomspec-report/0.3`.
 
-This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example, reference observations and package QA. It contains no product CLI, graph engine or application test adapter. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); this package's QA does not qualify it.
+This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example with a reference implementation and executed tests, reference observations, a reference release comparison, a migration from format 0.1 and package QA. It contains no product CLI, graph engine or runner adapter. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); it reads format 0.1 and this package's QA does not qualify it.
 
 An augmented specification connects an intended outcome to defined terms, requirements, constraints, scenarios, implementation bindings and evidence. It records uncertainty and decisions explicitly. Deterministic checks make declared properties reproducible; they do not establish that the chosen requirements are complete or correct for the business.
 
@@ -33,6 +33,9 @@ flowchart LR
 - Typed relationships and explicit provenance. A declared implementation link is not proof of behavior.
 - Bounded queries and mandatory context closure. Required rules are never silently removed to fit a response budget.
 - Evidence tied to specification, source, policy, tool and observation revisions.
+- A version on every specification and a deterministic comparison between two releases: what changed by ID, which changes are breaking candidates, and the version step they require.
+- An integer weight on every requirement, from 1 to 100 points in declared minor units, and a change risk score computed from it. The score ranks; it never turns a failed gate into a pass.
+- Feature flags declared in the specification with a state per release, a test for each state and a removal target.
 
 ## Reading guide
 
@@ -44,6 +47,7 @@ flowchart LR
 | Implement validation | [Canonical model](docs/03_CANONICAL_MODEL.md), [constraint semantics](docs/05_CONSTRAINTS_AND_SEMANTICS.md), [gates](docs/06_GATES_AND_EVIDENCE.md) |
 | Retrieve coding context | [Graph and queries](docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md), [agent contract](docs/08_AGENT_CODING_CONTRACT.md), [context admission](docs/17_CONTEXT_DOMAIN_INTERFACE.md) |
 | Verify and maintain behavior | [Testing](docs/09_TEST_STRATEGY_AND_CLOSED_LOOP.md), [change control](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md), [risk and extensions](docs/11_RISK_SECURITY_AND_EXTENSIONS.md) |
+| Version, weigh and flag | [Release, weights and flags](docs/03_CANONICAL_MODEL.md#releases-weights-and-flags), [release comparison and risk score](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md#releases) |
 | Inspect an example | [Ledger walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md), [canonical data](examples/refund-ledger/spec.json) |
 | Declare execution mode | [Task execution and decision policy](docs/08_AGENT_CODING_CONTRACT.md) |
 | Prepare CROA inputs | [Optional readiness profile](docs/18_CROA_READINESS.md) |
@@ -51,10 +55,10 @@ flowchart LR
 
 The [rule index](RULE_INDEX.md) links all normative `AX-*` rules. Schemas define structure; the contracts define additional semantics. Resolve a disagreement between a schema, contract and fixture explicitly before shipping an implementation.
 
-The ledger is fictional. Its formulas have reference checks; its application tests are planned. The aeion-factory engine reports its declared model and plan as `design_ready`; this package's QA emits no phase status, and the [walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md) lists what is still open.
+The ledger is fictional. Its formulas have reference checks, and its 20 test cases run against a reference implementation on SQLite each time the package is verified. This package's QA emits no phase status, and the [walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md) lists what is still open.
 
-Editions 0.3.1 and 0.4.0 keep format `axiomspec/0.1` and profile `AX-CORE-0.1`. 0.3.1 corrects the worked example and checks rules the contracts already stated. 0.4.0 adds before/after scenarios to the example and decides three rules that were open: a collection is never a literal array, a binding kind fixes the node kinds it may name, and a link is declared once. The [review](REVIEW.md#fourth-review) lists each change.
+Edition 0.5.0 changes the core format to `axiomspec/0.2`: release, weights and flags are required fields. A 0.1 specification is not valid 0.2; `python3 qa/migrate_0_1.py` writes a candidate and lists what a person must still decide. Editions 0.3.1 and 0.4.0 kept format 0.1. The [review](REVIEW.md#edition-050) lists each change.
 
-Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
+Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
 
 Start with the handoff and the contracts for the increment being implemented. Do not load this entire package into every coding session.

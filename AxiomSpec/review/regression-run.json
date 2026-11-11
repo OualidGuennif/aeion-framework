@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.4.0",
+  "edition": "0.5.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-11T00:18:54.910089+00:00",
+  "evaluated_at": "2026-11-11T05:12:22.633212+00:00",
   "tests": {
     "test_ids": [
       "test_fourth_review.CheckerDefects.test_add_creates_a_member_and_never_overwrites",
@@ -25,6 +25,44 @@
       "test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix",
       "test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf",
       "test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement",
+      "test_releases_weights_flags.ExampleEvidence.test_every_active_test_case_is_bound_resolved_and_executed",
+      "test_releases_weights_flags.ExampleEvidence.test_missing_unbound_or_unresolved_tests_are_rejected",
+      "test_releases_weights_flags.ExampleEvidence.test_receipt_is_bound_to_the_inputs_it_executed",
+      "test_releases_weights_flags.ExampleEvidence.test_symbols_are_resolved_by_parsing",
+      "test_releases_weights_flags.FeatureFlags.test_flag_registry_rules",
+      "test_releases_weights_flags.FeatureFlags.test_flagged_must_requirement_is_tested_in_both_states",
+      "test_releases_weights_flags.FeatureFlags.test_one_test_states_one_state_per_flag",
+      "test_releases_weights_flags.FeatureFlags.test_optional_requirement_names_its_flag",
+      "test_releases_weights_flags.FeatureFlags.test_reference_to_an_undeclared_flag",
+      "test_releases_weights_flags.Migration.test_candidate_is_valid_and_the_source_is_untouched",
+      "test_releases_weights_flags.Migration.test_command_line_never_overwrites",
+      "test_releases_weights_flags.Migration.test_optional_requirement_gets_a_flag_to_review",
+      "test_releases_weights_flags.Migration.test_unsupported_input_is_rejected",
+      "test_releases_weights_flags.ReleaseComparison.test_breaking_candidate_is_acknowledged_or_overridden_on_record",
+      "test_releases_weights_flags.ReleaseComparison.test_candidate_names_its_baseline_by_version_and_digest",
+      "test_releases_weights_flags.ReleaseComparison.test_change_risk_score_is_weight_times_factor_in_minor_units",
+      "test_releases_weights_flags.ReleaseComparison.test_command_line_reports_pass_fail_and_input_errors",
+      "test_releases_weights_flags.ReleaseComparison.test_constraint_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_declared_step_covers_the_required_one",
+      "test_releases_weights_flags.ReleaseComparison.test_dependents_are_reached_at_a_capped_factor",
+      "test_releases_weights_flags.ReleaseComparison.test_environment_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_flag_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_identity_and_revision_rules",
+      "test_releases_weights_flags.ReleaseComparison.test_ledger_release_1_1_0_is_a_minor_step_with_two_recorded_overrides",
+      "test_releases_weights_flags.ReleaseComparison.test_model_term_and_decision_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_requirement_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_retired_id_is_never_brought_back",
+      "test_releases_weights_flags.ReleaseComparison.test_score_is_the_same_value_in_finer_units",
+      "test_releases_weights_flags.ReleaseComparison.test_traceability_changes_are_patches_and_an_actor_change_is_unmapped",
+      "test_releases_weights_flags.ReleaseComparison.test_unchanged_content_requires_no_step_and_scores_zero",
+      "test_releases_weights_flags.ReleaseDeclaration.test_acknowledged_break_states_its_migration",
+      "test_releases_weights_flags.ReleaseDeclaration.test_compatibility_entry_rests_on_an_answered_active_decision",
+      "test_releases_weights_flags.ReleaseDeclaration.test_first_release_has_nothing_to_be_compatible_with",
+      "test_releases_weights_flags.ReleaseDeclaration.test_version_is_one_step_after_the_named_baseline",
+      "test_releases_weights_flags.WeightsInMinorUnits.test_risk_label_is_the_band_of_the_weight",
+      "test_releases_weights_flags.WeightsInMinorUnits.test_same_weights_are_valid_in_each_unit",
+      "test_releases_weights_flags.WeightsInMinorUnits.test_schema_bounds_the_fields",
+      "test_releases_weights_flags.WeightsInMinorUnits.test_weight_is_one_to_one_hundred_points_in_the_declared_units",
       "test_review_regressions.ReviewRegressions.test_500_row_uniqueness_is_explicitly_unresolved_under_default_budget",
       "test_review_regressions.ReviewRegressions.test_bad_pointer_escape_is_rejected_even_if_matching_key_exists",
       "test_review_regressions.ReviewRegressions.test_canonical_bytes_have_fixed_unicode_and_control_escaping",
@@ -81,7 +119,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 68,
+    "tests_run": 106,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -90,8 +128,12 @@
   },
   "inputs": [
     {
+      "path": "examples/refund-ledger/app/ledger.py",
+      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511"
+    },
+    {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "70b1287de8e54d89def69100abefe82e523cf1abdd20a8e0046ca3ffd18ecc2c"
+      "sha256": "d40b87f6b7d7e2f50cfae42dc192d0c17f824259a6d9ba1c6f0049cde6de3b2b"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -99,23 +141,39 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "086916fbb1554365ff8613b9737d5c42140713cdd4779c79c042b9ee13cacddc"
+      "sha256": "2871264c343d9b30dc36ae7b08fbb6e1e4ed16963994bf88c7da42f150d9f496"
+    },
+    {
+      "path": "examples/refund-ledger/releases/1.0.0.json",
+      "sha256": "93ea973d983ddcad61b159d760541061cb9f9470743b730dd4bcf5b193d491ef"
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "91b3f89483a88b6d4c2e672d9fbc89f23c8a5326ac9697b22ceb92aa4897a6c1"
+      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63"
+    },
+    {
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604"
     },
     {
       "path": "fixtures/conformance.json",
-      "sha256": "0b15f6cadda4577ff3508fdbf4f3b50d3be21ee7498ece63086891772d3ab22a"
+      "sha256": "f37cc069ddd01968c842915aa1ff1758b9785183bb6ef72ed0ec16decde1ab0d"
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "c2b2e172c9adfaa80e17dbb59335808eba1ebc9a67d62a392aaa395347b90c0f"
+      "sha256": "a92fe3193d9907776507f2a62f2bee11c5c741f3c9244bf4f9538def682dcc52"
     },
     {
       "path": "qa/croa_readiness.py",
       "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45"
+    },
+    {
+      "path": "qa/migrate_0_1.py",
+      "sha256": "4b65123019063394e14ef41a8792613ce04aac859846625c2c14e6064e39360e"
+    },
+    {
+      "path": "qa/release_diff.py",
+      "sha256": "99b17a91f85a6fa272660479915aa20ac8ebc3a95eec870d936bc0fe95b91c71"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -123,23 +181,27 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "f06e3570543ec64d2f1849488e772d22c8207ea1c8c1ab6e4cf653f2b2da6898"
+      "sha256": "838ccc3327cec5bd4e357910eaa15ff22958c2617059ae3a3db844f19ab60db6"
     },
     {
       "path": "qa/test_fourth_review.py",
-      "sha256": "4f264e67a27dde241eab70fbf102544d4e398750f5479c69e958fbecb2601409"
+      "sha256": "15364b0470f75196da6ada082144c9f0aa9cff709830be6758c5ccd27cc71973"
+    },
+    {
+      "path": "qa/test_releases_weights_flags.py",
+      "sha256": "476d79a0ba67c4cbc8243ef8b31ccfddd0640b58cd7b3040438fbb24a34cb591"
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "951af45aeb73de9da7639e81a44960dcbc52868668c18432b64e49df866df2b4"
+      "sha256": "7bed81147bd475186feb076d37edd3fc906651f899fef54f7c976a51ef012d33"
     },
     {
       "path": "qa/test_second_review.py",
-      "sha256": "4179a85b9d5f2a496d2661c0b965af537c0fc239c8f90b5dd5c98684be19eb0f"
+      "sha256": "31413d96d7453fc08b3f780a2dc28afc854316c04bab873615621ae077a8a320"
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "f090925f73e87bc75ce6e3ccbd2d8c28015f7956354efd10d170d87a9d328b16"
+      "sha256": "a303b0208afb4988175e5880fe9fbdb36aa4508f6db827023a39639cb605fb55"
     },
     {
       "path": "qa/test_transition_scenarios.py",
@@ -155,11 +217,11 @@
     },
     {
       "path": "schemas/report.schema.json",
-      "sha256": "c104ae2ccad5694908178f1bffb8c00f32cb21b45dd6fa9cb8f46a3882b539b3"
+      "sha256": "2aacaae48fef02a56d393ffded6d9e499cc0f431b9a39c69e4ace7a115aebe49"
     },
     {
       "path": "schemas/spec.schema.json",
-      "sha256": "8248fdebd510087f6c08a8f2b01bc6268485dadbf0bfd2ab3a699285aa9eb0cc"
+      "sha256": "e6d22627841340c770d97058b7b9e73d52f378bc25a992b86c692035147e4ea6"
     }
   ],
   "toolchain": {
@@ -178,10 +240,10 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "c6bf3afa5dbd54bdfa2943df84d47b4d5c622eb2569f5f2103a5fa6d915ddea3"
+    "sha256": "e4acc11041c62e516c1b775fa058aefe77ba103b48f433a86de132227f6dc3f2"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",
-    "No application tests, execution authority or deployed CROA assessment."
+    "Tests of the package checker only; the example application has its own receipt."
   ]
 }

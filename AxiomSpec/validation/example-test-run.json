@@ -1,0 +1,100 @@
+{
+  "format": "axiomspec-test-receipt/0.1",
+  "scope": "example_application",
+  "edition": "0.5.0",
+  "status": "pass",
+  "exit_code": 0,
+  "command": [
+    "python3",
+    "qa/run_checks.py",
+    "--example-tests"
+  ],
+  "runner": {
+    "name": "unittest",
+    "trust": "untrusted_local"
+  },
+  "evaluated_at": "2026-11-11T05:12:24.925404+00:00",
+  "tests": {
+    "test_ids": [
+      "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
+      "test_ledger.Test001CapacityAggregation.test_reserved_and_committed_consume_and_released_does_not",
+      "test_ledger.Test002AdmissionGuard.test_guard_agrees_with_the_specified_formula_at_the_boundaries",
+      "test_ledger.Test003PositiveAmounts.test_zero_amount_row_is_detected",
+      "test_ledger.Test003PositiveAmounts.test_zero_and_negative_requests_are_refused_without_a_record",
+      "test_ledger.Test004DuplicateKeys.test_duplicate_observation_is_detected",
+      "test_ledger.Test004DuplicateKeys.test_store_refuses_a_second_row_for_one_key",
+      "test_ledger.Test005PrincipalGuard.test_guard_agrees_with_the_specified_formula",
+      "test_ledger.Test006CapacityProperty.test_seeded_sequences_keep_the_invariants_after_every_operation",
+      "test_ledger.Test007ConcurrentReservations.test_same_interleaving_overbooks_a_non_atomic_ledger",
+      "test_ledger.Test007ConcurrentReservations.test_second_writer_inside_the_critical_section_is_turned_away",
+      "test_ledger.Test007ConcurrentReservations.test_two_threads_admit_exactly_one",
+      "test_ledger.Test008IdenticalRetry.test_retry_after_a_lost_response_finds_the_persisted_record",
+      "test_ledger.Test008IdenticalRetry.test_retry_returns_the_same_record_and_adds_nothing",
+      "test_ledger.Test009ConflictingRetry.test_conflicting_payload_is_refused_and_the_original_is_intact",
+      "test_ledger.Test010EntrypointReserveCommit.test_malformed_request_reaches_no_operation",
+      "test_ledger.Test010EntrypointReserveCommit.test_reserve_commit_and_refuse_within_capacity",
+      "test_ledger.Test011CrossTenant.test_denied_attempts_satisfy_the_before_after_predicates",
+      "test_ledger.Test011CrossTenant.test_other_tenants_are_denied_and_learn_nothing",
+      "test_ledger.Test012Cancellation.test_cancellation_releases_capacity_once_and_keeps_the_key",
+      "test_ledger.Test013AuditContent.test_audit_rows_hold_identifier_kind_and_outcome_only",
+      "test_ledger.Test014Restart.test_crash_before_commit_leaves_nothing_and_the_retry_is_admitted",
+      "test_ledger.Test014Restart.test_retry_after_restart_finds_the_record",
+      "test_ledger.Test015NewKeyAdmitted.test_new_key_is_admitted_beside_an_existing_record",
+      "test_ledger.Test016OwnTenantServed.test_verified_principal_of_the_ledger_tenant_is_served",
+      "test_ledger.Test017InapplicableCommand.test_commands_that_do_not_apply_change_nothing",
+      "test_ledger.Test017InapplicableCommand.test_refusal_that_moved_a_terminal_record_is_detected",
+      "test_ledger.Test018ApplicableCommand.test_commands_on_reserved_records_apply",
+      "test_ledger.Test019RemainingReportOn.test_flag_is_the_one_the_specification_declares",
+      "test_ledger.Test019RemainingReportOn.test_remaining_capacity_is_reported",
+      "test_ledger.Test020RemainingReportOff.test_flag_is_the_one_the_specification_declares",
+      "test_ledger.Test020RemainingReportOff.test_report_is_unavailable_and_discloses_nothing"
+    ],
+    "tests_run": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "expected_failures": 0,
+    "unexpected_successes": 0
+  },
+  "inputs": [
+    {
+      "path": "examples/refund-ledger/app/ledger.py",
+      "sha256": "274ac01e6e5ec29ab1f0edfa6c22d6127a84e24d7b15aa213c72f35b98964511"
+    },
+    {
+      "path": "examples/refund-ledger/spec.json",
+      "sha256": "6d1137e5f73c1bf2c63bea8a3653c29fcc30d3402cd650ff663124aea7d6cc63"
+    },
+    {
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "sha256": "0aa83fc2fd532a76c26a101a03229a6bb92ac47ddbfa5227266f253ec33f6604"
+    },
+    {
+      "path": "qa/check_package.py",
+      "sha256": "a92fe3193d9907776507f2a62f2bee11c5c741f3c9244bf4f9538def682dcc52"
+    }
+  ],
+  "toolchain": {
+    "python": "3.12.8",
+    "implementation": "CPython",
+    "system": "Darwin",
+    "machine": "arm64",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "attrs": "26.1.0",
+      "jsonschema-specifications": "2025.9.1",
+      "referencing": "0.37.0",
+      "rpds-py": "2026.9.1",
+      "typing-extensions": "4.16.0"
+    }
+  },
+  "environment": "SQLite database files in a temporary directory on the local host",
+  "raw_output": {
+    "path": "validation/example-test-output.txt",
+    "sha256": "020bee9309f973b3a0d6ba2b0bf9dab761e164e7dc977bfcb1febb1f931397bc"
+  },
+  "limitations": [
+    "Local untrusted producer. Hash consistency does not authenticate this receipt.",
+    "A reference implementation on local SQLite, not a production store or deployment."
+  ]
+}

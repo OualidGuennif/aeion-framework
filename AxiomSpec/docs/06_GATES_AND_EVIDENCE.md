@@ -19,6 +19,7 @@ Checks concern a specification baseline, change, implementation or runtime windo
 | G11 | Evidence integrity and freshness |
 | G12 | Policy-required authority and decisions |
 | G13 | Runtime observations in a stated window |
+| G14 | Release comparison with the named baseline: identity, classification, version step |
 
 Diagnostics have stable codes, subjects, JSON Pointers and explanations. Version code meanings independently of explanation wording.
 
@@ -34,10 +35,12 @@ Expose supported capabilities. Missing language resolution, identity, solver or 
 
 | Output | Minimum conditions |
 |---|---|
-| design_ready | G01-G07 pass; blocking decisions answered and assumptions validated |
+| design_ready | G01-G07 pass; blocking decisions answered and assumptions validated; G14 pass when the release names a previous baseline |
 | coding_packet_ready | design_ready, G08, G09 for existing sources, G12 decisions required by policy |
 | implementation_accepted | Applicable G01-G12, resolved required bindings, fresh executed test evidence |
 | runtime_conformance_observed | G13 for specified traces and window |
+
+A first release has nothing to compare: G14 is then not required and reports not_applicable with that reason. When `release.previous` is set, G14 is required, and it is unknown until the named baseline is supplied.
 
 Greenfield coding packets may retain explicitly planned bindings. They cannot claim accepted implementation. Design readiness does not authenticate business approval. The core emits no `release_authorized` status.
 
@@ -47,9 +50,11 @@ An active must requirement satisfies an active goal. Active requirements have so
 
 Unit references target Terms. State guards are Boolean BCIR constraints in the model's environment, not review protocols. Never repair an ID by choosing a similar name.
 
+A requirement or test names only declared flags; a flag has a declared owner, governs at least one requirement and is not past its removal target. A release that names a baseline is one version step after it, and each compatibility entry rests on an active answered Decision (AX-M-017, AX-M-019).
+
 ### AX-G-004 — Decisions and assumptions
 
-A blocking active Decision with null answer prevents design readiness. So does a blocking Assumption not validated. AI proposals do not become confirmed answers through silence. Authenticated authority is checked separately by G12.
+A blocking active Decision with null answer prevents design readiness. So does a blocking Assumption not validated. A weight lies within 1 to 100 points in the declared units and the risk label is its band (AX-M-018). AI proposals do not become confirmed answers through silence. Authenticated authority is checked separately by G12.
 
 ### AX-G-005 — State models
 
@@ -62,6 +67,8 @@ Validate given data against its environment and referenced expectations against 
 ### AX-G-007 — Verification plan
 
 Each active must requirement has an active TestCase with an explicit oracle. High/critical requirements need normal and negative behavior cases, plus integration or E2E verification appropriate to the behavior. Policy adds relevant concurrency, authorization and recovery obligations.
+
+An active must requirement behind a flag has an active TestCase with the flag enabled and another with it disabled.
 
 `TestCase.negative` distinguishes normal cases from refusal/violation cases. For a requirement that itself states a refusal (pattern `unwanted`), the negative case is the trigger firing and the normal case is a nearby admissible request that must still succeed; a refusal rule tested only by refusals does not show that it refuses the right requests. Its referenced scenarios must illustrate the requirement being verified. `Scenario.intent` is a different axis: admissible state or counterexample. A shared link or snapshot alone does not establish a meaningful retry/recovery oracle. This gate checks the plan; G10 checks real execution.
 
@@ -85,7 +92,7 @@ A test receipt identifies executed test IDs, level, authorized command/adapter, 
 
 A JSON receipt can be fabricated when its author controls the evidence store. High-risk acceptance needs the independent runner, storage or attestation required by policy. Use `untrusted_local` until that boundary exists. Local hashing does not establish producer identity.
 
-### AX-G-012 — Report envelope 0.2
+### AX-G-012 — Report envelope
 
 Require profile, requested_phase, available_capabilities, unsupported_capabilities and configuration reference, plus subjects and checks. Capability lists cannot overlap. Configuration points to normalized options by byte digest; required missing configuration remains unknown.
 
@@ -97,7 +104,11 @@ Require profile, requested_phase, available_capabilities, unsupported_capabiliti
 | implementation | implementation_accepted |
 | runtime | runtime_conformance_observed |
 
-Semantic validation enforces these combinations and aggregation. Report 0.1 could not express all required metadata; regenerate it as 0.2 from real inputs rather than invent missing values. The canonical specification format remains 0.1.
+Semantic validation enforces these combinations and aggregation. Report 0.3 adds gate G14 and names profile `AX-CORE-0.2`; it reports on specifications in format 0.2. Regenerate an older report from real inputs rather than edit its version.
+
+### AX-G-013 — Release comparison
+
+G14 takes a candidate and the baseline it names and applies AX-L-006 to AX-L-008. Its report gives every changed ID with its level and reasons, the errors, the required and declared steps and the change risk score. It fails on an identity or revision error, an unacknowledged breaking candidate, an unused compatibility entry or a version step that is too small. The score is reported next to the result and has no part in it.
 
 ## Invalidation
 

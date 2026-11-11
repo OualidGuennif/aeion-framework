@@ -1,5 +1,5 @@
 {
-  "format": "axiomspec-conformance-vectors/0.1",
+  "format": "axiomspec-conformance-vectors/0.2",
   "baseline": "examples/refund-ledger/spec.json",
   "vectors": [
     {
@@ -136,6 +136,118 @@
       },
       "expected_schema_valid": true,
       "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-011",
+      "purpose": "Weight below one point in the declared minor units rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/7/data/weight_minor",
+        "value": 5
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-012",
+      "purpose": "Risk label that disagrees with the weight band rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/7/data/risk",
+        "value": "low"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-013",
+      "purpose": "Requirement naming an undeclared flag rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/7/data/flag_id",
+        "value": "FLAG-999"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-014",
+      "purpose": "Flagged must requirement tested in one flag state only rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/85/data/flag_states",
+        "value": []
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G07",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-015",
+      "purpose": "Flag kept past its removal target reported",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/flags/0",
+        "value": {
+          "id": "FLAG-001",
+          "key": "remaining_capacity_report",
+          "title": "Remaining-capacity report",
+          "state": "disabled",
+          "owner": "ACTOR-001",
+          "introduced_in": "1.0.0",
+          "remove_by": "1.1.0"
+        }
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-016",
+      "purpose": "Version that skips a step after the named baseline rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/release/version",
+        "value": "1.2.0"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-017",
+      "purpose": "Acknowledged breaking change without a migration rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/release/compatibility/0/classification",
+        "value": "breaking"
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-018",
+      "purpose": "Optional requirement without a flag rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/nodes/83/data/flag_id",
+        "value": null
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G04",
       "expected_outcome": "fail"
     },
     {

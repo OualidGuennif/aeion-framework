@@ -26,7 +26,7 @@ Keep secrets out of specifications, fixtures, graphs and logs. Reference secret 
 
 ## Product controls
 
-Connect Risk to affected goals/requirements, Control to Risk, then requirements realizing the control. Name enforcement location and negative tests. A prompt rule does not establish prevention. Framework security and target-product security remain separate subjects.
+Connect Risk to affected goals/requirements, Control to Risk, then requirements realizing the control. Name enforcement location and negative tests. A requirement's weight says how much depends on it and feeds the change risk score; it is not a control and mitigates nothing. A prompt rule does not establish prevention. Framework security and target-product security remain separate subjects.
 
 ## Governance and ML
 

@@ -1,6 +1,6 @@
 # Package validation: pass
 
-Run: 2026-11-11T00:18:55.392086+00:00.
+Run: 2026-11-11T05:12:26.163395+00:00.
 
 **Scope: design package. No product or example-application acceptance is asserted.**
 
@@ -8,21 +8,24 @@ Python 3.12.8; jsonschema 4.26.0; untrusted local runner.
 
 ## Results
 
-- `PKG.EDITORIAL` : **pass** — 158 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.
+- `PKG.EDITORIAL` : **pass** — 171 local link targets, 3 JSON blocks and 112 unique normative rule headings checked. External URLs not revalidated by this script.
 - `PKG.ENVIRONMENTS` : **pass** — Restricted environment shapes and all scenario observations valid.
-- `PKG.NEGATIVE_FIXTURES` : **pass** — 10 mutations verified with expected diagnostics; 30 future product obligations NOT executed.
-- `PKG.OBSERVATIONS` : **pass** — 61 reference expectations checked across all 17 synthetic observations; no application tests.
+- `PKG.EXAMPLE_TESTS` : **pass** — 32 example application tests executed on current inputs cover all 20 active TestCases; 29 required bindings resolve. Local SQLite reference implementation, untrusted producer.
+- `PKG.NEGATIVE_FIXTURES` : **pass** — 18 mutations verified with expected diagnostics; 30 future product obligations NOT executed.
+- `PKG.OBSERVATIONS` : **pass** — 79 reference expectations checked across all 26 synthetic observations. Fixtures, not application runs.
 - `PKG.OPTIONAL_EXTENSIONS` : **pass** — Execution declaration and CROA input fixture valid; 37 unassessed items, 13 unknown findings. No execution authority or CROA conformance.
 - `PKG.QA_SELF_CHECKS` : **pass** — 17 targeted QA parser/evaluator self-checks passed; no full static typing qualification.
-- `PKG.REFERENCES` : **pass** — Selected reference checks passed: 67 nodes, 135 edges. No completeness claim.
-- `PKG.REGRESSION_RECEIPT` : **pass** — 68 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.
+- `PKG.REFERENCES` : **pass** — Selected reference checks passed: 86 nodes, 174 edges. No completeness claim.
+- `PKG.REGRESSION_RECEIPT` : **pass** — 106 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.
+- `PKG.RELEASE` : **pass** — Reference G14 comparison 1.0.0 -> 1.1.0: 105 changes, required step minor, change risk score 179.250 points. Classification is mechanical, not a compatibility proof.
 - `PKG.SCHEMAS` : **pass** — Four schema documents valid under Draft 2020-12; example shape valid.
 
 ## Limits
 
 - Artifact QA only. The product CLI, static type/unit compiler, graph/query engine and test adapters are not implemented.
 - 30 future product obligations are descriptions, not executed tests.
-- No application unit/integration/E2E tests were run; planned bindings are fictitious.
+- The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.
+- Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.
 - Local untrusted runner; no identity attestation, runtime isolation or production approval.
 - Reference evaluation is not proof of business completeness, formal equivalence or all executions.
 

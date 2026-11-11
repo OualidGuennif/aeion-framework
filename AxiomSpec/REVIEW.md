@@ -1,10 +1,10 @@
 # Final global review
 
-Edition 0.4.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the section after it edition 0.4.0. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.5.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the two sections after it editions 0.4.0 and 0.5.0. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
-**Suitable as a design handoff and local reference package for a small implementation pilot. Not a completed specification engine or an autonomous execution authority.**
+**Suitable as a design handoff and local reference package for a small implementation pilot. Not a completed specification engine or an autonomous execution authority.** Edition 0.5.0 does not change that verdict: it adds release, weight and flag semantics with reference implementations and one executed example, none of them qualified on a real product.
 
 The useful core is explicit requirements, stable IDs, typed links, named decisions and evidence tied to revisions. Those mechanisms are worth testing on a real change. Generality, lower maintenance cost and reliability at scale remain hypotheses.
 
@@ -105,6 +105,49 @@ Cancellation, commitment and audit output have no before/after observation. No r
 
 `tools/check_repo.py` applies the package's link, JSON and specification checks to the root README and the playbooks, which the self-contained package QA cannot read. A workflow replays both on every push. The playbooks themselves are unchanged.
 
+## Edition 0.5.0
+
+11 November 2026. The specification format changes to `axiomspec/0.2` and the profile to `AX-CORE-0.2`. Until this edition the format described one snapshot well and said almost nothing checkable about the step from one snapshot to the next: no release number, no record of what changed, no numeric weight, no flag, no classification of a change as breaking. These are now required fields and one new gate, not an optional sidecar.
+
+### What the format gains
+
+| Subject | Field | Checked rule | Contract |
+|---|---|---|---|
+| Release | `release.version`, `release.previous` | One version step after the named baseline | AX-M-017 |
+| Compatibility | `release.compatibility` | Each entry rests on an active answered Decision; a break states its migration | AX-M-017, AX-L-007 |
+| Weight | `project.weight_minor_units`, `weight_minor` on every requirement | 1 to 100 points in units of 1, 10 or 100; the risk label is the band of the weight | AX-M-018 |
+| Flag | `flags`, `flag_id` on requirements, `flag_states` on tests | Declared, owned, used, tested in both states for a must requirement, removed by its target version | AX-M-019 |
+| Release comparison | Gate G14, two documents | Identity and revision rules, classification by ID, recorded overrides, version step, change risk score | AX-L-006 to AX-L-009 |
+
+`qa/release_diff.py` is a reference implementation of G14 and `qa/migrate_0_1.py` of the migration. Report format 0.3 adds the gate. Eight conformance vectors and 38 regression tests cover the new rules; the comparison tests derive every candidate from a real baseline and check the score arithmetic by hand.
+
+### Decisions taken in the design
+
+- **The risk label stays and is derived.** The weight is the number; the label is its band. Rules keyed on risk keep working and can no longer disagree with the weight.
+- **The classifier is conservative and overridable.** It cannot tell a tightened formula from a relaxed one. Both are breaking candidates until a recorded decision says `compatible`. An override lowers the change to minor, never to nothing, and an unused override fails.
+- **The score never touches a gate.** It ranks releases for review. The existing rule against compensating scores (AX-K-005) is unchanged.
+- **A flag waives nothing.** A requirement behind a disabled flag keeps every obligation. A flag past its removal target fails the baseline.
+- **Flag state is per release, not per environment.** Deployment overrides are runtime configuration and belong to G13.
+
+### The ledger
+
+Three items left open by 0.4.0 are closed.
+
+- **Cancellation and commitment** have a before/after environment (ENV-003), two predicates and nine scenarios, four of them counterexamples.
+- **Commands on a record in the wrong state** have a requirement (REQ-009) and a decision (DEC-003): a repeated command is reported as already done, a contradictory one is refused, and neither changes the ledger.
+- **The tests run.** A reference implementation on SQLite and 32 test methods cover all 20 TestCases. Package QA resolves every binding by parsing, runs the tests and binds the receipt to the digest of every executed input. The concurrency test forces the interleaving and is also run against a variant without the transaction, which it must and does catch.
+
+The example now has two releases. Comparing them raises two breaking candidates, both new predicates on requirements 1.0.0 already had; DEC-004 records why they are compatible. The step is minor and the score is 179.25 of 592.5 active points.
+
+### What this edition does not establish
+
+- The classification and the score were exercised on one fictional example and on synthetic single-change candidates. Whether the classifier's candidates match what reviewers of a real product call breaking, and whether the score orders releases as incident history would, is unmeasured.
+- The factors (100%, 50%, 10%, dependents at most 25%) and the band limits (25, 50, 75) are choices, not findings. They are stated in one place each so a pilot can change and compare them.
+- The executed evidence is one example on local SQLite from an untrusted producer. No runner adapter, other language or other store is qualified.
+- One specification is one file of at most one megabyte. References between specifications are undefined.
+- aeion-factory and aeion-core read format 0.1. The external `design_ready` result reported for 0.4.0 does not carry over to release 1.1.0.
+- This is still a review by the assistant that wrote the change.
+
 ## Confirmed findings and corrections
 
 | Finding | Before correction | Correction |
@@ -158,9 +201,9 @@ The optional sidecar carries selected readiness inputs and evidence links, with 
 
 ## Remaining blockers to stronger claims
 
-1. **Ledger design readiness:** authorized-access, retry, invalid-transition and recovery cases need full behavioral oracles. Its 14 application tests remain planned. No design_ready status is emitted. *(0.4.0: authorized access, retry, refusal, conflict and denial now have scenarios and predicates; an external engine reports design_ready for the declared model. Invalid transitions still have no requirement, and the 16 tests remain planned.)*
+1. **Ledger design readiness:** authorized-access, retry, invalid-transition and recovery cases need full behavioral oracles. Its 14 application tests remain planned. No design_ready status is emitted. *(0.4.0: authorized access, retry, refusal, conflict and denial now have scenarios and predicates; an external engine reports design_ready for the declared model. Invalid transitions still have no requirement, and the 16 tests remain planned.)* *(0.5.0: invalid transitions have REQ-009, cancellation and commitment have before/after scenarios, and all 20 tests are executed on a reference implementation. Audit output still has no scenario.)*
 2. **Evaluation cost:** CON-004 is quadratic and exhausts the reference budget at 500 rows although the environment admits 1,000. This remains unknown, not pass. Qualify the algorithm and its declared budget together before claiming the full bound.
-3. **Engine implementation:** complete static analysis, graph/query APIs, real binding resolution, product runners, trusted identity and operational evidence are absent from this package. The matrix lists gaps per gate. *(0.3.1: aeion-factory 3.0.0 implements G01-G07, graph queries, context packets and one test adapter outside this package; it reports identity, policy and runtime observation as unsupported. This package does not qualify it.)*
+3. **Engine implementation:** complete static analysis, graph/query APIs, real binding resolution, product runners, trusted identity and operational evidence are absent from this package. The matrix lists gaps per gate. *(0.3.1: aeion-factory 3.0.0 implements G01-G07, graph queries, context packets and one test adapter outside this package; it reports identity, policy and runtime observation as unsupported. This package does not qualify it.)* *(0.5.0: this package now resolves Python bindings and runs tests for its one example, and has a reference G14. That engine reads format 0.1.)*
 4. **External validity:** no independent assessor or comparative study establishes generality or scale benefits. *(0.3.1: aeion-factory carries a second domain as a field test, a holiday planner built by a coding agent against a checked specification. It is the authors' own demonstration, not a comparative study.)*
 
 These are qualification work, not problems solved by another editorial review.

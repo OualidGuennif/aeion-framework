@@ -1,12 +1,34 @@
 {
-  "format": "axiomspec/0.1",
-  "profile": "AX-CORE-0.1",
+  "format": "axiomspec/0.2",
+  "profile": "AX-CORE-0.2",
+  "release": {
+    "version": "1.1.0",
+    "previous": {
+      "version": "1.0.0",
+      "spec_sha256": "68fd20c88a17423133f937d5bef5beeb11e4259317df141d6926dc1697ae6949"
+    },
+    "compatibility": [
+      {
+        "subject_id": "CON-009",
+        "classification": "compatible",
+        "decision_id": "DEC-004",
+        "migration": null
+      },
+      {
+        "subject_id": "CON-010",
+        "classification": "compatible",
+        "decision_id": "DEC-004",
+        "migration": null
+      }
+    ]
+  },
   "project": {
     "id": "PROJECT-001",
     "name": "RefundLedger demonstration",
     "description": "Fictional local authorization ledger; no money movement, payment provider or deployment integration.",
     "owner": "ACTOR-001",
-    "mode": "example"
+    "mode": "example",
+    "weight_minor_units": 10
   },
   "actors": [
     {
@@ -364,6 +386,200 @@
           "term_id": "TERM-001"
         }
       ]
+    },
+    {
+      "id": "ENV-003",
+      "title": "One cancel or commit command observed before and after",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "before": {
+            "type": "object",
+            "properties": {
+              "captured_minor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              },
+              "refunds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "key": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "amount_minor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "status": {
+                      "enum": [
+                        "reserved",
+                        "committed",
+                        "released",
+                        "rejected"
+                      ],
+                      "type": "string",
+                      "maxLength": 9
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "amount_minor",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 0,
+                "maxItems": 1000
+              }
+            },
+            "required": [
+              "captured_minor",
+              "refunds"
+            ],
+            "additionalProperties": false
+          },
+          "after": {
+            "type": "object",
+            "properties": {
+              "captured_minor": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100000000
+              },
+              "refunds": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "key": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "amount_minor": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000000
+                    },
+                    "status": {
+                      "enum": [
+                        "reserved",
+                        "committed",
+                        "released",
+                        "rejected"
+                      ],
+                      "type": "string",
+                      "maxLength": 9
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "key",
+                    "amount_minor",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 0,
+                "maxItems": 1000
+              }
+            },
+            "required": [
+              "captured_minor",
+              "refunds"
+            ],
+            "additionalProperties": false
+          },
+          "command": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "cancel",
+                  "commit"
+                ],
+                "type": "string",
+                "maxLength": 6
+              },
+              "record_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "outcome": {
+                "enum": [
+                  "released",
+                  "committed",
+                  "repeated",
+                  "refused",
+                  "not_found",
+                  "denied"
+                ],
+                "type": "string",
+                "maxLength": 9
+              }
+            },
+            "required": [
+              "kind",
+              "record_id",
+              "outcome"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "before",
+          "after",
+          "command"
+        ],
+        "additionalProperties": false
+      },
+      "units": [
+        {
+          "pointer": "/before/captured_minor",
+          "term_id": "TERM-001"
+        },
+        {
+          "pointer": "/before/refunds/*/amount_minor",
+          "term_id": "TERM-001"
+        },
+        {
+          "pointer": "/after/captured_minor",
+          "term_id": "TERM-001"
+        },
+        {
+          "pointer": "/after/refunds/*/amount_minor",
+          "term_id": "TERM-001"
+        }
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "id": "FLAG-001",
+      "key": "remaining_capacity_report",
+      "title": "Remaining-capacity report",
+      "state": "disabled",
+      "owner": "ACTOR-001",
+      "introduced_in": "1.1.0",
+      "remove_by": "1.3.0"
     }
   ],
   "nodes": [
@@ -510,7 +726,9 @@
         "trigger": "a reservation would consume more than the captured capacity",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "reject the reservation without changing the ledger"
+        "response": "reject the reservation without changing the ledger",
+        "weight_minor": 700,
+        "flag_id": null
       }
     },
     {
@@ -534,7 +752,9 @@
         "trigger": "a request repeats an existing tenant/payment/key with the same payload",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "return the existing reservation identifier without adding a record"
+        "response": "return the existing reservation identifier without adding a record",
+        "weight_minor": 600,
+        "flag_id": null
       }
     },
     {
@@ -558,7 +778,9 @@
         "trigger": "a tenant/payment/key is reused with a different payload",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "reject the conflicting request without changing the original record"
+        "response": "reject the conflicting request without changing the original record",
+        "weight_minor": 600,
+        "flag_id": null
       }
     },
     {
@@ -582,7 +804,9 @@
         "trigger": "the principal is unverified or the principal, request and target ledger tenants do not all match",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "deny the request without disclosing or changing another tenant ledger"
+        "response": "deny the request without disclosing or changing another tenant ledger",
+        "weight_minor": 950,
+        "flag_id": null
       }
     },
     {
@@ -606,7 +830,9 @@
         "trigger": "a reserved authorization is definitively cancelled before commitment",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "release its capacity while retaining its idempotency record"
+        "response": "release its capacity while retaining its idempotency record",
+        "weight_minor": 550,
+        "flag_id": null
       }
     },
     {
@@ -630,7 +856,9 @@
         "trigger": "an authorized commit command targets a reserved record",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "mark that record committed atomically without consuming capacity a second time"
+        "response": "mark that record committed atomically without consuming capacity a second time",
+        "weight_minor": 700,
+        "flag_id": null
       }
     },
     {
@@ -654,7 +882,9 @@
         "trigger": "an authorization attempt completes or is denied",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "record the operation identifier and outcome without copying credentials or complete request bodies"
+        "response": "record the operation identifier and outcome without copying credentials or complete request bodies",
+        "weight_minor": 375,
+        "flag_id": null
       }
     },
     {
@@ -1730,7 +1960,7 @@
     {
       "id": "TEST-001",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Capacity aggregation uses consuming states",
       "owner": "ACTOR-001",
@@ -1741,20 +1971,21 @@
       "data": {
         "level": "unit",
         "oracle": "Capacity aggregation uses consuming states. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-001",
           "SCN-002",
           "SCN-007"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-002",
       "kind": "TestCase",
-      "revision": 3,
+      "revision": 4,
       "status": "active",
       "title": "Admission guard checks amount and remaining capacity",
       "owner": "ACTOR-001",
@@ -1765,7 +1996,7 @@
       "data": {
         "level": "unit",
         "oracle": "Admission guard checks amount and remaining capacity. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
@@ -1773,13 +2004,14 @@
           "SCN-003",
           "SCN-004",
           "SCN-010"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-003",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Amounts are positive",
       "owner": "ACTOR-001",
@@ -1790,19 +2022,20 @@
       "data": {
         "level": "unit",
         "oracle": "Amounts are positive. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-003",
           "SCN-004"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-004",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Duplicate keys are detected",
       "owner": "ACTOR-001",
@@ -1813,18 +2046,19 @@
       "data": {
         "level": "unit",
         "oracle": "Duplicate keys are detected. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-005"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-005",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Principal guard is explicit",
       "owner": "ACTOR-001",
@@ -1835,20 +2069,21 @@
       "data": {
         "level": "unit",
         "oracle": "Principal guard is explicit. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-006",
           "SCN-008",
           "SCN-009"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-006",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Sequences preserve capacity after every accepted transition",
       "owner": "ACTOR-001",
@@ -1859,20 +2094,21 @@
       "data": {
         "level": "property",
         "oracle": "Sequences preserve capacity after every accepted transition. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-001",
           "SCN-002",
           "SCN-007"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-007",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Two simultaneous reservations cannot overbook",
       "owner": "ACTOR-001",
@@ -1883,7 +2119,7 @@
       "data": {
         "level": "integration",
         "oracle": "Two simultaneous reservations cannot overbook. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
@@ -1891,13 +2127,14 @@
           "SCN-002",
           "SCN-010",
           "SCN-011"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-008",
       "kind": "TestCase",
-      "revision": 4,
+      "revision": 5,
       "status": "active",
       "title": "Identical retries return the same record",
       "owner": "ACTOR-001",
@@ -1908,20 +2145,21 @@
       "data": {
         "level": "integration",
         "oracle": "Identical retries return the same record. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
           "SCN-005",
           "SCN-012",
           "SCN-013"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-009",
       "kind": "TestCase",
-      "revision": 3,
+      "revision": 4,
       "status": "active",
       "title": "Conflicting retries are rejected without mutation",
       "owner": "ACTOR-001",
@@ -1932,19 +2170,20 @@
       "data": {
         "level": "integration",
         "oracle": "Conflicting retries are rejected without mutation. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-005",
           "SCN-014"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-010",
       "kind": "TestCase",
-      "revision": 3,
+      "revision": 4,
       "status": "active",
       "title": "Public entrypoint reserves and commits within capacity",
       "owner": "ACTOR-001",
@@ -1955,20 +2194,22 @@
       "data": {
         "level": "e2e",
         "oracle": "Public entrypoint reserves and commits within capacity. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
           "SCN-003",
           "SCN-002",
-          "SCN-015"
-        ]
+          "SCN-015",
+          "SCN-020"
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-011",
       "kind": "TestCase",
-      "revision": 3,
+      "revision": 4,
       "status": "active",
       "title": "Cross-tenant request exposes no record",
       "owner": "ACTOR-001",
@@ -1979,21 +2220,23 @@
       "data": {
         "level": "e2e",
         "oracle": "Cross-tenant request exposes no record. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
         "witness_scenario_ids": [
           "SCN-006",
           "SCN-008",
           "SCN-009",
-          "SCN-017"
-        ]
+          "SCN-017",
+          "SCN-026"
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-012",
       "kind": "TestCase",
-      "revision": 3,
+      "revision": 4,
       "status": "active",
       "title": "Cancellation releases once and preserves retained key",
       "owner": "ACTOR-001",
@@ -2004,18 +2247,21 @@
       "data": {
         "level": "integration",
         "oracle": "Cancellation releases once and preserves retained key. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
-          "SCN-007"
-        ]
+          "SCN-007",
+          "SCN-018",
+          "SCN-024"
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-013",
       "kind": "TestCase",
-      "revision": 2,
+      "revision": 3,
       "status": "active",
       "title": "Audit messages exclude credentials and raw payload",
       "owner": "ACTOR-001",
@@ -2026,16 +2272,17 @@
       "data": {
         "level": "integration",
         "oracle": "Audit messages exclude credentials and raw payload. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": true,
-        "witness_scenario_ids": []
+        "witness_scenario_ids": [],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-014",
       "kind": "TestCase",
-      "revision": 4,
+      "revision": 5,
       "status": "active",
       "title": "Restart after write preserves retry semantics",
       "owner": "ACTOR-001",
@@ -2046,13 +2293,14 @@
       "data": {
         "level": "integration",
         "oracle": "Restart after write preserves retry semantics. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
           "SCN-005",
           "SCN-012"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
@@ -2241,7 +2489,9 @@
         "trigger": "an authorized reservation request with an unused key fits the remaining captured capacity",
         "feature": null,
         "subject": "RefundLedger",
-        "response": "record exactly one reserved authorization for the requested amount"
+        "response": "record exactly one reserved authorization for the requested amount",
+        "weight_minor": 650,
+        "flag_id": null
       }
     },
     {
@@ -3259,7 +3509,7 @@
     {
       "id": "TEST-015",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "A new key is admitted while existing records are retained",
       "owner": "ACTOR-001",
@@ -3270,19 +3520,20 @@
       "data": {
         "level": "integration",
         "oracle": "A new key is admitted while existing records are retained. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
           "SCN-015",
           "SCN-016"
-        ]
+        ],
+        "flag_states": []
       }
     },
     {
       "id": "TEST-016",
       "kind": "TestCase",
-      "revision": 1,
+      "revision": 2,
       "status": "active",
       "title": "Verified principal of the ledger tenant is served",
       "owner": "ACTOR-001",
@@ -3293,11 +3544,1456 @@
       "data": {
         "level": "e2e",
         "oracle": "Verified principal of the ledger tenant is served. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
-        "state": "planned",
+        "state": "implemented",
         "runner": "unittest",
         "negative": false,
         "witness_scenario_ids": [
           "SCN-003"
+        ],
+        "flag_states": []
+      }
+    },
+    {
+      "id": "DEC-003",
+      "kind": "Decision",
+      "revision": 1,
+      "status": "active",
+      "title": "Command on a record that is not reserved",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "question": "What does a cancel or commit command do when its record is not reserved?",
+        "options": [
+          "Refuse every such command",
+          "Report a repeated command as already done and refuse a contradictory one; neither changes the ledger"
+        ],
+        "answer": "Report a repeated command as already done and refuse a contradictory one; neither changes the ledger",
+        "blocking": true,
+        "rationale": "A cancel or commit retried after a lost response must not look like a failure, and a contradictory command, such as cancelling a committed record, must not move a terminal record. This is a fictional reference decision."
+      }
+    },
+    {
+      "id": "REQ-009",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Leave the ledger unchanged when a command does not apply",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "high",
+        "verification_mode": "executable",
+        "pattern": "unwanted",
+        "conditions": [],
+        "trigger": "a cancel or commit command targets a record that is not reserved or does not exist",
+        "feature": null,
+        "subject": "RefundLedger",
+        "response": "report a repeated command as already done and refuse any other, without changing the ledger",
+        "weight_minor": 600,
+        "flag_id": null
+      }
+    },
+    {
+      "id": "CON-009",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "A command that applies nothing leaves the ledger unchanged",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "predicate_role": "observation_assertion",
+        "representation": "bcir",
+        "environment_id": "ENV-003",
+        "expression": {
+          "kind": "apply",
+          "operator": "implies",
+          "arguments": [
+            {
+              "kind": "apply",
+              "operator": "in",
+              "arguments": [
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/command/outcome"
+                },
+                {
+                  "kind": "literal",
+                  "value": [
+                    "repeated",
+                    "refused",
+                    "not_found",
+                    "denied"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "apply",
+              "operator": "and",
+              "arguments": [
+                {
+                  "kind": "apply",
+                  "operator": "eq",
+                  "arguments": [
+                    {
+                      "kind": "aggregate",
+                      "operator": "count",
+                      "bind": "x",
+                      "collection": {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/after/refunds"
+                      },
+                      "filter": {
+                        "kind": "literal",
+                        "value": true
+                      },
+                      "projection": {
+                        "kind": "literal",
+                        "value": 1
+                      }
+                    },
+                    {
+                      "kind": "aggregate",
+                      "operator": "count",
+                      "bind": "y",
+                      "collection": {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/before/refunds"
+                      },
+                      "filter": {
+                        "kind": "literal",
+                        "value": true
+                      },
+                      "projection": {
+                        "kind": "literal",
+                        "value": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "quantifier",
+                  "operator": "all",
+                  "bind": "b",
+                  "collection": {
+                    "kind": "path",
+                    "root": "env",
+                    "pointer": "/before/refunds"
+                  },
+                  "predicate": {
+                    "kind": "quantifier",
+                    "operator": "exists",
+                    "bind": "a",
+                    "collection": {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/after/refunds"
+                    },
+                    "predicate": {
+                      "kind": "apply",
+                      "operator": "and",
+                      "arguments": [
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/id"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/id"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/key"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/key"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/status"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/status"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/amount_minor"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/amount_minor"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "kind": "apply",
+                  "operator": "eq",
+                  "arguments": [
+                    {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/after/captured_minor"
+                    },
+                    {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/before/captured_minor"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null
+      }
+    },
+    {
+      "id": "CON-010",
+      "kind": "Constraint",
+      "revision": 1,
+      "status": "active",
+      "title": "An applied command moves exactly the targeted reserved record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "classification": {
+          "category": "domain",
+          "explicitness": "explicit",
+          "temporality": "predefined",
+          "strength": "hard"
+        },
+        "scope": "linked",
+        "roles": [
+          "verification"
+        ],
+        "predicate_role": "observation_assertion",
+        "representation": "bcir",
+        "environment_id": "ENV-003",
+        "expression": {
+          "kind": "apply",
+          "operator": "implies",
+          "arguments": [
+            {
+              "kind": "apply",
+              "operator": "in",
+              "arguments": [
+                {
+                  "kind": "path",
+                  "root": "env",
+                  "pointer": "/command/outcome"
+                },
+                {
+                  "kind": "literal",
+                  "value": [
+                    "released",
+                    "committed"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "apply",
+              "operator": "and",
+              "arguments": [
+                {
+                  "kind": "apply",
+                  "operator": "or",
+                  "arguments": [
+                    {
+                      "kind": "apply",
+                      "operator": "and",
+                      "arguments": [
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "env",
+                              "pointer": "/command/kind"
+                            },
+                            {
+                              "kind": "literal",
+                              "value": "cancel"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "env",
+                              "pointer": "/command/outcome"
+                            },
+                            {
+                              "kind": "literal",
+                              "value": "released"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "apply",
+                      "operator": "and",
+                      "arguments": [
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "env",
+                              "pointer": "/command/kind"
+                            },
+                            {
+                              "kind": "literal",
+                              "value": "commit"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "env",
+                              "pointer": "/command/outcome"
+                            },
+                            {
+                              "kind": "literal",
+                              "value": "committed"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "apply",
+                  "operator": "eq",
+                  "arguments": [
+                    {
+                      "kind": "aggregate",
+                      "operator": "count",
+                      "bind": "x",
+                      "collection": {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/after/refunds"
+                      },
+                      "filter": {
+                        "kind": "literal",
+                        "value": true
+                      },
+                      "projection": {
+                        "kind": "literal",
+                        "value": 1
+                      }
+                    },
+                    {
+                      "kind": "aggregate",
+                      "operator": "count",
+                      "bind": "y",
+                      "collection": {
+                        "kind": "path",
+                        "root": "env",
+                        "pointer": "/before/refunds"
+                      },
+                      "filter": {
+                        "kind": "literal",
+                        "value": true
+                      },
+                      "projection": {
+                        "kind": "literal",
+                        "value": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "apply",
+                  "operator": "eq",
+                  "arguments": [
+                    {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/after/captured_minor"
+                    },
+                    {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/before/captured_minor"
+                    }
+                  ]
+                },
+                {
+                  "kind": "quantifier",
+                  "operator": "exists",
+                  "bind": "t",
+                  "collection": {
+                    "kind": "path",
+                    "root": "env",
+                    "pointer": "/before/refunds"
+                  },
+                  "predicate": {
+                    "kind": "apply",
+                    "operator": "and",
+                    "arguments": [
+                      {
+                        "kind": "apply",
+                        "operator": "eq",
+                        "arguments": [
+                          {
+                            "kind": "path",
+                            "root": "t",
+                            "pointer": "/id"
+                          },
+                          {
+                            "kind": "path",
+                            "root": "env",
+                            "pointer": "/command/record_id"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "apply",
+                        "operator": "eq",
+                        "arguments": [
+                          {
+                            "kind": "path",
+                            "root": "t",
+                            "pointer": "/status"
+                          },
+                          {
+                            "kind": "literal",
+                            "value": "reserved"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "quantifier",
+                  "operator": "all",
+                  "bind": "b",
+                  "collection": {
+                    "kind": "path",
+                    "root": "env",
+                    "pointer": "/before/refunds"
+                  },
+                  "predicate": {
+                    "kind": "quantifier",
+                    "operator": "exists",
+                    "bind": "a",
+                    "collection": {
+                      "kind": "path",
+                      "root": "env",
+                      "pointer": "/after/refunds"
+                    },
+                    "predicate": {
+                      "kind": "apply",
+                      "operator": "and",
+                      "arguments": [
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/id"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/id"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/key"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/key"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "eq",
+                          "arguments": [
+                            {
+                              "kind": "path",
+                              "root": "a",
+                              "pointer": "/amount_minor"
+                            },
+                            {
+                              "kind": "path",
+                              "root": "b",
+                              "pointer": "/amount_minor"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "apply",
+                          "operator": "or",
+                          "arguments": [
+                            {
+                              "kind": "apply",
+                              "operator": "and",
+                              "arguments": [
+                                {
+                                  "kind": "apply",
+                                  "operator": "ne",
+                                  "arguments": [
+                                    {
+                                      "kind": "path",
+                                      "root": "b",
+                                      "pointer": "/id"
+                                    },
+                                    {
+                                      "kind": "path",
+                                      "root": "env",
+                                      "pointer": "/command/record_id"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "apply",
+                                  "operator": "eq",
+                                  "arguments": [
+                                    {
+                                      "kind": "path",
+                                      "root": "a",
+                                      "pointer": "/status"
+                                    },
+                                    {
+                                      "kind": "path",
+                                      "root": "b",
+                                      "pointer": "/status"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "apply",
+                              "operator": "and",
+                              "arguments": [
+                                {
+                                  "kind": "apply",
+                                  "operator": "eq",
+                                  "arguments": [
+                                    {
+                                      "kind": "path",
+                                      "root": "b",
+                                      "pointer": "/id"
+                                    },
+                                    {
+                                      "kind": "path",
+                                      "root": "env",
+                                      "pointer": "/command/record_id"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "apply",
+                                  "operator": "eq",
+                                  "arguments": [
+                                    {
+                                      "kind": "path",
+                                      "root": "b",
+                                      "pointer": "/status"
+                                    },
+                                    {
+                                      "kind": "literal",
+                                      "value": "reserved"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "apply",
+                                  "operator": "eq",
+                                  "arguments": [
+                                    {
+                                      "kind": "path",
+                                      "root": "a",
+                                      "pointer": "/status"
+                                    },
+                                    {
+                                      "kind": "path",
+                                      "root": "env",
+                                      "pointer": "/command/outcome"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "review_protocol": null,
+        "enforcement_binding_id": null,
+        "effective_from": null,
+        "effective_until": null
+      }
+    },
+    {
+      "id": "SCN-018",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Cancelling a reserved record releases it",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "released"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-1",
+            "outcome": "released"
+          }
+        },
+        "event": "cancel",
+        "expected": "Only the targeted record changes, from reserved to released; its key and amount are kept.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-019",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Cancellation that also changed another record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "released"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "released"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-1",
+            "outcome": "released"
+          }
+        },
+        "event": "cancel",
+        "expected": "Detect that a record other than the target changed.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-020",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Committing a reserved record commits it",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "committed"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "commit",
+            "record_id": "r-1",
+            "outcome": "committed"
+          }
+        },
+        "event": "commit",
+        "expected": "Only the targeted record changes, from reserved to committed; no record is added.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-021",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Commit reported while the record stays reserved",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "commit",
+            "record_id": "r-1",
+            "outcome": "committed"
+          }
+        },
+        "event": "commit",
+        "expected": "Detect that the reported commitment was not applied.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-022",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Cancelling a committed record is refused",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-2",
+            "outcome": "refused"
+          }
+        },
+        "event": "cancel",
+        "expected": "The committed record and the rest of the ledger are as they were.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-023",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Refused cancellation that still released a committed record",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "counterexample",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "released"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-2",
+            "outcome": "refused"
+          }
+        },
+        "event": "cancel",
+        "expected": "Detect that a refused command moved a terminal record.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": false
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-024",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "Repeating a cancellation changes nothing",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "released"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "released"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-1",
+            "outcome": "repeated"
+          }
+        },
+        "event": "cancel",
+        "expected": "The repeated command is reported as already done; the released record keeps its key.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-025",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "A command on an unknown record changes nothing",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "commit",
+            "record_id": "r-9",
+            "outcome": "not_found"
+          }
+        },
+        "event": "commit",
+        "expected": "No record is created or changed.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN-026",
+      "kind": "Scenario",
+      "revision": 1,
+      "status": "active",
+      "title": "A denied command changes nothing",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "intent": "witness",
+        "environment_id": "ENV-003",
+        "given": {
+          "before": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "after": {
+            "captured_minor": 1000,
+            "refunds": [
+              {
+                "id": "r-1",
+                "key": "a",
+                "amount_minor": 600,
+                "status": "reserved"
+              },
+              {
+                "id": "r-2",
+                "key": "b",
+                "amount_minor": 300,
+                "status": "committed"
+              }
+            ]
+          },
+          "command": {
+            "kind": "cancel",
+            "record_id": "r-1",
+            "outcome": "denied"
+          }
+        },
+        "event": "cancel",
+        "expected": "The denial leaves the ledger as it was.",
+        "constraint_expectations": [
+          {
+            "constraint_id": "CON-009",
+            "expected": true
+          },
+          {
+            "constraint_id": "CON-010",
+            "expected": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "TEST-017",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "A command that does not apply changes nothing",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "A command that does not apply changes nothing. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "implemented",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [
+          "SCN-022",
+          "SCN-023",
+          "SCN-025"
+        ],
+        "flag_states": []
+      }
+    },
+    {
+      "id": "TEST-018",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "A command on a reserved record still applies",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "A command on a reserved record still applies. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "implemented",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [
+          "SCN-018",
+          "SCN-020"
+        ],
+        "flag_states": []
+      }
+    },
+    {
+      "id": "DEC-004",
+      "kind": "Decision",
+      "revision": 1,
+      "status": "active",
+      "title": "Compatibility of the lifecycle predicates with release 1.0.0",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "question": "Do CON-009 and CON-010 require anything that release 1.0.0 did not?",
+        "options": [
+          "Yes: treat release 1.1.0 as breaking",
+          "No: they state what REQ-004, REQ-005 and REQ-006 already required"
+        ],
+        "answer": "No: they state what REQ-004, REQ-005 and REQ-006 already required",
+        "blocking": true,
+        "rationale": "CON-010 formalizes the transitions REQ-005 and REQ-006 already described. CON-009 reaches REQ-004 only to say that a denied command changes nothing, which REQ-004 already required. An implementation that satisfied 1.0.0 is not made non-conforming. This is a fictional reference decision."
+      }
+    },
+    {
+      "id": "REQ-010",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Report remaining capacity",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "functional",
+        "priority": "must",
+        "risk": "low",
+        "verification_mode": "executable",
+        "pattern": "optional",
+        "conditions": [],
+        "trigger": null,
+        "feature": "the remaining-capacity report is enabled",
+        "subject": "RefundLedger",
+        "response": "report the captured capacity minus the consumed capacity to a verified principal of the ledger tenant",
+        "weight_minor": 200,
+        "flag_id": "FLAG-001"
+      }
+    },
+    {
+      "id": "TEST-019",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "Remaining capacity is reported with the flag on",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "Remaining capacity is reported with the flag on. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "implemented",
+        "runner": "unittest",
+        "negative": false,
+        "witness_scenario_ids": [],
+        "flag_states": [
+          {
+            "flag_id": "FLAG-001",
+            "state": "enabled"
+          }
+        ]
+      }
+    },
+    {
+      "id": "TEST-020",
+      "kind": "TestCase",
+      "revision": 1,
+      "status": "active",
+      "title": "The report is unavailable and discloses nothing with the flag off",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-002",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "level": "integration",
+        "oracle": "The report is unavailable and discloses nothing with the flag off. Assert observable results and persistent state against the requirement, not a model-generated verdict.",
+        "state": "implemented",
+        "runner": "unittest",
+        "negative": true,
+        "witness_scenario_ids": [],
+        "flag_states": [
+          {
+            "flag_id": "FLAG-001",
+            "state": "disabled"
+          }
         ]
       }
     }
@@ -4382,6 +6078,318 @@
       "to": "CON-007",
       "origin": "declared",
       "rationale": "The test must exercise this formal property or its implementation consequence."
+    },
+    {
+      "id": "EDGE-209",
+      "relation": "satisfies",
+      "origin": "declared",
+      "rationale": "A command that must not apply cannot release or consume capacity.",
+      "from": "REQ-009",
+      "to": "GOAL-001"
+    },
+    {
+      "id": "EDGE-210",
+      "relation": "satisfies",
+      "origin": "declared",
+      "rationale": "A caller can see what still fits before requesting it.",
+      "from": "REQ-010",
+      "to": "GOAL-004"
+    },
+    {
+      "id": "EDGE-211",
+      "relation": "uses_term",
+      "origin": "declared",
+      "rationale": "The report subtracts from the captured capacity.",
+      "from": "REQ-010",
+      "to": "TERM-002"
+    },
+    {
+      "id": "EDGE-212",
+      "relation": "uses_term",
+      "origin": "declared",
+      "rationale": "Consumed capacity is the sum of consuming reservations.",
+      "from": "REQ-010",
+      "to": "TERM-003"
+    },
+    {
+      "id": "EDGE-213",
+      "relation": "implements",
+      "origin": "declared",
+      "rationale": "The ledger transaction boundary realizes this behavior.",
+      "from": "COMP-001",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-214",
+      "relation": "implements",
+      "origin": "declared",
+      "rationale": "The ledger transaction boundary realizes this behavior.",
+      "from": "COMP-001",
+      "to": "REQ-010"
+    },
+    {
+      "id": "EDGE-215",
+      "relation": "models",
+      "origin": "declared",
+      "rationale": "The lifecycle names the states from which no command applies.",
+      "from": "MODEL-001",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-216",
+      "relation": "formalizes",
+      "origin": "declared",
+      "rationale": "Before/after predicate for this obligation; the interpretation is reviewed, not proved.",
+      "from": "CON-009",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-217",
+      "relation": "formalizes",
+      "origin": "declared",
+      "rationale": "Before/after predicate for this obligation; the interpretation is reviewed, not proved.",
+      "from": "CON-009",
+      "to": "REQ-004"
+    },
+    {
+      "id": "EDGE-218",
+      "relation": "formalizes",
+      "origin": "declared",
+      "rationale": "Before/after predicate for this obligation; the interpretation is reviewed, not proved.",
+      "from": "CON-010",
+      "to": "REQ-005"
+    },
+    {
+      "id": "EDGE-219",
+      "relation": "formalizes",
+      "origin": "declared",
+      "rationale": "Before/after predicate for this obligation; the interpretation is reviewed, not proved.",
+      "from": "CON-010",
+      "to": "REQ-006"
+    },
+    {
+      "id": "EDGE-220",
+      "relation": "governs",
+      "origin": "declared",
+      "rationale": "The decision fixes what an inapplicable command does.",
+      "from": "DEC-003",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-221",
+      "relation": "governs",
+      "origin": "declared",
+      "rationale": "The decision fixes what an inapplicable command does.",
+      "from": "DEC-003",
+      "to": "CON-009"
+    },
+    {
+      "id": "EDGE-222",
+      "relation": "governs",
+      "origin": "declared",
+      "rationale": "The decision records why this predicate is not a breaking change.",
+      "from": "DEC-004",
+      "to": "CON-009"
+    },
+    {
+      "id": "EDGE-223",
+      "relation": "governs",
+      "origin": "declared",
+      "rationale": "The decision records why this predicate is not a breaking change.",
+      "from": "DEC-004",
+      "to": "CON-010"
+    },
+    {
+      "id": "EDGE-224",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-018",
+      "to": "REQ-005"
+    },
+    {
+      "id": "EDGE-225",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-018",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-226",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-019",
+      "to": "REQ-005"
+    },
+    {
+      "id": "EDGE-227",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-020",
+      "to": "REQ-006"
+    },
+    {
+      "id": "EDGE-228",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-020",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-229",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-021",
+      "to": "REQ-006"
+    },
+    {
+      "id": "EDGE-230",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-022",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-231",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-023",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-232",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-024",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-233",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-024",
+      "to": "REQ-005"
+    },
+    {
+      "id": "EDGE-234",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-025",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-235",
+      "relation": "illustrates",
+      "origin": "declared",
+      "rationale": "Before/after observation of this obligation.",
+      "from": "SCN-026",
+      "to": "REQ-004"
+    },
+    {
+      "id": "EDGE-236",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-017",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-237",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-018",
+      "to": "REQ-009"
+    },
+    {
+      "id": "EDGE-238",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-018",
+      "to": "REQ-005"
+    },
+    {
+      "id": "EDGE-239",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-018",
+      "to": "REQ-006"
+    },
+    {
+      "id": "EDGE-240",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-019",
+      "to": "REQ-010"
+    },
+    {
+      "id": "EDGE-241",
+      "relation": "verifies",
+      "origin": "declared",
+      "rationale": "Executed test of this requirement.",
+      "from": "TEST-020",
+      "to": "REQ-010"
+    },
+    {
+      "id": "EDGE-242",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-017",
+      "to": "CON-009"
+    },
+    {
+      "id": "EDGE-243",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-018",
+      "to": "CON-010"
+    },
+    {
+      "id": "EDGE-244",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-012",
+      "to": "CON-010"
+    },
+    {
+      "id": "EDGE-245",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-012",
+      "to": "CON-009"
+    },
+    {
+      "id": "EDGE-246",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-010",
+      "to": "CON-010"
+    },
+    {
+      "id": "EDGE-247",
+      "relation": "checks",
+      "origin": "declared",
+      "rationale": "The test evaluates this predicate on observations taken from the store.",
+      "from": "TEST-011",
+      "to": "CON-009"
     }
   ],
   "bindings": [
@@ -4389,190 +6397,262 @@
       "id": "BIND-001",
       "kind": "code",
       "node_id": "COMP-001",
-      "path": "src/refund_ledger/ledger.py",
+      "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "Ledger",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-002",
       "kind": "code",
       "node_id": "COMP-002",
-      "path": "src/refund_ledger/access.py",
+      "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "authorize",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-003",
       "kind": "code",
       "node_id": "COMP-003",
-      "path": "src/refund_ledger/audit.py",
+      "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "record_outcome",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-004",
       "kind": "enforcement",
       "node_id": "CON-001",
-      "path": "src/refund_ledger/ledger.py",
+      "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "Ledger.reserve",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-005",
       "kind": "enforcement",
       "node_id": "CON-005",
-      "path": "src/refund_ledger/access.py",
+      "path": "examples/refund-ledger/app/ledger.py",
       "symbol": "authorize",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-006",
       "kind": "test",
       "node_id": "TEST-001",
-      "path": "tests/test_test_001.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test001CapacityAggregation",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-007",
       "kind": "test",
       "node_id": "TEST-002",
-      "path": "tests/test_test_002.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test002AdmissionGuard",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-008",
       "kind": "test",
       "node_id": "TEST-003",
-      "path": "tests/test_test_003.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test003PositiveAmounts",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-009",
       "kind": "test",
       "node_id": "TEST-004",
-      "path": "tests/test_test_004.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test004DuplicateKeys",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-010",
       "kind": "test",
       "node_id": "TEST-005",
-      "path": "tests/test_test_005.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test005PrincipalGuard",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-011",
       "kind": "test",
       "node_id": "TEST-006",
-      "path": "tests/test_test_006.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test006CapacityProperty",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-012",
       "kind": "test",
       "node_id": "TEST-007",
-      "path": "tests/test_test_007.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test007ConcurrentReservations",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-013",
       "kind": "test",
       "node_id": "TEST-008",
-      "path": "tests/test_test_008.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test008IdenticalRetry",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-014",
       "kind": "test",
       "node_id": "TEST-009",
-      "path": "tests/test_test_009.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test009ConflictingRetry",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-015",
       "kind": "test",
       "node_id": "TEST-010",
-      "path": "tests/test_test_010.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test010EntrypointReserveCommit",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-016",
       "kind": "test",
       "node_id": "TEST-011",
-      "path": "tests/test_test_011.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test011CrossTenant",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-017",
       "kind": "test",
       "node_id": "TEST-012",
-      "path": "tests/test_test_012.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test012Cancellation",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-018",
       "kind": "test",
       "node_id": "TEST-013",
-      "path": "tests/test_test_013.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test013AuditContent",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-019",
       "kind": "test",
       "node_id": "TEST-014",
-      "path": "tests/test_test_014.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test014Restart",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-020",
       "kind": "test",
       "node_id": "TEST-015",
-      "path": "tests/test_test_015.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test015NewKeyAdmitted",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
     },
     {
       "id": "BIND-021",
       "kind": "test",
       "node_id": "TEST-016",
-      "path": "tests/test_test_016.py",
-      "symbol": null,
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test016OwnTenantServed",
       "language": "python",
-      "expected_resolution": "planned"
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-022",
+      "kind": "test",
+      "node_id": "TEST-017",
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test017InapplicableCommand",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-023",
+      "kind": "test",
+      "node_id": "TEST-018",
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test018ApplicableCommand",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-024",
+      "kind": "test",
+      "node_id": "TEST-019",
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test019RemainingReportOn",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-025",
+      "kind": "test",
+      "node_id": "TEST-020",
+      "path": "examples/refund-ledger/tests/test_ledger.py",
+      "symbol": "Test020RemainingReportOff",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-026",
+      "kind": "observation",
+      "node_id": "CON-007",
+      "path": "examples/refund-ledger/app/ledger.py",
+      "symbol": "Ledger.snapshot",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-027",
+      "kind": "observation",
+      "node_id": "CON-008",
+      "path": "examples/refund-ledger/app/ledger.py",
+      "symbol": "Ledger.snapshot",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-028",
+      "kind": "observation",
+      "node_id": "CON-009",
+      "path": "examples/refund-ledger/app/ledger.py",
+      "symbol": "Ledger.snapshot",
+      "language": "python",
+      "expected_resolution": "must_resolve"
+    },
+    {
+      "id": "BIND-029",
+      "kind": "observation",
+      "node_id": "CON-010",
+      "path": "examples/refund-ledger/app/ledger.py",
+      "symbol": "Ledger.snapshot",
+      "language": "python",
+      "expected_resolution": "must_resolve"
     }
   ],
   "context_assets": [

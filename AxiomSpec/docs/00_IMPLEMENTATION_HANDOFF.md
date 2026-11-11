@@ -21,7 +21,7 @@ Commands named `axiom` in the documents are proposed interfaces. Do not claim to
 
 **Build the framework:** deliver software, useful tests and operating documentation against these contracts. Explain and version any contract change.
 
-**Specify a product:** start with outcomes, actors, examples and unresolved decisions. Produce a product `spec.json`. Resolve decisions that materially change behavior, rights, data or compatibility before implementing the affected part. Continue independent work while questions remain open.
+**Specify a product:** start with outcomes, actors, examples and unresolved decisions. Produce a product `spec.json` with a release version, a weight on every requirement and any flags declared. For a later release, compare it with the previous one before publishing. Resolve decisions that materially change behavior, rights, data or compatibility before implementing the affected part. Continue independent work while questions remain open.
 
 ## Implementation discipline
 

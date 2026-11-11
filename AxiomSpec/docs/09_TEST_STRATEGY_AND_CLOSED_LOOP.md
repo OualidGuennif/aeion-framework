@@ -32,6 +32,8 @@ Cover relevant empty, singleton, duplicate, minimum, maximum, overflow, invalid 
 
 A witness may show a correct refusal. A counterexample intentionally violates a property; detecting it passes the reference test, not the business state.
 
+Test a flagged behavior with its flag on and with it off. The off case is a real oracle: what the product answers without the feature, and that it discloses nothing the feature would have.
+
 ### AX-T-004 — Explicit concurrency and recovery
 
 Use controlled barriers or injection points to force the dangerous interleaving; avoid sleeps as synchronization. For two reservations of 600 against 1,000, verify at most one is admitted and persistent consumption remains within capacity using the actual qualified storage mechanism.
@@ -42,11 +44,13 @@ For failure tests, identify crash point, durable writes, acknowledgment and reco
 
 ## Test effectiveness
 
-Try representative mutations: `<` instead of `<=`, omitted reservations, removed tenant checks, duplicate keys and stale digests. Investigate surviving mutants: insufficient oracle, equivalent mutation or out-of-scope behavior. Line coverage is execution coverage, not correctness.
+Try representative mutations: `<` instead of `<=`, omitted reservations, removed tenant checks, duplicate keys and stale digests. The ledger's concurrency test runs the same forced interleaving against a variant without the transaction and requires it to overbook. Investigate surviving mutants: insufficient oracle, equivalent mutation or out-of-scope behavior. Line coverage is execution coverage, not correctness.
 
 ### AX-T-005 — Planned, implemented and executed
 
 TestCase state describes an artifact. It is never an execution result. Receipts identify actual collected test IDs and detect missing, duplicate or skipped tests. A zero exit status with zero collected tests cannot satisfy a nonempty plan.
+
+The reference ledger shows the three states apart. Each TestCase is bound to a test class; package QA resolves the binding by parsing the file, runs the tests on a real store and accepts the receipt only while every executed input is unchanged. Where the specification states a predicate, the test evaluates that predicate on observations read back from the store, so formula and implementation are checked against each other.
 
 ### AX-T-006 — Incident to revision
 

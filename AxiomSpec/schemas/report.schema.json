@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://axiomspec.invalid/schema/report-0.2.json",
-  "title": "AxiomSpec scoped verification report 0.2",
+  "$id": "https://axiomspec.invalid/schema/report-0.3.json",
+  "title": "AxiomSpec scoped verification report 0.3",
   "type": "object",
   "properties": {
     "format": {
-      "const": "axiomspec-report/0.2"
+      "const": "axiomspec-report/0.3"
     },
     "scope": {
       "enum": [
@@ -145,7 +145,8 @@
               "G10",
               "G11",
               "G12",
-              "G13"
+              "G13",
+              "G14"
             ]
           },
           "status": {
@@ -299,7 +300,7 @@
       "maxItems": 256
     },
     "profile": {
-      "const": "AX-CORE-0.1"
+      "const": "AX-CORE-0.2"
     },
     "requested_phase": {
       "enum": [

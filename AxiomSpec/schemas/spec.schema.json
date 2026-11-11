@@ -1,14 +1,97 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://axiomspec.invalid/schema/spec-0.1.json",
-  "title": "AxiomSpec canonical product specification 0.1",
+  "$id": "https://axiomspec.invalid/schema/spec-0.2.json",
+  "title": "AxiomSpec canonical product specification 0.2",
   "type": "object",
   "properties": {
     "format": {
-      "const": "axiomspec/0.1"
+      "const": "axiomspec/0.2"
     },
     "profile": {
-      "const": "AX-CORE-0.1"
+      "const": "AX-CORE-0.2"
+    },
+    "release": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+        },
+        "previous": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+                },
+                "spec_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "version",
+                "spec_sha256"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "compatibility": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subject_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              "classification": {
+                "enum": [
+                  "breaking",
+                  "compatible"
+                ]
+              },
+              "decision_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              "migration": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16384
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "subject_id",
+              "classification",
+              "decision_id",
+              "migration"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        }
+      },
+      "required": [
+        "version",
+        "previous",
+        "compatibility"
+      ],
+      "additionalProperties": false
     },
     "project": {
       "type": "object",
@@ -36,6 +119,13 @@
             "product",
             "example"
           ]
+        },
+        "weight_minor_units": {
+          "enum": [
+            1,
+            10,
+            100
+          ]
         }
       },
       "required": [
@@ -43,7 +133,8 @@
         "name",
         "description",
         "owner",
-        "mode"
+        "mode",
+        "weight_minor_units"
       ],
       "additionalProperties": false
     },
@@ -194,6 +285,64 @@
       },
       "minItems": 0,
       "maxItems": 128
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "state": {
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          },
+          "owner": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "introduced_in": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "remove_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "title",
+          "state",
+          "owner",
+          "introduced_in",
+          "remove_by"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 1024
     },
     "nodes": {
       "type": "array",
@@ -514,6 +663,22 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 16384
+                  },
+                  "weight_minor": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000
+                  },
+                  "flag_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -526,7 +691,9 @@
                   "trigger",
                   "feature",
                   "subject",
-                  "response"
+                  "response",
+                  "weight_minor",
+                  "flag_id"
                 ],
                 "additionalProperties": false
               }
@@ -1136,6 +1303,31 @@
                     "minItems": 0,
                     "maxItems": 128,
                     "uniqueItems": true
+                  },
+                  "flag_states": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "flag_id": {
+                          "type": "string",
+                          "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                        },
+                        "state": {
+                          "enum": [
+                            "enabled",
+                            "disabled"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "flag_id",
+                        "state"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 0,
+                    "maxItems": 16
                   }
                 },
                 "required": [
@@ -1144,7 +1336,8 @@
                   "state",
                   "runner",
                   "negative",
-                  "witness_scenario_ids"
+                  "witness_scenario_ids",
+                  "flag_states"
                 ],
                 "additionalProperties": false
               }
@@ -1862,10 +2055,12 @@
   "required": [
     "format",
     "profile",
+    "release",
     "project",
     "actors",
     "sources",
     "environments",
+    "flags",
     "nodes",
     "edges",
     "bindings",

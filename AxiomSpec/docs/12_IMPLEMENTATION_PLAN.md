@@ -2,7 +2,7 @@
 
 ## Target
 
-A local CLI validates a specification, explains failures, generates reading views and answers bounded queries. Product commands named `axiom` are proposed interfaces. The shipped `qa/` programs verify this package and selected reference behavior, not the product engine.
+A local CLI validates a specification, explains failures, generates reading views and answers bounded queries. Product commands named `axiom` are proposed interfaces. The shipped `qa/` programs verify this package and selected reference behavior, not the product engine. Two of them are reference implementations a product engine can be compared with: `release_diff.py` for gate G14 and `migrate_0_1.py` for the 0.1 migration.
 
 Inspect an existing repository before choosing a stack. For greenfield work, Python 3.12+, standard-library modules and an established JSON Schema validator are a reasonable starting point. Package QA pins its own dependencies separately. Add SQLite only for a measured indexing need.
 
@@ -15,7 +15,7 @@ Inspect an existing repository before choosing a stack. For greenfield work, Pyt
 | S2 | BCIR analysis/evaluation, units, bounds and diagnostics | Defined semantics and qualified cases |
 | S3 | G04-G07, state topology, decisions and verification plan | No false design readiness |
 | S4 | Reproducible views, graph snapshots and bounded queries | Stable output and explicit coverage limits |
-| S5 | Change packets, execution declarations, context closure and bindings | Required rules cannot disappear for budget reasons |
+| S5 | Change packets, release comparison, execution declarations, context closure and bindings | Required rules cannot disappear for budget reasons; a breaking candidate cannot pass unrecorded |
 | S6 | One real test adapter and evidence freshness checks | Required IDs executed on final inputs |
 | S7 | A scoped pilot and applicable conformance corpus | Actual results and missing capabilities reported |
 
@@ -29,6 +29,8 @@ Identity/authority adapters start unavailable. A high-risk phase requiring them 
 axiom validate --spec spec.json --phase design --report validation/report.json
 axiom evaluate --spec spec.json --observations observations.json
 axiom graph --spec spec.json --output generated/
+axiom diff --baseline release-1.0.0.json --candidate spec.json
+axiom migrate --from spec-0.1.json --to candidate.json --version 1.0.0
 axiom query requirement --id REQ-001 --snapshot <digest>
 axiom packet --change change.json --principal <trusted-principal> --budget-bytes 32768
 axiom check-evidence --spec spec.json --manifest evidence/manifest.json

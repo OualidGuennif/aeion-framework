@@ -60,7 +60,8 @@ class StatedRulesAreChecked(unittest.TestCase):
             for shape, fields in shapes.items():
                 with self.subTest(pattern=pattern, populated=shape):
                     self.spec = qa.read('examples/refund-ledger/spec.json')
-                    self.node('REQ-002')['data'].update(pattern=pattern, **fields)
+                    # REQ-010 keeps its flag in every shape, so only the pattern rule can fire (AX-M-019).
+                    self.node('REQ-010')['data'].update(pattern=pattern, **fields)
                     self.assertEqual(self.errors(), [] if shape == expected else ['PATTERN_FIELDS'])
 
     def test_effective_window_is_utc_and_not_reversed(self):

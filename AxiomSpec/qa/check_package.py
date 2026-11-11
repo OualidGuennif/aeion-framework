@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Local artifact QA. Not the AxiomSpec product validator or a trusted runner."""
+import ast
 import copy
 from collections import deque
 import hashlib
@@ -15,7 +16,8 @@ from urllib.parse import unquote
 from jsonschema import Draft202012Validator, FormatChecker
 from referencing import Registry
 from croa_readiness import assess_inputs
-from run_checks import EDITION, validate_receipt, toolchain as runtime_toolchain
+from run_checks import (EDITION, EXAMPLE_RECEIPT, validate_example_receipt, validate_receipt,
+                        toolchain as runtime_toolchain)
 
 ROOT = Path(__file__).resolve().parents[1]
 SAFE = 9007199254740991
@@ -195,6 +197,28 @@ def utc_instant(value):
     return moment
 
 
+def version_tuple(text):
+    """AX-M-017: MAJOR.MINOR.PATCH as integers, compared numerically."""
+    return tuple(int(part) for part in text.split('.'))
+
+
+def version_step(previous, current):
+    """AX-L-008: 'major', 'minor' or 'patch' when `current` is the next version at that level, else None."""
+    a, b = version_tuple(previous), version_tuple(current)
+    for level, expected in (('major', (a[0] + 1, 0, 0)), ('minor', (a[0], a[1] + 1, 0)), ('patch', (a[0], a[1], a[2] + 1))):
+        if b == expected:
+            return level
+    return None
+
+
+def weight_band(weight_minor, units):
+    """AX-M-018: the risk label a weight implies. Bands are 1-25, above 25-50, above 50-75, above 75-100."""
+    for label, top in (('low', 25), ('medium', 50), ('high', 75)):
+        if weight_minor <= top * units:
+            return label
+    return 'critical'
+
+
 def annotated_leaf(schema, pointer):
     """AX-C-008: the environment schema node a unit annotation names; `*` is one array-element level."""
     if not pointer.startswith('/') or re.search(r'~(?![01])', pointer):
@@ -217,7 +241,7 @@ def reference_errors(spec):
     """Selected semantic checks for fixtures, not complete G02-G07 qualification."""
     errors = []
     all_ids = [spec['project']['id']]
-    for section in ('actors', 'sources', 'environments', 'nodes', 'edges', 'bindings', 'context_assets'):
+    for section in ('actors', 'sources', 'environments', 'flags', 'nodes', 'edges', 'bindings', 'context_assets'):
         all_ids.extend(x['id'] for x in spec[section])
     if len(all_ids) != len(set(all_ids)):
         errors.append('DUPLICATE_ID')
@@ -226,7 +250,10 @@ def reference_errors(spec):
     sources = {x['id'] for x in spec['sources']}
     envs = {x['id'] for x in spec['environments']}
     bindings = {x['id']: x for x in spec['bindings']}
-    for section, prefix in [('actors', 'ACTOR'), ('sources', 'SRC'), ('environments', 'ENV'),
+    flags = {x['id']: x for x in spec['flags']}
+    units = spec['project']['weight_minor_units']
+    release = spec['release']
+    for section, prefix in [('actors', 'ACTOR'), ('sources', 'SRC'), ('environments', 'ENV'), ('flags', 'FLAG'),
                             ('edges', 'EDGE'), ('bindings', 'BIND'), ('context_assets', 'ASSET')]:
         if any(not x['id'].startswith(prefix + '-') for x in spec[section]):
             errors.append('WRONG_PREFIX')
@@ -247,6 +274,39 @@ def reference_errors(spec):
         errors.append('EMPTY_BASELINE')
     if spec['project']['owner'] not in actors:
         errors.append('UNKNOWN_OWNER')
+    # AX-M-017: a release names the baseline it succeeds and is exactly one version step after it.
+    if release['previous'] is None:
+        if release['compatibility']:
+            errors.append('COMPATIBILITY_WITHOUT_BASELINE')
+    elif version_step(release['previous']['version'], release['version']) is None:
+        errors.append('INVALID_VERSION_STEP')
+    subjects = [entry['subject_id'] for entry in release['compatibility']]
+    if len(subjects) != len(set(subjects)):
+        errors.append('DUPLICATE_COMPATIBILITY_SUBJECT')
+    for entry in release['compatibility']:
+        decision = nodes.get(entry['decision_id'], {})
+        if decision.get('kind') != 'Decision' or decision['status'] != 'active' or decision['data']['answer'] is None:
+            errors.append('INVALID_COMPATIBILITY_DECISION')
+        if entry['classification'] == 'breaking' and entry['migration'] is None:
+            errors.append('MISSING_MIGRATION')
+    # AX-M-019: flags are declared once, owned, introduced no later than this release and removed on schedule.
+    keys = [flag['key'] for flag in spec['flags']]
+    if len(keys) != len(set(keys)):
+        errors.append('DUPLICATE_FLAG_KEY')
+    governed = {n['data']['flag_id'] for n in spec['nodes'] if n['kind'] == 'Requirement' and n['status'] != 'retired'}
+    for flag in spec['flags']:
+        if flag['owner'] not in actors:
+            errors.append('UNKNOWN_ACTOR')
+        introduced = version_tuple(flag['introduced_in'])
+        if introduced > version_tuple(release['version']):
+            errors.append('FLAG_VERSION')
+        if flag['remove_by'] is not None:
+            if version_tuple(flag['remove_by']) <= introduced:
+                errors.append('FLAG_VERSION')
+            elif version_tuple(release['version']) >= version_tuple(flag['remove_by']):
+                errors.append('STALE_FLAG')
+        if flag['id'] not in governed:
+            errors.append('UNUSED_FLAG')
     for n in nodes.values():
         if not n['id'].startswith(PREFIXES[n['kind']] + '-'):
             errors.append('WRONG_PREFIX')
@@ -261,14 +321,28 @@ def reference_errors(spec):
             for sid in data['witness_scenario_ids']:
                 if nodes.get(sid, {}).get('kind') != 'Scenario':
                     errors.append('UNKNOWN_SCENARIO')
+            named = [entry['flag_id'] for entry in data['flag_states']]
+            if not set(named) <= set(flags):
+                errors.append('UNKNOWN_FLAG')
+            if len(named) != len(set(named)):
+                errors.append('FLAG_STATE_CONFLICT')
         if n['kind'] == 'Scenario':
             for expected in data['constraint_expectations']:
                 if nodes.get(expected['constraint_id'], {}).get('kind') != 'Constraint':
                     errors.append('UNKNOWN_CONSTRAINT')
+        if n['kind'] == 'Requirement' and data['flag_id'] is not None and data['flag_id'] not in flags:
+            errors.append('UNKNOWN_FLAG')
         if n['kind'] == 'Requirement' and n['status'] != 'retired':
             populated = (bool(data['conditions']), data['trigger'] is not None, data['feature'] is not None)
             if populated != PATTERN_FIELDS[data['pattern']]:
                 errors.append('PATTERN_FIELDS')
+            # AX-M-018: a weight is 1 to 100 points in declared minor units, and the risk label is its band.
+            if not units <= data['weight_minor'] <= 100 * units:
+                errors.append('WEIGHT_RANGE')
+            elif weight_band(data['weight_minor'], units) != data['risk']:
+                errors.append('RISK_BAND_MISMATCH')
+            if data['pattern'] == 'optional' and data['flag_id'] is None:
+                errors.append('OPTIONAL_WITHOUT_FLAG')
         if n['kind'] == 'Constraint' and n['status'] != 'retired':
             try:
                 bounds = [None if data[f] is None else utc_instant(data[f]) for f in ('effective_from', 'effective_until')]
@@ -365,6 +439,15 @@ def reference_errors(spec):
         if n['kind'] == 'Requirement':
             if not n['source_ids'] or (n['data']['priority'] == 'must' and not active_targets(n['id'], 'satisfies')):
                 errors.append('REQUIREMENT_PROVENANCE')
+            flag_id = n['data']['flag_id']
+            if flag_id in flags and n['data']['priority'] == 'must':
+                # AX-G-007: a flagged must requirement is verified with its flag on and with it off.
+                states = {entry['state'] for test_id, test in nodes.items()
+                          if test['kind'] == 'TestCase' and test['status'] == 'active'
+                          and n['id'] in outgoing.get((test_id, 'verifies'), ())
+                          for entry in test['data']['flag_states'] if entry['flag_id'] == flag_id}
+                if states != {'enabled', 'disabled'}:
+                    errors.append('FLAG_STATE_UNTESTED')
         if n['kind'] == 'Constraint' and not active_targets(n['id'], 'formalizes'):
             errors.append('UNLINKED_CONSTRAINT')
         if n['kind'] == 'TestCase':
@@ -397,6 +480,47 @@ def reference_errors(spec):
             elif asset['binding_id'] is not None and asset['binding_id'] != asset['locator'][8:]:
                 errors.append('ASSET_BINDING_MISMATCH')
     return sorted(set(errors))
+
+
+def resolve_symbol(path, symbol):
+    """AX-M-014: True when a Python file declares `name` or `Class.member`. Parses the file; runs nothing."""
+    scope = ast.parse(path.read_text()).body
+    for name in symbol.split('.'):
+        found = [node for node in scope
+                 if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name]
+        if not found:
+            return False
+        scope = found[0].body
+    return True
+
+
+def check_example_evidence(spec, executed_ids, root=None):
+    """G09/G10 for the worked example: required bindings resolve and every implemented TestCase was executed."""
+    root = root or ROOT
+    nodes = {n['id']: n for n in spec['nodes']}
+    bound_tests, resolved, covered = {}, 0, set()
+    for binding in spec['bindings']:
+        if binding['expected_resolution'] != 'must_resolve':
+            continue
+        require(binding['language'] == 'python' and binding['symbol'] is not None,
+                f"{binding['id']}: only Python symbols are resolved by this check")
+        path = root / binding['path']
+        require(path.resolve().is_relative_to(root.resolve()) and path.is_file() and not path.is_symlink(),
+                f"{binding['id']}: path does not resolve inside the package")
+        require(resolve_symbol(path, binding['symbol']), f"{binding['id']}: symbol {binding['symbol']} not found")
+        resolved += 1
+        if binding['kind'] == 'test':
+            prefix = f"{PurePosixPath(binding['path']).stem}.{binding['symbol']}."
+            ran = [item for item in executed_ids if item.startswith(prefix)]
+            require(ran, f"{binding['id']}: no executed test under {binding['symbol']}")
+            bound_tests[binding['node_id']] = ran
+            covered.update(ran)
+    for node in nodes.values():
+        if node['kind'] == 'TestCase' and node['status'] == 'active':
+            require(node['data']['state'] == 'implemented' and node['id'] in bound_tests,
+                    f"{node['id']}: an active TestCase has no executed, bound test")
+    require(covered == set(executed_ids), 'An executed test belongs to no TestCase binding')
+    return resolved, len(bound_tests)
 
 
 def check_environment(schema):
@@ -612,15 +736,19 @@ def check_observation_corpus(baseline, observations):
 
 
 def check_vector_corpus(baseline, vectors, validator):
-    required = {f'V-{i:03d}' for i in range(1, 11)} | {f'V-{i:03d}' for i in range(101, 131)}
-    require({v['id'] for v in vectors} == required and len(vectors) == len(required), 'Conformance corpus coverage differs from v0.1')
     diagnostics = {'V-006': 'UNKNOWN_TARGET', 'V-007': 'WRONG_EDGE_TYPE',
-                   'V-008': 'DUPLICATE_ID', 'V-009': 'UNKNOWN_ACTOR', 'V-010': 'DEPENDENCY_CYCLE'}
+                   'V-008': 'DUPLICATE_ID', 'V-009': 'UNKNOWN_ACTOR', 'V-010': 'DEPENDENCY_CYCLE',
+                   'V-011': 'WEIGHT_RANGE', 'V-012': 'RISK_BAND_MISMATCH', 'V-013': 'UNKNOWN_FLAG',
+                   'V-014': 'FLAG_STATE_UNTESTED', 'V-015': 'STALE_FLAG', 'V-016': 'INVALID_VERSION_STEP',
+                   'V-017': 'MISSING_MIGRATION', 'V-018': 'OPTIONAL_WITHOUT_FLAG'}
+    executable = len(diagnostics) + 5
+    required = {f'V-{i:03d}' for i in range(1, executable + 1)} | {f'V-{i:03d}' for i in range(101, 131)}
+    require({v['id'] for v in vectors} == required and len(vectors) == len(required), 'Conformance corpus coverage differs from v0.2')
     for vector in vectors:
         require(set(vector) == {'id', 'purpose', 'layer', 'mutation', 'expected_schema_valid',
                                 'expected_gate', 'expected_outcome'}, 'Invalid vector fields')
         require(type(vector['purpose']) is str and bool(vector['purpose'].strip()), 'Vector purpose required')
-        require(vector['expected_gate'] in {f'G{i:02d}' for i in range(1, 14)}
+        require(vector['expected_gate'] in {f'G{i:02d}' for i in range(1, 15)}
                 and vector['expected_outcome'] in {'pass', 'fail', 'unknown', 'error', 'not_applicable'},
                 'Invalid expected gate or outcome')
         if vector['id'] >= 'V-101':
@@ -629,15 +757,16 @@ def check_vector_corpus(baseline, vectors, validator):
                     'Future product vector must remain unexecuted')
             continue
         is_schema = vector['id'] <= 'V-005'
-        expected = ('schema', 'G01', 'error', False) if is_schema else ('references', 'G02', 'fail', True)
-        actual = (vector['layer'], vector['expected_gate'], vector['expected_outcome'], vector['expected_schema_valid'])
-        require(actual == expected and type(vector['expected_schema_valid']) is bool,
+        expected = ('schema', 'error', False) if is_schema else ('references', 'fail', True)
+        actual = (vector['layer'], vector['expected_outcome'], vector['expected_schema_valid'])
+        gates = {'G01'} if is_schema else {'G02', 'G04', 'G07'}
+        require(actual == expected and vector['expected_gate'] in gates and type(vector['expected_schema_valid']) is bool,
                 f"{vector['id']} gate/outcome contract differs")
         candidate = mutate(baseline, vector['mutation'])
         require(validator.is_valid(candidate) == vector['expected_schema_valid'], f"{vector['id']} schema expectation")
         if not is_schema:
             require(diagnostics[vector['id']] in reference_errors(candidate), f"{vector['id']} expected diagnostic not observed")
-    return 10, 30
+    return executable, 30
 
 
 def update_rule_index():
@@ -733,7 +862,7 @@ def main():
         scenarios, count = check_observation_corpus(baseline, observations)
         stats['observations'] = scenarios
         stats['boolean_expectations'] = count
-        return f'{count} reference expectations checked across all {scenarios} synthetic observations; no application tests.'
+        return f'{count} reference expectations checked across all {scenarios} synthetic observations. Fixtures, not application runs.'
     check('PKG.OBSERVATIONS', observation_checks)
 
     def mutation_checks():
@@ -757,6 +886,29 @@ def main():
         stats['croa_red_flag_rules'] = 13
         return 'Execution declaration and CROA input fixture valid; 37 unassessed items, 13 unknown findings. No execution authority or CROA conformance.'
     check('PKG.OPTIONAL_EXTENSIONS', extensions)
+
+    def release():
+        import release_diff
+        previous = read('examples/refund-ledger/releases/1.0.0.json')
+        validator.validate(previous)
+        require(not reference_errors(previous), repr(reference_errors(previous)))
+        comparison = release_diff.compare(previous, baseline)
+        require(comparison['status'] == 'pass', repr(comparison['errors']))
+        stats['release_changes'] = len(comparison['changes'])
+        stats['release_step'] = comparison['required_step']
+        stats['release_risk_score'] = comparison['risk']['score']
+        return (f"Reference G14 comparison {comparison['baseline']['version']} -> {comparison['candidate']['version']}: "
+                f"{len(comparison['changes'])} changes, required step {comparison['required_step']}, "
+                f"change risk score {comparison['risk']['score']} points. Classification is mechanical, not a compatibility proof.")
+    check('PKG.RELEASE', release)
+
+    def example_tests():
+        executed = validate_example_receipt(ROOT, read(EXAMPLE_RECEIPT))
+        resolved, cases = check_example_evidence(baseline, executed)
+        stats.update(example_tests_executed=len(executed), example_bindings_resolved=resolved, example_test_cases_covered=cases)
+        return (f'{len(executed)} example application tests executed on current inputs cover all {cases} active TestCases; '
+                f'{resolved} required bindings resolve. Local SQLite reference implementation, untrusted producer.')
+    check('PKG.EXAMPLE_TESTS', example_tests)
 
     def self_checks():
         count = 0
@@ -829,26 +981,27 @@ def main():
     manifest = require_unchanged_inputs(initial_inputs)
     toolchain = runtime_toolchain(ROOT)
     toolchain['jsonschema'] = toolchain['dependencies']['jsonschema']
-    configuration = dict(format='axiomspec-package-config/0.1', profile='AX-CORE-0.1',
-                         bounds=BOUNDS, json_depth_limit=128, corpus_version='0.1',
+    configuration = dict(format='axiomspec-package-config/0.1', profile='AX-CORE-0.2',
+                         bounds=BOUNDS, json_depth_limit=128, corpus_version='0.2',
                          observation_coverage='all_canonical_scenarios_and_bcir_constraints',
-                         application_test_execution=False, external_schema_retrieval=False,
+                         application_test_execution='worked_example_only', external_schema_retrieval=False,
                          regression_receipt='required_matching_inputs_toolchain_and_output',
                          input_change_policy='reject_detected_changes')
     config_text = json.dumps(configuration, ensure_ascii=False, indent=2) + '\n'
     limitations = [
         'Artifact QA only. The product CLI, static type/unit compiler, graph/query engine and test adapters are not implemented.',
         f"{stats.get('product_obligations_pending', 30)} future product obligations are descriptions, not executed tests.",
-        'No application unit/integration/E2E tests were run; planned bindings are fictitious.',
+        'The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.',
+        'Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.',
         'Local untrusted runner; no identity attestation, runtime isolation or production approval.',
         'Reference evaluation is not proof of business completeness, formal equivalence or all executions.'
     ]
     checks.sort(key=lambda c: c['id'])
     status = 'error' if any(c['status'] == 'error' for c in checks) else ('fail' if any(c['status'] != 'pass' for c in checks) else 'pass')
-    report = dict(format='axiomspec-report/0.2', scope='package', status=status,
-                  profile='AX-CORE-0.1', requested_phase='package',
-                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection'],
-                  unsupported_capabilities=['static_type_unit_compiler', 'graph_queries', 'binding_resolution', 'application_tests', 'authority_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
+    report = dict(format='axiomspec-report/0.3', scope='package', status=status,
+                  profile='AX-CORE-0.2', requested_phase='package',
+                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'format_migration_0_1', 'example_python_binding_resolution', 'example_application_tests'],
+                  unsupported_capabilities=['static_type_unit_compiler', 'graph_queries', 'general_binding_resolution', 'product_application_tests', 'authority_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
                   configuration=dict(path='validation/package-config.json', sha256=digest(config_text.encode('utf-8'))),
                   subject=dict(spec_sha256=digest(canonical(baseline)), source_tree_sha256=digest(canonical(manifest)),
                                policy_sha256=None, toolchain_sha256=digest(canonical(toolchain)), observations_sha256=digest(canonical(observations))),
@@ -886,8 +1039,8 @@ if __name__ == '__main__':
     except Exception as exc:
         # Final CLI boundary: never leave an old green report as the current result.
         message = f'{type(exc).__name__}: package QA could not complete; inspect the local input.'
-        report = dict(format='axiomspec-report/0.2', scope='package', status='error',
-                      profile='AX-CORE-0.1', requested_phase='package',
+        report = dict(format='axiomspec-report/0.3', scope='package', status='error',
+                      profile='AX-CORE-0.2', requested_phase='package',
                       available_capabilities=[], unsupported_capabilities=['package_qa_incomplete'], configuration=None,
                       subject={name: None for name in ['spec_sha256', 'source_tree_sha256', 'policy_sha256', 'toolchain_sha256', 'observations_sha256']},
                       runner=dict(name='qa/check_package.py', version=EDITION, trust='untrusted_local'),

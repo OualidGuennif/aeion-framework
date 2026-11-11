@@ -677,6 +677,447 @@
         "CON-007": true,
         "CON-008": true
       }
+    },
+    {
+      "scenario_id": "SCN-018",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "released"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-1",
+          "outcome": "released"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-019",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "released"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "released"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-1",
+          "outcome": "released"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": false
+      }
+    },
+    {
+      "scenario_id": "SCN-020",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "committed"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "commit",
+          "record_id": "r-1",
+          "outcome": "committed"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-021",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "commit",
+          "record_id": "r-1",
+          "outcome": "committed"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": false
+      }
+    },
+    {
+      "scenario_id": "SCN-022",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-2",
+          "outcome": "refused"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-023",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "released"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-2",
+          "outcome": "refused"
+        }
+      },
+      "expected": {
+        "CON-009": false,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-024",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "released"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "released"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-1",
+          "outcome": "repeated"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-025",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "commit",
+          "record_id": "r-9",
+          "outcome": "not_found"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
+    },
+    {
+      "scenario_id": "SCN-026",
+      "environment_id": "ENV-003",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-1",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-2",
+              "key": "b",
+              "amount_minor": 300,
+              "status": "committed"
+            }
+          ]
+        },
+        "command": {
+          "kind": "cancel",
+          "record_id": "r-1",
+          "outcome": "denied"
+        }
+      },
+      "expected": {
+        "CON-009": true,
+        "CON-010": true
+      }
     }
   ]
 }

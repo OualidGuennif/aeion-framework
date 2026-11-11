@@ -30,6 +30,9 @@ Generated from normative headings. The linked documents define each rule.
 | AX-M-014 | Bindings | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
 | AX-M-015 | Derived documentation | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
 | AX-M-016 | Context assets | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
+| AX-M-017 | Release | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
+| AX-M-018 | Weights in minor units | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
+| AX-M-019 | Feature flags | [03_CANONICAL_MODEL](docs/03_CANONICAL_MODEL.md) |
 | AX-A-001 | Source before certainty | [04_AUTHORING_WORKFLOW](docs/04_AUTHORING_WORKFLOW.md) |
 | AX-A-002 | Observable obligations | [04_AUTHORING_WORKFLOW](docs/04_AUTHORING_WORKFLOW.md) |
 | AX-A-003 | Blocking decisions | [04_AUTHORING_WORKFLOW](docs/04_AUTHORING_WORKFLOW.md) |
@@ -59,7 +62,8 @@ Generated from normative headings. The linked documents define each rule.
 | AX-G-009 | Deterministic body and execution envelope | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
 | AX-G-010 | Evidence answers a specific question | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
 | AX-G-011 | Producer trust | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
-| AX-G-012 | Report envelope 0.2 | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
+| AX-G-012 | Report envelope | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
+| AX-G-013 | Release comparison | [06_GATES_AND_EVIDENCE](docs/06_GATES_AND_EVIDENCE.md) |
 | AX-K-001 | Reproducible construction | [07_KNOWLEDGE_GRAPH_AND_QUERIES](docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md) |
 | AX-K-002 | Derived records | [07_KNOWLEDGE_GRAPH_AND_QUERIES](docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md) |
 | AX-K-003 | Node lookup | [07_KNOWLEDGE_GRAPH_AND_QUERIES](docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md) |
@@ -87,6 +91,10 @@ Generated from normative headings. The linked documents define each rule.
 | AX-L-003 | Trusted policy controls exemptions | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
 | AX-L-004 | Conservative invalidation | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
 | AX-L-005 | Declared migrations | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
+| AX-L-006 | Release identity | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
+| AX-L-007 | Compatibility classification | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
+| AX-L-008 | Version step | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
+| AX-L-009 | Change risk score | [10_LIFECYCLE_AND_CHANGE_CONTROL](docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md) |
 | AX-S-001 | Path confinement | [11_RISK_SECURITY_AND_EXTENSIONS](docs/11_RISK_SECURITY_AND_EXTENSIONS.md) |
 | AX-S-002 | Separate data from execution | [11_RISK_SECURITY_AND_EXTENSIONS](docs/11_RISK_SECURITY_AND_EXTENSIONS.md) |
 | AX-S-003 | Minimize data | [11_RISK_SECURITY_AND_EXTENSIONS](docs/11_RISK_SECURITY_AND_EXTENSIONS.md) |

@@ -2,9 +2,9 @@
 
 ## Delivered package
 
-Design contracts, artifact schemas, a structured example, reference observations, conformance vectors and package QA. Execution and CROA declarations are optional sidecars. Actual checks and review results are linked from the README.
+Design contracts, artifact schemas, a structured example in two releases, reference observations, conformance vectors and package QA. The example has a reference implementation and executed tests. A reference release comparison and a migration from format 0.1 are included. Execution and CROA declarations are optional sidecars. Actual checks and review results are linked from the README.
 
-The product CLI, static compiler, graph engine, identity integration, deployed execution controls and application tests remain unimplemented. Planned paths are not executable integration evidence.
+The product CLI, static compiler, graph engine, identity integration, deployed execution controls and runner adapters remain unimplemented. One example executed on local SQLite is evidence about that example only.
 
 ### AX-ACT-001 — Demonstrate advertised capabilities
 
@@ -24,7 +24,9 @@ The framework exposes these boundaries; it does not remove the need for decision
 
 ## Proportionate use
 
-A small reversible change does not need the full example model. Use a declared profile proportionate to actual risk. The first format deliberately uses one canonical file and global invalidation. Measure conflicts and cost before introducing modular merge semantics or dependency-sensitive caching.
+A small reversible change does not need the full example model. Use a declared profile proportionate to actual risk. The format deliberately uses one canonical file and global invalidation. That file is bounded at one megabyte, which the ledger's shape reaches at roughly a thousand requirements: a large organization needs one specification per product or service, not one for everything, and composition across specifications is not defined yet. Measure conflicts and cost before introducing modular merge semantics or dependency-sensitive caching.
+
+Weights, flags and versions are required fields, not options. They cost one integer and one null per requirement when a product has no flags and a single release. What they buy is a mechanical answer to "what changed, is it breaking, and how much of what matters does it touch" at every release.
 
 BCIR has a compiler and qualification cost. Reuse a suitable existing model/solver integration when that is simpler and robust. Evaluate a small vertical slice before building optional infrastructure.
 
@@ -32,4 +34,4 @@ BCIR has a compiler and qualification cost. Reuse a suitable existing model/solv
 
 Define comparable tasks, participants, time accounting, defect criteria, corpus and assessment method before measuring benefits. Track useful early defects, context omissions, clarification effort and maintenance cost, including failures. A well-documented toy example is not evidence of performance at scale.
 
-Next step: give cancellation and commitment the before/after scenarios that reservation attempts now have, decide what a command on a record in the wrong state does, then implement the planned tests against a real store. Qualify each additional capability rather than treating the document count as progress.
+Next step: run the release comparison on a real product across several releases and measure two things: how many breaking candidates the classifier raises that reviewers override, and whether the score orders releases the way incident history does. Then define how specifications of separate services refer to each other. Qualify each additional capability rather than treating the document count as progress.

@@ -29,6 +29,8 @@ Use the fields and patterns in [the canonical model](03_CANONICAL_MODEL.md). Eac
 | The agent must read documentation | Required objects, freshness, delivery and output verification |
 | The service must be secure | Asset, authorization boundary, threat and negative oracle |
 
+Give each requirement a weight from 1 to 100 points: how much the product depends on it holding. Choose the minor unit once for the project. The risk label follows from the weight, not the reverse, and a disagreement between two reviewers about a weight is a decision to record. Put behavior that ships dark or is rolled out gradually behind a declared flag with a removal target, and plan a test for each state.
+
 The layers are complementary: ordinary language for the initial need; structured language for the obligation; a typed predicate for a calculable property; a diagram for useful relationships or transitions. No diagram replaces all four. No translation between them is assumed correct.
 
 ### AX-A-003 — Blocking decisions
@@ -68,5 +70,9 @@ Choose relevant boundaries: empty, zero, maximum, overflow, duplicate, concurren
 ## 6. Prepare coding context
 
 Declare the definitions, constraints, models, examples and sources needed for the change. Set classification and freshness. If required content cannot be disclosed to the executor, split the work or provide an authorized interface; do not drop the rule.
+
+## 7. Release
+
+A baseline becomes a release when it carries a version. For a later release, name the previous one by version and digest, run the comparison (G14) and read its three outputs: the breaking candidates, the version step they require and the change risk score. Record a decision for each candidate, either breaking with its migration or compatible with the reason. Take the step the comparison requires. Review first what the score says the release touches most.
 
 Output: scoped goals, terms, requirements, decisions, assumptions, models, constraints, scenarios, test plan, context assets and a report of checks actually available. A manual review is labeled manual. The presence of these artifacts alone does not establish `design_ready`.

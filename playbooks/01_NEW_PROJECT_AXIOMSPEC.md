@@ -146,20 +146,26 @@ Human review should show the proposed meaning, its source, examples, counterexam
 
 ## 7. Produce a small canonical draft
 
-Use `axiomspec/0.1` and `AX-CORE-0.1` unless the actual supplied package says otherwise. Stable IDs survive renames. Sources preserve where an assertion came from. Render requirement sentences from structured fields; do not add another editable `statement`.
+Use `axiomspec/0.2` and `AX-CORE-0.2` unless the actual supplied package says otherwise. Stable IDs survive renames. Sources preserve where an assertion came from. Render requirement sentences from structured fields; do not add another editable `statement`.
 
-The following is a complete **structural draft example**, not a ready product specification. It is fictional, in `example` mode, with draft nodes, an unresolved decision, no executable constraint, no scenarios and no tests. Do not promote it by changing flags. Replace its fixture source with actual product sources when authoring a real project.
+The following is a complete **structural draft example**, not a ready product specification. It is fictional, in `example` mode, with draft nodes, an unresolved decision, no executable constraint, no scenarios and no tests. It is a first release, so it names no previous one, and it declares no feature flag. Its requirement weighs 70 of 100 points, which is the `high` band. Do not promote it by changing status fields. Replace its fixture source with actual product sources when authoring a real project.
 
 ```json
 {
-  "format": "axiomspec/0.1",
-  "profile": "AX-CORE-0.1",
+  "format": "axiomspec/0.2",
+  "profile": "AX-CORE-0.2",
+  "release": {
+    "version": "0.1.0",
+    "previous": null,
+    "compatibility": []
+  },
   "project": {
     "id": "PROJECT-001",
     "name": "Local reservation ledger draft",
     "description": "Fictional authoring starter without external money movement.",
     "owner": "ACTOR-001",
-    "mode": "example"
+    "mode": "example",
+    "weight_minor_units": 1
   },
   "actors": [
     {
@@ -179,6 +185,7 @@ The following is a complete **structural draft example**, not a ready product sp
     }
   ],
   "environments": [],
+  "flags": [],
   "nodes": [
     {
       "id": "GOAL-001",
@@ -223,13 +230,15 @@ The following is a complete **structural draft example**, not a ready product sp
         "category": "functional",
         "priority": "must",
         "risk": "high",
+        "weight_minor": 70,
         "verification_mode": "executable",
         "pattern": "unwanted",
         "conditions": [],
         "trigger": "a reservation request would exceed the available captured capacity",
         "feature": null,
         "subject": "ledger",
-        "response": "refuse the request without changing persistent ledger state"
+        "response": "refuse the request without changing persistent ledger state",
+        "flag_id": null
       }
     },
     {

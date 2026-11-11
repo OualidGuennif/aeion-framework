@@ -68,7 +68,7 @@ def check_document(path, validator):
         except ValueError as error:
             problems.append(f'{path.relative_to(REPO)}: JSON example is not strict JSON ({error})')
             continue
-        if isinstance(document, dict) and document.get('format') == 'axiomspec/0.1':
+        if isinstance(document, dict) and str(document.get('format', '')).startswith('axiomspec/'):
             # A specification printed in a guide is copied by readers: it must be one the package accepts.
             problems += [f'{path.relative_to(REPO)}: specification example: {e.message[:120]}'
                          for e in validator.iter_errors(document)]

@@ -21,22 +21,22 @@ class SecondReview(unittest.TestCase):
     def test_deep_valid_chain_and_deep_cycle_do_not_use_recursion(self):
         prototype = next(n for n in self.spec['nodes'] if n['kind'] == 'Requirement')
         edge_id = max(int(e['id'].split('-')[1]) for e in self.spec['edges']) + 1
-        for i in range(1200):
+        for i in range(1100):
             node = copy.deepcopy(prototype)
             node['id'] = f'REQ-{10000+i}'
             self.spec['nodes'].append(node)
-            self.spec['edges'].append(dict(id=f'EDGE-{edge_id}', origin='declared', rationale='Review dependency chain',
+            self.spec['edges'].append(dict(id=f'EDGE-{edge_id}', origin='declared', rationale='chain',
                 relation='satisfies', **{'from': node['id'], 'to': 'GOAL-001'}))
             edge_id += 1
             if i:
-                self.spec['edges'].append(dict(id=f'EDGE-{edge_id}', origin='declared', rationale='Review dependency chain',
+                self.spec['edges'].append(dict(id=f'EDGE-{edge_id}', origin='declared', rationale='chain',
                     relation='depends_on', **{'from': f'REQ-{9999+i}', 'to': node['id']}))
                 edge_id += 1
         self.assertLessEqual(len(qa.canonical(self.spec)), qa.BOUNDS['max_input_bytes'])
         self.assertTrue(self.validator.is_valid(self.spec))
         self.assertEqual(qa.reference_errors(self.spec), [])
         self.spec['edges'].append(dict(id=f'EDGE-{edge_id}', origin='declared', rationale='Cycle fixture',
-            relation='depends_on', **{'from': 'REQ-11199', 'to': 'REQ-10000'}))
+            relation='depends_on', **{'from': 'REQ-11099', 'to': 'REQ-10000'}))
         self.assertIn('DEPENDENCY_CYCLE', qa.reference_errors(self.spec))
 
     def test_replace_and_remove_require_existing_target(self):

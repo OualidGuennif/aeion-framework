@@ -1,8 +1,8 @@
 {
-  "format": "axiomspec-report/0.2",
+  "format": "axiomspec-report/0.3",
   "scope": "package",
   "status": "pass",
-  "profile": "AX-CORE-0.1",
+  "profile": "AX-CORE-0.2",
   "requested_phase": "package",
   "available_capabilities": [
     "strict_json",
@@ -14,31 +14,35 @@
     "optional_declaration_checks",
     "croa_guide_red_flag_calculation",
     "local_receipt_consistency",
-    "input_manifest_change_detection"
+    "input_manifest_change_detection",
+    "reference_release_comparison",
+    "format_migration_0_1",
+    "example_python_binding_resolution",
+    "example_application_tests"
   ],
   "unsupported_capabilities": [
     "static_type_unit_compiler",
     "graph_queries",
-    "binding_resolution",
-    "application_tests",
+    "general_binding_resolution",
+    "product_application_tests",
     "authority_attestation",
     "croa_deployment_assessment",
     "croa_weighted_scorecard"
   ],
   "configuration": {
     "path": "validation/package-config.json",
-    "sha256": "74f2203f9d9455f98799297eeba2bc0c948bcc5c85d2a9d03e63073483e40793"
+    "sha256": "91d51687e9103cbeeb3dfae962b49dca25f0065913a99a27fb701fdf23a61470"
   },
   "subject": {
-    "spec_sha256": "1496f052873be20e7580d75babf4c47246fe1e0b770d0c18db456e3a9edaeb3c",
-    "source_tree_sha256": "d81ea90abd310f81901c829717eb4ea6e949efcb5efc0e3102b2469443fad02f",
+    "spec_sha256": "e51ef20ddc4f4974b449e60326bcd343e20ee5be3f91222f7cab9da4f6619634",
+    "source_tree_sha256": "15f95248fd93dfa66a746653a1efc22dc8f10529bc1ac6a530f840f19d710f7e",
     "policy_sha256": null,
     "toolchain_sha256": "3e9c27dc980b9fa1cd8e75883abb20ba3e6ce0aad31d01c17086ebd80ec7885c",
-    "observations_sha256": "f912c1c7048c0dba4523cefe56d5085ec8cce6b4fad83d368ca5b92cfa076c28"
+    "observations_sha256": "6ecf57808d1a22442a1f5e8e1808f7cc809750e94b0ad6c34df2844040ff9935"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -49,7 +53,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "158 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "171 local link targets, 3 JSON blocks and 112 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -65,13 +69,24 @@
       "limitations": []
     },
     {
+      "id": "PKG.EXAMPLE_TESTS",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "32 example application tests executed on current inputs cover all 20 active TestCases; 29 required bindings resolve. Local SQLite reference implementation, untrusted producer.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
       "id": "PKG.NEGATIVE_FIXTURES",
       "gate": "PKG",
       "status": "pass",
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "10 mutations verified with expected diagnostics; 30 future product obligations NOT executed.",
+      "message": "18 mutations verified with expected diagnostics; 30 future product obligations NOT executed.",
       "evidence": [],
       "limitations": []
     },
@@ -82,7 +97,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "61 reference expectations checked across all 17 synthetic observations; no application tests.",
+      "message": "79 reference expectations checked across all 26 synthetic observations. Fixtures, not application runs.",
       "evidence": [],
       "limitations": []
     },
@@ -115,7 +130,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "Selected reference checks passed: 67 nodes, 135 edges. No completeness claim.",
+      "message": "Selected reference checks passed: 86 nodes, 174 edges. No completeness claim.",
       "evidence": [],
       "limitations": []
     },
@@ -126,7 +141,18 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "68 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "message": "106 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "PKG.RELEASE",
+      "gate": "PKG",
+      "status": "pass",
+      "required": true,
+      "subject_id": null,
+      "pointer": "",
+      "message": "Reference G14 comparison 1.0.0 -> 1.1.0: 105 changes, required step minor, change risk score 179.250 points. Classification is mechanical, not a compatibility proof.",
       "evidence": [],
       "limitations": []
     },
@@ -150,13 +176,14 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-11T00:18:55.392086+00:00",
+    "evaluated_at": "2026-11-11T05:12:26.163395+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [
     "Artifact QA only. The product CLI, static type/unit compiler, graph/query engine and test adapters are not implemented.",
     "30 future product obligations are descriptions, not executed tests.",
-    "No application unit/integration/E2E tests were run; planned bindings are fictitious.",
+    "The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.",
+    "Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.",
     "Local untrusted runner; no identity attestation, runtime isolation or production approval.",
     "Reference evaluation is not proof of business completeness, formal equivalence or all executions."
   ]

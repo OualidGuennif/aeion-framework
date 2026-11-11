@@ -46,6 +46,7 @@ axiom query node --id REQ-001 --snapshot <digest>
 axiom query requirement --id REQ-001 --include constraints,models,tests,sources
 axiom query impact --change change.json --snapshot <digest>
 axiom query gaps --phase implementation --snapshot <digest>
+axiom diff --baseline release-1.0.0.json --candidate spec.json
 axiom packet --change change.json --principal <trusted-principal> --budget-bytes 32768
 ```
 
@@ -59,9 +60,11 @@ Take changed IDs/files, additions/deletions, baseline and candidate snapshots. R
 
 Reflection, dynamic configuration, SQL, remote systems and unsupported languages can escape an extractor. Expose those limits. Empty known impacts with unmapped changes does not establish no impact. High-risk changes need sufficient coverage or explicit investigation.
 
+Between two releases, gate G14 supplies the changed IDs and a weighted score (AX-L-009). It follows declared links only and inherits every limit stated here.
+
 ### AX-K-005 — Gaps
 
-Return missing sources/oracles, broken references, unresolved bindings, open decisions, assumptions, missing scenarios and stale evidence with gate and subject. Do not replace hard gaps with a compensating score.
+Return missing sources/oracles, broken references, unresolved bindings, open decisions, assumptions, missing scenarios and stale evidence with gate and subject. Do not replace hard gaps with a compensating score. A change risk score ranks changes for attention; it is reported beside the gaps, never instead of them.
 
 ### AX-K-006 — Bounded responses
 
