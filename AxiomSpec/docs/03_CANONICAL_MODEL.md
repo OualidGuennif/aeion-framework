@@ -1,6 +1,6 @@
 # Canonical model
 
-The [schema](../schemas/spec.schema.json) defines `axiomspec/0.2`. This document and the constraint, gate and query contracts define additional semantics.
+The [schema](../schemas/spec.schema.json) defines `axiomspec/0.3`. This document and the constraint, gate and query contracts define additional semantics.
 
 ## Transport and identity
 
@@ -12,10 +12,12 @@ Use strict UTF-8 JSON. Reject duplicate keys, non-integer numbers, NaN, Infinity
 
 | Field | Content |
 |---|---|
-| format / profile | `axiomspec/0.2` / `AX-CORE-0.2` |
+| format / profile | `axiomspec/0.3` / `AX-CORE-0.3` |
 | release | Version, the previous release it succeeds, compatibility decisions |
 | project | ID, name, description, owner, mode `product` or `example`, weight minor units |
 | actors / sources | Declared roles and provenance |
+| approval | Approvers required per risk band, accepted methods, verification keys |
+| imports / exports | Pinned releases of other specifications; the objects others may rely on |
 | environments | Bounded input schemas and unit annotations |
 | flags | Feature flags and their state in this release |
 | nodes / edges | Normative objects and declared typed relationships |
@@ -38,6 +40,7 @@ IDs follow `^[A-Z][A-Z0-9_]*-[0-9]{3,6}$`, are unique across the canonical packa
 | Risk, control | RISK, CTRL |
 | Edge, binding, context asset | EDGE, BIND, ASSET |
 | Feature flag | FLAG |
+| Approval key, import | KEY, IMP |
 
 Retain IDs through renames and retirement. Never reuse an ID for a different meaning. Transition IDs `TRN-*` are local to their StateModel and unique within that model.
 
@@ -207,3 +210,41 @@ A weight ranks. It is not a probability, and no sum of weights compensates for a
 - `state` is the default this release ships with. Each release records its own states, so "which flags were on in 2.3.0" is answered by that release, and the comparison of two releases reports every switch (AX-L-007). A per-deployment override is runtime configuration: it is outside the specification and its observation belongs to G13.
 - A flag waives nothing. A requirement behind a disabled flag stays in the model with all its gates. An active must requirement behind a flag is verified by an active TestCase with the flag enabled and by another with it disabled, stated in `flag_states`; the disabled case asserts what the product does without the feature.
 - `introduced_in` is not later than the release. `remove_by` is null or later than `introduced_in`. Once the release version reaches `remove_by`, the flag is stale and the baseline fails until the flag is removed and its requirement is made unconditional or retired.
+
+## Approval, composition and storage
+
+### AX-M-020 — Approval policy and keys
+
+`approval` states who may approve a release and how many approvers each risk band needs. The values belong to the organization. The format requires only that they are stated and can be met.
+
+- `policy` gives, for each of `low`, `medium`, `high` and `critical`, the number of `approvers`, from 0 to 128, and the `methods` that count for that band. An empty list accepts every declared method. Zero approvers is a valid policy; the specification then shows that nobody approves.
+- `keys` lists each verification key: ID, the actor that holds it, a `method` label the organization chooses (`device_passkey`, `sso_mfa`, `email_link`, any other), an `algorithm` and the public key.
+- A key with `attests` false approves for its own actor. A key with `attests` true is held by a service actor and vouches that a named actor approved through that method. Any authentication the organization already runs enters the format this way: single sign-on with a second factor, an e-mail confirmation, a password manager, a ticket workflow. The service authenticates the person as the organization decides and signs the result.
+- Algorithms are `ed25519`, a raw signature, and `webauthn-es256`, a passkey assertion with the user present and verified. The public key is the base64 of the 32 raw bytes for the first and of the uncompressed P-256 point for the second.
+
+Four structural rules apply. A method a band names is provided by a declared key. Each band can be met by the declared keys and actors. No public key appears twice. An attesting key is held by a service.
+
+The format carries the mechanism and never the choice. A passkey bound to the approver's device is a sound default for people, and nothing requires it. An attesting key can approve for any actor, so a band that must not depend on the service accepts personal methods only.
+
+A method label is a declaration. The format cannot check that a key labelled `device_passkey` lives in hardware, or that a key belongs to the person its actor record names. An organization that needs that evidence keeps it where it enrols keys.
+
+### AX-M-021 — Imports and exports
+
+A specification describes one product or service. What it relies on in another specification, and what others may rely on in it, is declared.
+
+- `exports` lists the active requirements, constraints, terms and state models other specifications may use. Everything else is internal.
+- An entry of `imports` pins one release of another specification by project ID, version and canonical digest, and lists its `uses`: an exported ID of that release, the local objects that rely on it and why.
+- A release pins at most one release of each provider and never itself. The local objects of a use exist and are not retired.
+- With the pinned release at hand, the digest must be that of the named project and version, and every used ID must be among its exports (AX-L-010). Without it, the import is unresolved: unknown, not accepted.
+
+A pin is exact. There are no version ranges and no resolution step, so two people who hold the same consumer release hold the same provider content.
+
+### AX-M-022 — Specification in parts
+
+One file is bounded at one megabyte. A larger specification is stored as parts under a manifest (`axiomspec-parts/0.1`) that names each part by path and digest and the joined document by its canonical digest.
+
+- The first part carries the root fields; any part carries items of the root collections. Joining concatenates the collections in manifest order and must reproduce the manifest's digest.
+- Parts change storage, not meaning. IDs are unique across the whole specification, every rule applies to the joined document, and the digest, with every pin and approval that names it, is the same as for a single file.
+- At most 256 parts. A joined specification holds at most 100,000 nodes and 500,000 edges (AX-C-010).
+
+Splitting is for the specification that is large by nature. A product made of several services has several specifications that import each other; that is the first tool for size, and it also keeps ownership, releases and approvals apart.

@@ -2,7 +2,7 @@
 
 ## Two scopes
 
-[conformance.json](../fixtures/conformance.json) contains 48 vectors: eighteen executable package mutations and thirty future product obligations. Future_runtime entries are descriptions, not available automated product tests.
+[conformance.json](../fixtures/conformance.json) contains 53 vectors: twenty-three executable package mutations and thirty future product obligations. Future_runtime entries are descriptions, not available automated product tests.
 
 Package QA checks schemas, selected references, all declared reference observations, targeted errors and editorial integrity. Its report scope is package. It does not qualify the future engine.
 
@@ -26,6 +26,11 @@ Package QA checks schemas, selected references, all declared reference observati
 | V-016 | Version that skips a step after the baseline | INVALID_VERSION_STEP |
 | V-017 | Acknowledged break without a migration | MISSING_MIGRATION |
 | V-018 | Optional requirement without a flag | OPTIONAL_WITHOUT_FLAG |
+| V-019 | Band naming a method no key provides | UNKNOWN_APPROVAL_METHOD |
+| V-020 | Band asking for more approvers than the keys can supply | UNSATISFIABLE_APPROVAL_POLICY |
+| V-021 | Export of an object the specification does not hold | INVALID_EXPORT |
+| V-022 | Import used by an object the specification does not hold | UNKNOWN_IMPORT_USER |
+| V-023 | Attesting key held by an actor that is not a service | ATTESTOR_NOT_SERVICE |
 
 Apply mutations independently. Require the full versioned ID set, valid metadata, expected gate/verdict and targeted reference diagnostic. A replace/remove target must already exist; an add target must be a new object member. An unrelated failure is insufficient.
 
@@ -35,7 +40,7 @@ Provide reproducible setup, input, controlled fault, actual command/API, oracle 
 
 ### AX-F-002 — Honest denominator
 
-Report eighteen mutations checked and thirty product obligations not executed. Never count descriptions as successful tests or silently remove them from the result.
+Report twenty-three mutations checked and thirty product obligations not executed. Never count descriptions as successful tests or silently remove them from the result.
 
 ## Future obligations
 
@@ -68,6 +73,8 @@ Third-review tests also check ordering invariance of selected reference resoluti
 Fourth-review tests cover rules that the contracts stated and the reference checks did not enforce: a witness scenario must illustrate a requirement its test verifies, goals and requirements at the far end of a required link must be active, requirement patterns fix their populated fields, effective windows are UTC and ordered, transition IDs use `TRN-`, a terminal state has no exit, unit annotations name one integer leaf and a `binding:` locator agrees with its binding. Local links must also match the file name's letter case, which a case-insensitive filesystem would otherwise hide. Edition 0.4.0 adds the cases for a literal array used as a collection, a binding naming the wrong node kind and a link declared twice, and compares the two before/after predicates with direct calculations on 200 seeded transitions. These remain selected reference checks, not a complete G02-G07 implementation.
 
 Edition 0.5.0 tests cover format 0.2: every weight boundary in each minor unit, each flag rule, each release-declaration rule, the migration from 0.1 and the release comparison. The comparison cases derive a candidate from release 1.0.0 of the ledger, change one thing and require one level or one error, for requirements, constraints, models, terms, environments and flags, and they check the score arithmetic by hand, including dependents and a change of minor units.
+
+Edition 0.6.0 tests cover format 0.3. The approval cases sign with fictional keys and simulate a passkey authenticator: each policy shape from zero to seven approvers, each way an approval can fail to count, key rotation through three releases, and the union of approval files in every order. The store cases build the same set of files in different orders and from two replicas and require one verdict; they create a fork, check that both sides stay verified, and settle it with a later release. The impact cases change one thing in the provider and require the reached uses and the score in the consumer. The parts cases split, join, damage and misplace parts, and check a generated specification of 3,000 requirements that no single file could hold.
 
 ## Example application evidence
 

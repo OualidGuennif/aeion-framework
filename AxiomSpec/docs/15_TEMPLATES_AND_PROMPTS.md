@@ -95,6 +95,9 @@ Breaking candidates the comparison reports:
 For each: breaking with its migration, or compatible, and the decision:
 Flags added, switched or due for removal:
 Change risk score and what was reviewed because of it:
+Bands the release reaches and approvers each requires under the previous release:
+Approvals collected (actor, key, method):
+Pins moved, and what the impact report showed for each:
 Product compatibility to verify outside the specification (API, data, mixed versions):
 ```
 

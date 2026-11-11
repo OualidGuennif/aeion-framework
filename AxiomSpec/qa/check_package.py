@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Local artifact QA. Not the AxiomSpec product validator or a trusted runner."""
 import ast
+import base64
+import binascii
 import copy
 from collections import deque
 import hashlib
@@ -211,6 +213,35 @@ def version_step(previous, current):
     return None
 
 
+BANDS = ('low', 'medium', 'high', 'critical')
+EXPORTABLE = {'Requirement', 'Constraint', 'Term', 'StateModel'}
+KEY_BYTES = {'ed25519': 32, 'webauthn-es256': 65}
+
+
+def decode_base64(text):
+    """Standard base64 with padding, or None. Used for keys and signatures (AX-M-020)."""
+    try:
+        return base64.b64decode(text, validate=True)
+    except (binascii.Error, ValueError):
+        return None
+
+
+def valid_public_key(algorithm, text):
+    """AX-M-020: 32 raw bytes for Ed25519; an uncompressed P-256 point (0x04, X, Y) for a passkey."""
+    raw = decode_base64(text)
+    return raw is not None and len(raw) == KEY_BYTES[algorithm] and (algorithm == 'ed25519' or raw[0] == 4)
+
+
+def eligible_approvers(spec, band):
+    """AX-M-020: the actors who could approve at this band under this specification's keys and methods."""
+    allowed = set(spec['approval']['policy'][band]['methods'])
+    keys = [k for k in spec['approval']['keys'] if not allowed or k['method'] in allowed]
+    actors = {k['actor_id'] for k in keys if not k['attests']}
+    if any(k['attests'] for k in keys):
+        actors |= {a['id'] for a in spec['actors'] if a['type'] != 'service'}
+    return actors
+
+
 def weight_band(weight_minor, units):
     """AX-M-018: the risk label a weight implies. Bands are 1-25, above 25-50, above 50-75, above 75-100."""
     for label, top in (('low', 25), ('medium', 50), ('high', 75)):
@@ -241,8 +272,9 @@ def reference_errors(spec):
     """Selected semantic checks for fixtures, not complete G02-G07 qualification."""
     errors = []
     all_ids = [spec['project']['id']]
-    for section in ('actors', 'sources', 'environments', 'flags', 'nodes', 'edges', 'bindings', 'context_assets'):
+    for section in ('actors', 'imports', 'sources', 'environments', 'flags', 'nodes', 'edges', 'bindings', 'context_assets'):
         all_ids.extend(x['id'] for x in spec[section])
+    all_ids.extend(x['id'] for x in spec['approval']['keys'])
     if len(all_ids) != len(set(all_ids)):
         errors.append('DUPLICATE_ID')
     nodes = {x['id']: x for x in spec['nodes']}
@@ -254,9 +286,45 @@ def reference_errors(spec):
     units = spec['project']['weight_minor_units']
     release = spec['release']
     for section, prefix in [('actors', 'ACTOR'), ('sources', 'SRC'), ('environments', 'ENV'), ('flags', 'FLAG'),
-                            ('edges', 'EDGE'), ('bindings', 'BIND'), ('context_assets', 'ASSET')]:
+                            ('edges', 'EDGE'), ('bindings', 'BIND'), ('context_assets', 'ASSET'), ('imports', 'IMP')]:
         if any(not x['id'].startswith(prefix + '-') for x in spec[section]):
             errors.append('WRONG_PREFIX')
+    # AX-M-020: who may approve the next release, with which key and method, and how many per risk band.
+    approval = spec['approval']
+    actor_types = {x['id']: x['type'] for x in spec['actors']}
+    if any(not key['id'].startswith('KEY-') for key in approval['keys']):
+        errors.append('WRONG_PREFIX')
+    material = [key['public_key'] for key in approval['keys']]
+    if len(material) != len(set(material)):
+        errors.append('DUPLICATE_APPROVAL_KEY')
+    for key in approval['keys']:
+        if key['actor_id'] not in actors:
+            errors.append('UNKNOWN_ACTOR')
+        elif key['attests'] and actor_types[key['actor_id']] != 'service':
+            errors.append('ATTESTOR_NOT_SERVICE')
+        if not valid_public_key(key['algorithm'], key['public_key']):
+            errors.append('INVALID_APPROVAL_KEY')
+    for band in BANDS:
+        if not set(approval['policy'][band]['methods']) <= {key['method'] for key in approval['keys']}:
+            errors.append('UNKNOWN_APPROVAL_METHOD')
+        elif len(eligible_approvers(spec, band)) < approval['policy'][band]['approvers']:
+            errors.append('UNSATISFIABLE_APPROVAL_POLICY')
+    # AX-M-021: an import pins one release of another specification; an export is an active public object.
+    providers = [item['project_id'] for item in spec['imports']]
+    if spec['project']['id'] in providers:
+        errors.append('SELF_IMPORT')
+    if len(providers) != len(set(providers)):
+        errors.append('DUPLICATE_IMPORT')
+    for item in spec['imports']:
+        used = [use['external_id'] for use in item['uses']]
+        if len(used) != len(set(used)):
+            errors.append('DUPLICATE_IMPORT')
+        if any(nodes.get(local, {}).get('status') in (None, 'retired') for use in item['uses'] for local in use['local_ids']):
+            errors.append('UNKNOWN_IMPORT_USER')
+    for exported in spec['exports']:
+        node = nodes.get(exported)
+        if node is None or node['status'] != 'active' or node['kind'] not in EXPORTABLE:
+            errors.append('INVALID_EXPORT')
     if not spec['project']['id'].startswith('PROJECT-'):
         errors.append('WRONG_PREFIX')
     for env in spec['environments']:
@@ -740,10 +808,12 @@ def check_vector_corpus(baseline, vectors, validator):
                    'V-008': 'DUPLICATE_ID', 'V-009': 'UNKNOWN_ACTOR', 'V-010': 'DEPENDENCY_CYCLE',
                    'V-011': 'WEIGHT_RANGE', 'V-012': 'RISK_BAND_MISMATCH', 'V-013': 'UNKNOWN_FLAG',
                    'V-014': 'FLAG_STATE_UNTESTED', 'V-015': 'STALE_FLAG', 'V-016': 'INVALID_VERSION_STEP',
-                   'V-017': 'MISSING_MIGRATION', 'V-018': 'OPTIONAL_WITHOUT_FLAG'}
+                   'V-017': 'MISSING_MIGRATION', 'V-018': 'OPTIONAL_WITHOUT_FLAG',
+                   'V-019': 'UNKNOWN_APPROVAL_METHOD', 'V-020': 'UNSATISFIABLE_APPROVAL_POLICY', 'V-021': 'INVALID_EXPORT',
+                   'V-022': 'UNKNOWN_IMPORT_USER', 'V-023': 'ATTESTOR_NOT_SERVICE'}
     executable = len(diagnostics) + 5
     required = {f'V-{i:03d}' for i in range(1, executable + 1)} | {f'V-{i:03d}' for i in range(101, 131)}
-    require({v['id'] for v in vectors} == required and len(vectors) == len(required), 'Conformance corpus coverage differs from v0.2')
+    require({v['id'] for v in vectors} == required and len(vectors) == len(required), 'Conformance corpus coverage differs from v0.3')
     for vector in vectors:
         require(set(vector) == {'id', 'purpose', 'layer', 'mutation', 'expected_schema_valid',
                                 'expected_gate', 'expected_outcome'}, 'Invalid vector fields')
@@ -832,10 +902,10 @@ def main():
     def schemas():
         Draft202012Validator.check_schema(spec_schema)
         Draft202012Validator.check_schema(report_schema)
-        for relative in ['schemas/execution.schema.json', 'schemas/croa-readiness.schema.json']:
+        for relative in ['schemas/execution.schema.json', 'schemas/croa-readiness.schema.json', 'schemas/approvals.schema.json']:
             Draft202012Validator.check_schema(read(relative))
         validator.validate(baseline)
-        return 'Four schema documents valid under Draft 2020-12; example shape valid.'
+        return 'Five schema documents valid under Draft 2020-12; example shape valid.'
     check('PKG.SCHEMAS', schemas)
 
     def references():
@@ -901,6 +971,40 @@ def main():
                 f"{len(comparison['changes'])} changes, required step {comparison['required_step']}, "
                 f"change risk score {comparison['risk']['score']} points. Classification is mechanical, not a compatibility proof.")
     check('PKG.RELEASE', release)
+
+    def approval_check():
+        import approvals
+        previous = read('examples/refund-ledger/releases/1.0.0.json')
+        identity = read('examples/identity-adapter/spec.json')
+        ledger_approvals = read('examples/refund-ledger/approvals.json')
+        cases = [('ledger 1.0.0', previous, read('examples/refund-ledger/releases/1.0.0.approvals.json'), None),
+                 ('ledger 1.1.0', baseline, ledger_approvals, previous),
+                 ('identity 1.0.0', identity, read('examples/identity-adapter/approvals.json'), None)]
+        signatures = 0
+        for label, spec, document, governing in cases:
+            validator.validate(spec)
+            report = approvals.verify(spec, document, governing)
+            require(report['status'] == 'pass', f"{label}: {report['errors']!r}")
+            signatures += sum(entry['valid'] for entry in report['approvals'])
+        altered = copy.deepcopy(baseline)
+        altered['project']['name'] += ' (altered)'
+        require(approvals.verify(altered, ledger_approvals, previous)['status'] == 'fail', 'Approvals accepted for altered content')
+        require(approvals.verify(baseline, ledger_approvals, None)['status'] == 'unknown', 'Approvals decided without the governing release')
+        stats['approval_signatures_verified'] = signatures
+        return (f'{signatures} approval signatures on {len(cases)} releases verify against the keys the governing release declares, '
+                'with the approvers its policy requires per band (reference G12). The keys are fictional and derived from '
+                'public labels; no authenticator hardware and no identity binding was involved.')
+    check('PKG.APPROVALS', approval_check)
+
+    def store_check():
+        import release_store
+        report = release_store.verify(release_store.load([str(ROOT / 'examples')]))
+        require(report['status'] == 'pass', repr(report['errors'] or 'incomplete store'))
+        resolved = sum(i['state'] == 'resolved' for r in report['releases'] for i in r['imports'])
+        stats.update(store_releases=len(report['releases']), store_imports_resolved=resolved)
+        return (f"{len(report['releases'])} releases of {len(report['projects'])} projects verify as one store from their files alone: "
+                f'chain links, approvals and {resolved} pinned import. No index, log or clock is consulted.')
+    check('PKG.RELEASE_STORE', store_check)
 
     def example_tests():
         executed = validate_example_receipt(ROOT, read(EXAMPLE_RECEIPT))
@@ -981,8 +1085,8 @@ def main():
     manifest = require_unchanged_inputs(initial_inputs)
     toolchain = runtime_toolchain(ROOT)
     toolchain['jsonschema'] = toolchain['dependencies']['jsonschema']
-    configuration = dict(format='axiomspec-package-config/0.1', profile='AX-CORE-0.2',
-                         bounds=BOUNDS, json_depth_limit=128, corpus_version='0.2',
+    configuration = dict(format='axiomspec-package-config/0.1', profile='AX-CORE-0.3',
+                         bounds=BOUNDS, json_depth_limit=128, corpus_version='0.3',
                          observation_coverage='all_canonical_scenarios_and_bcir_constraints',
                          application_test_execution='worked_example_only', external_schema_retrieval=False,
                          regression_receipt='required_matching_inputs_toolchain_and_output',
@@ -993,15 +1097,16 @@ def main():
         f"{stats.get('product_obligations_pending', 30)} future product obligations are descriptions, not executed tests.",
         'The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.',
         'Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.',
-        'Local untrusted runner; no identity attestation, runtime isolation or production approval.',
+        'Approval signatures are checked against declared keys. Nothing binds a key to a person, and the example keys are fictional.',
+        'Local untrusted runner; no runtime isolation or production approval.',
         'Reference evaluation is not proof of business completeness, formal equivalence or all executions.'
     ]
     checks.sort(key=lambda c: c['id'])
     status = 'error' if any(c['status'] == 'error' for c in checks) else ('fail' if any(c['status'] != 'pass' for c in checks) else 'pass')
-    report = dict(format='axiomspec-report/0.3', scope='package', status=status,
-                  profile='AX-CORE-0.2', requested_phase='package',
-                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'format_migration_0_1', 'example_python_binding_resolution', 'example_application_tests'],
-                  unsupported_capabilities=['static_type_unit_compiler', 'graph_queries', 'general_binding_resolution', 'product_application_tests', 'authority_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
+    report = dict(format='axiomspec-report/0.4', scope='package', status=status,
+                  profile='AX-CORE-0.3', requested_phase='package',
+                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'reference_approval_verification', 'reference_release_store', 'specification_parts', 'format_migration_0_1', 'format_migration_0_2', 'example_python_binding_resolution', 'example_application_tests'],
+                  unsupported_capabilities=['static_type_unit_compiler', 'graph_queries', 'general_binding_resolution', 'product_application_tests', 'identity_binding_of_approval_keys', 'authenticator_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
                   configuration=dict(path='validation/package-config.json', sha256=digest(config_text.encode('utf-8'))),
                   subject=dict(spec_sha256=digest(canonical(baseline)), source_tree_sha256=digest(canonical(manifest)),
                                policy_sha256=None, toolchain_sha256=digest(canonical(toolchain)), observations_sha256=digest(canonical(observations))),
@@ -1039,8 +1144,8 @@ if __name__ == '__main__':
     except Exception as exc:
         # Final CLI boundary: never leave an old green report as the current result.
         message = f'{type(exc).__name__}: package QA could not complete; inspect the local input.'
-        report = dict(format='axiomspec-report/0.3', scope='package', status='error',
-                      profile='AX-CORE-0.2', requested_phase='package',
+        report = dict(format='axiomspec-report/0.4', scope='package', status='error',
+                      profile='AX-CORE-0.3', requested_phase='package',
                       available_capabilities=[], unsupported_capabilities=['package_qa_incomplete'], configuration=None,
                       subject={name: None for name in ['spec_sha256', 'source_tree_sha256', 'policy_sha256', 'toolchain_sha256', 'observations_sha256']},
                       runner=dict(name='qa/check_package.py', version=EDITION, trust='untrusted_local'),

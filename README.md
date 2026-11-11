@@ -40,6 +40,16 @@ that a person or an agent can author and a program can check:
   The score ranks; it never turns a failed gate into a pass.
 - **Feature flags are part of the specification.** A flag has a state per release, a test for each
   state and a removal target, after which keeping it fails the check.
+- **Approval is part of the specification, and its values are yours.** Each specification states how
+  many approvers each risk band needs, from zero up, and which methods count: passkeys, single
+  sign-on with a second factor, e-mail confirmation, anything your approval service signs for. A
+  release is approved under the policy of the release before it.
+- **Specifications compose.** One specification per product or service. It pins the releases it
+  relies on by digest, lists what others may rely on, and a change in a provider is followed into
+  the requirements of its consumers.
+- **Verification needs only files.** There is no log, index, quorum or clock. The verdict depends on
+  the set of files alone, in any order and from any replica; a missing file is unknown, never a
+  wrong answer, and a conflict is a reported fork, never a corrupted store.
 
 ```mermaid
 flowchart LR
@@ -58,20 +68,21 @@ flowchart LR
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.5.1: nineteen contract documents, four JSON schemas, the rule index, a worked example (a fictional refund ledger in two releases, with a reference implementation and executed tests), a conformance corpus, a release comparison, a migration from format 0.1, package QA and its review records |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.6.0: nineteen contract documents, five JSON schemas, the rule index, two worked examples (a fictional refund ledger in two signed releases, with a reference implementation and executed tests, and the small identity adapter it pins), a conformance corpus, reference checks of releases, approvals and a release store, migrations from formats 0.1 and 0.2, package QA and its review records |
 | [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
 | [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
 | [`tools/check_repo.py`](tools/check_repo.py) | A check of this README and the playbooks (links, JSON examples, the specification draft), which the self-contained package QA cannot read |
 
 The two playbooks are the source material Æion Factory 3.0.0 and Æion Core were built from. The
 existing-project playbook is a verbatim copy; the specification draft in the new-project playbook was
-moved to format 0.2 in edition 0.5.0.
+moved to format 0.3 in edition 0.6.0.
 
-The package is edition 0.5.1, with specification format `axiomspec/0.2`. Release, weights and flags
-are required fields, so a 0.1 specification is not valid 0.2: `AxiomSpec/qa/migrate_0_1.py` writes a
-candidate and lists what a person must still decide. Æion Factory and Æion Core vendor edition 0.3.0
+The package is edition 0.6.0, with specification format `axiomspec/0.3`. Release, weights, flags,
+the approval policy, imports and exports are required fields, so an older specification is not valid
+0.3: `AxiomSpec/qa/migrate_0_1.py` and `AxiomSpec/qa/migrate_0_2.py` each write a candidate and list
+what a person must still decide. Æion Factory and Æion Core vendor edition 0.3.0
 (this repository at commit `43cfb58`) and read format 0.1; they have not been moved yet. The
-[review](AxiomSpec/REVIEW.md#edition-050) lists every change since 0.3.0, so a tool built from it can
+[review](AxiomSpec/REVIEW.md#edition-060) lists every change since 0.3.0, so a tool built from it can
 see what it does not check yet.
 
 The existing-project playbook cites a research note (`../research/auto-ontology-comparison-2026-11-09.md`)
@@ -94,9 +105,12 @@ that is not published; that one link does not resolve.
 - The refund ledger is fictional. Its 20 test cases run against a reference implementation on local
   SQLite every time the package is verified, and its release 1.1.0 is compared with its release
   1.0.0. That is evidence about one example from an untrusted local producer, not a qualified runner.
-- One specification is one file of at most one megabyte, about a thousand requirements. References
-  between the specifications of separate services are not defined yet, and nothing authenticates who
-  approved a decision.
+- Approvals are checked against the keys a specification declares. Nothing in the package binds a
+  key to a person: enrolment stays with your identity system. The example keys are fictional and no
+  hardware authenticator was used.
+- The reference checks handle a generated specification of 50,000 requirements in 36 files. That is
+  a measurement of these scripts on one machine, not a qualified engine, and no real product of that
+  size was tried.
   The package's own [review](AxiomSpec/REVIEW.md) and
   [assurance matrix](AxiomSpec/review/ASSURANCE_MATRIX.md) list what is declared, what is checked and
   what is not built.

@@ -89,8 +89,9 @@ Invalid input is not downgraded to unknown. A valid unsupported extension may be
 
 | Resource | Default |
 |---|---:|
-| Canonical input bytes | 1,048,576 |
-| Canonical nodes / edges | 10,000 / 50,000 |
+| Canonical input bytes, per file | 1,048,576 |
+| Parts per specification | 256 |
+| Canonical nodes / edges | 100,000 / 500,000 |
 | Expression depth / nodes | 24 / 2,000 |
 | Observation collection items | 10,000 |
 | Steps per evaluation | 1,000,000 |

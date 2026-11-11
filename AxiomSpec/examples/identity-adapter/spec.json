@@ -1,0 +1,163 @@
+{
+  "format": "axiomspec/0.3",
+  "profile": "AX-CORE-0.3",
+  "release": {
+    "version": "1.0.0",
+    "previous": null,
+    "compatibility": []
+  },
+  "project": {
+    "id": "PROJECT-002",
+    "name": "Identity adapter demonstration",
+    "description": "Fictional adapter that turns a presented credential into a verified principal. No real identity provider.",
+    "owner": "ACTOR-001",
+    "mode": "example",
+    "weight_minor_units": 1
+  },
+  "actors": [
+    {
+      "id": "ACTOR-001",
+      "name": "Demonstration identity-owner role",
+      "type": "human_role",
+      "binding_status": "asserted"
+    },
+    {
+      "id": "ACTOR-002",
+      "name": "Demonstration approval service",
+      "type": "service",
+      "binding_status": "asserted"
+    }
+  ],
+  "approval": {
+    "policy": {
+      "low": {
+        "approvers": 0,
+        "methods": []
+      },
+      "medium": {
+        "approvers": 0,
+        "methods": []
+      },
+      "high": {
+        "approvers": 1,
+        "methods": [
+          "sso_mfa"
+        ]
+      },
+      "critical": {
+        "approvers": 1,
+        "methods": [
+          "sso_mfa"
+        ]
+      }
+    },
+    "keys": [
+      {
+        "id": "KEY-001",
+        "actor_id": "ACTOR-002",
+        "method": "sso_mfa",
+        "algorithm": "ed25519",
+        "public_key": "pNcxjJoFBL7VdWH1Z32ScJNm+1T4n/a8c8jgatu6eko=",
+        "attests": true
+      }
+    ]
+  },
+  "imports": [],
+  "exports": [
+    "REQ-001",
+    "TERM-001"
+  ],
+  "sources": [
+    {
+      "id": "SRC-001",
+      "type": "fixture",
+      "locator": "fixture:identity-adapter/0.1",
+      "capture_sha256": null,
+      "review_state": "fixture"
+    }
+  ],
+  "environments": [],
+  "flags": [],
+  "nodes": [
+    {
+      "id": "GOAL-001",
+      "kind": "Goal",
+      "revision": 1,
+      "status": "active",
+      "title": "Callers are who they claim to be",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-001",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "description": "A consumer acts only for a principal the adapter has verified.",
+        "success_measure": "No consumer receives a verified principal for an invalid credential."
+      }
+    },
+    {
+      "id": "TERM-001",
+      "kind": "Term",
+      "revision": 1,
+      "status": "active",
+      "title": "Verified principal",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-001",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "definition": "A caller identity and its tenant, established by the adapter from a valid credential and marked verified.",
+        "aliases": [],
+        "unit": null,
+        "context": "Fictional identity adapter"
+      }
+    },
+    {
+      "id": "REQ-001",
+      "kind": "Requirement",
+      "revision": 1,
+      "status": "active",
+      "title": "Mark a principal verified only for a valid credential",
+      "owner": "ACTOR-001",
+      "created_by": "ACTOR-001",
+      "source_ids": [
+        "SRC-001"
+      ],
+      "data": {
+        "category": "security",
+        "priority": "must",
+        "risk": "critical",
+        "weight_minor": 90,
+        "verification_mode": "executable",
+        "pattern": "event",
+        "conditions": [],
+        "trigger": "a request presents a credential",
+        "feature": null,
+        "subject": "IdentityAdapter",
+        "response": "return a principal marked verified, with its tenant, only if the credential is valid",
+        "flag_id": null
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "EDGE-001",
+      "relation": "satisfies",
+      "origin": "declared",
+      "rationale": "Verification is what makes the identity usable.",
+      "from": "REQ-001",
+      "to": "GOAL-001"
+    },
+    {
+      "id": "EDGE-002",
+      "relation": "uses_term",
+      "origin": "declared",
+      "rationale": "The requirement returns this object.",
+      "from": "REQ-001",
+      "to": "TERM-001"
+    }
+  ],
+  "bindings": [],
+  "context_assets": []
+}

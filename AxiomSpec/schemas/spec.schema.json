@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://axiomspec.invalid/schema/spec-0.2.json",
-  "title": "AxiomSpec canonical product specification 0.2",
+  "$id": "https://axiomspec.invalid/schema/spec-0.3.json",
+  "title": "AxiomSpec canonical product specification 0.3",
   "type": "object",
   "properties": {
     "format": {
-      "const": "axiomspec/0.2"
+      "const": "axiomspec/0.3"
     },
     "profile": {
-      "const": "AX-CORE-0.2"
+      "const": "AX-CORE-0.3"
     },
     "release": {
       "type": "object",
@@ -178,6 +178,251 @@
       },
       "minItems": 1,
       "maxItems": 128
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "policy": {
+          "type": "object",
+          "properties": {
+            "low": {
+              "type": "object",
+              "properties": {
+                "approvers": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 128
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 32,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "approvers",
+                "methods"
+              ],
+              "additionalProperties": false
+            },
+            "medium": {
+              "type": "object",
+              "properties": {
+                "approvers": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 128
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 32,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "approvers",
+                "methods"
+              ],
+              "additionalProperties": false
+            },
+            "high": {
+              "type": "object",
+              "properties": {
+                "approvers": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 128
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 32,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "approvers",
+                "methods"
+              ],
+              "additionalProperties": false
+            },
+            "critical": {
+              "type": "object",
+              "properties": {
+                "approvers": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 128
+                },
+                "methods": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,63}$"
+                  },
+                  "minItems": 0,
+                  "maxItems": 32,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "approvers",
+                "methods"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "additionalProperties": false
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              "actor_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              "method": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,63}$"
+              },
+              "algorithm": {
+                "enum": [
+                  "ed25519",
+                  "webauthn-es256"
+                ]
+              },
+              "public_key": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]{4,2048}={0,2}$"
+              },
+              "attests": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "actor_id",
+              "method",
+              "algorithm",
+              "public_key",
+              "attests"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        }
+      },
+      "required": [
+        "policy",
+        "keys"
+      ],
+      "additionalProperties": false
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "project_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "uses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "external_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "local_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                  },
+                  "minItems": 1,
+                  "maxItems": 256,
+                  "uniqueItems": true
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16384
+                }
+              },
+              "required": [
+                "external_id",
+                "local_ids",
+                "rationale"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 1024
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "version",
+          "spec_sha256",
+          "uses"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 256
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+      },
+      "minItems": 0,
+      "maxItems": 10000,
+      "uniqueItems": true
     },
     "sources": {
       "type": "array",
@@ -1815,7 +2060,7 @@
         ]
       },
       "minItems": 0,
-      "maxItems": 10000
+      "maxItems": 100000
     },
     "edges": {
       "type": "array",
@@ -1872,7 +2117,7 @@
         "additionalProperties": false
       },
       "minItems": 0,
-      "maxItems": 50000
+      "maxItems": 500000
     },
     "bindings": {
       "type": "array",
@@ -1939,7 +2184,7 @@
         "additionalProperties": false
       },
       "minItems": 0,
-      "maxItems": 10000
+      "maxItems": 100000
     },
     "context_assets": {
       "type": "array",
@@ -2059,6 +2304,9 @@
     "release",
     "project",
     "actors",
+    "approval",
+    "imports",
+    "exports",
     "sources",
     "environments",
     "flags",

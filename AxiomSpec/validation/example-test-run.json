@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-test-receipt/0.1",
   "scope": "example_application",
-  "edition": "0.5.1",
+  "edition": "0.6.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-11T09:03:01.846677+00:00",
+  "evaluated_at": "2026-11-11T09:39:19.880594+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -64,7 +64,7 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "96b4dca9b86ed49764e3acbff79cd0854100472bef468422f1a69a2adbc396df"
+      "sha256": "fae8c91fad899ddf7ee6564edb410daba84d4008d48a66b62bcfc8746af9fa9c"
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
@@ -72,7 +72,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "a92fe3193d9907776507f2a62f2bee11c5c741f3c9244bf4f9538def682dcc52"
+      "sha256": "5d565be71f5713902cc286699bf32d3d1f0903b5a1466e22aad05d79a884523a"
     }
   ],
   "toolchain": {
@@ -86,13 +86,16 @@
       "jsonschema-specifications": "2025.9.1",
       "referencing": "0.37.0",
       "rpds-py": "2026.9.1",
-      "typing-extensions": "4.16.0"
+      "typing-extensions": "4.16.0",
+      "cryptography": "50.0.2",
+      "cffi": "2.1.1",
+      "pycparser": "3.12"
     }
   },
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "14e68aed56cf7f761a4070b0d29c08539fcc4b94b51ef89135928a9426cd6386"
+    "sha256": "184a92ebf188faed69acc611ca9ac40c04f5da70b4433e8bd5c820da67604cf6"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

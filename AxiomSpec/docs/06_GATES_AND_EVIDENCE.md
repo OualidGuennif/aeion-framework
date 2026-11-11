@@ -17,7 +17,7 @@ Checks concern a specification baseline, change, implementation or runtime windo
 | G09 | Bindings and coverage of the proposed change |
 | G10 | Tests actually executed |
 | G11 | Evidence integrity and freshness |
-| G12 | Policy-required authority and decisions |
+| G12 | Approvals the governing release's policy requires |
 | G13 | Runtime observations in a stated window |
 | G14 | Release comparison with the named baseline: identity, classification, version step |
 
@@ -36,7 +36,7 @@ Expose supported capabilities. Missing language resolution, identity, solver or 
 | Output | Minimum conditions |
 |---|---|
 | design_ready | G01-G07 pass; blocking decisions answered and assumptions validated; G14 pass when the release names a previous baseline |
-| coding_packet_ready | design_ready, G08, G09 for existing sources, G12 decisions required by policy |
+| coding_packet_ready | design_ready, G08, G09 for existing sources, G12 for the release |
 | implementation_accepted | Applicable G01-G12, resolved required bindings, fresh executed test evidence |
 | runtime_conformance_observed | G13 for specified traces and window |
 
@@ -104,11 +104,26 @@ Require profile, requested_phase, available_capabilities, unsupported_capabiliti
 | implementation | implementation_accepted |
 | runtime | runtime_conformance_observed |
 
-Semantic validation enforces these combinations and aggregation. Report 0.3 adds gate G14 and names profile `AX-CORE-0.2`; it reports on specifications in format 0.2. Regenerate an older report from real inputs rather than edit its version.
+Semantic validation enforces these combinations and aggregation. Report 0.4 names profile `AX-CORE-0.3`; it reports on specifications in format 0.3. Regenerate an older report from real inputs rather than edit its version.
 
 ### AX-G-013 — Release comparison
 
 G14 takes a candidate and the baseline it names and applies AX-L-006 to AX-L-008. Its report gives every changed ID with its level and reasons, the errors, the required and declared steps and the change risk score. It fails on an identity or revision error, an unacknowledged breaking candidate, an unused compatibility entry or a version step that is too small. The score is reported next to the result and has no part in it.
+
+### AX-G-014 — Approval verification
+
+G12 takes a release, the approvals offered for it and the baseline it names. It uses no clock, no network and no shared service.
+
+1. **What governs.** The baseline's `approval` and `actors` govern the release that succeeds it. A first release governs itself. A key added by a release cannot approve that release, and a key removed by a release no longer approves the next one, while every earlier release it approved still verifies. The order of releases replaces time.
+2. **What is signed.** Each approval is a signature over one statement: the project, the version, the canonical digest of the release, the actor, the key and its method. An approval of other content, of another release or for another actor does not verify.
+3. **What is required.** The low band applies to every release. Each requirement the release reaches (AX-L-009) adds its band; a first release reaches every active requirement. A change to the actors, the policy or the keys adds all four bands.
+4. **What counts.** For each required band, the distinct actors with a valid approval through a method that band accepts. One person approving by two methods is one approver.
+
+The result is pass when every required band has its number, fail when one has not, and unknown when the governing baseline was not supplied. An approval that does not verify is set aside and reported. It never invalidates the approvals that do, so a damaged or hostile file cannot block a release that has its approvers.
+
+Approvals are a set. They can be made in any order, on separate devices and at separate times, and files of approvals for one release merge by union.
+
+A pass says the declared keys signed. It does not say who held them, and trust in a first release comes from pinning its digest, not from this gate. Design readiness still does not authenticate business approval; `coding_packet_ready` is the first output that requires G12.
 
 ## Invalidation
 

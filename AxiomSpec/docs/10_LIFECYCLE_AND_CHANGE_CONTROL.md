@@ -39,6 +39,8 @@ Reject or report unsupported format versions. Never silently discard unknown fie
 
 The migration from 0.1 to 0.2 adds the release record, the weight units, a weight and a flag reference on each requirement and flag states on each test. It cannot know the weights: it sets each to the top of the band its risk label names. It creates an enabled flag for each optional requirement. Both are placeholders, listed for a person to decide, and missing flag-state tests remain a visible failure.
 
+The migration from 0.2 to 0.3 adds the approval policy, the keys, the imports and the exports. It writes a policy of no approver in any band and no key, which is valid and visible and is for the organization to replace. A migrated release has a new digest, so a migrated successor names its migrated baseline.
+
 A structural migration does not decide a new business policy. API compatibility, data migration, mixed-version operation and rollback are product requirements to verify separately.
 
 ## Publication and recovery
@@ -98,3 +100,30 @@ The result is an integer `score_minor` with `score_minor_units` equal to the wei
 A change that reaches no requirement through declared links is listed as unmapped; it is not counted as zero risk. Hard project rules are not added to this closure as they are to context closure (AX-K-010), because they would add the same requirements to every change.
 
 The score ranks releases and changes for attention. It never changes a gate result (AX-K-005), and a low score is not evidence of safety: it sees declared links and weights that people chose. Policy may demand more review above a threshold. It cannot use the score to waive a check.
+
+### AX-L-010 — Release store
+
+A release is immutable and is named by the digest of its canonical form. A store is any set of release files and approval files: a directory, a repository, an object bucket, or the union of several.
+
+- **No shared state.** There is no index, log, ordering service, quorum or clock. The verdict on a release needs that release, its approvals, its baseline and the releases it imports.
+- **The verdict is a function of the set.** The order in which files arrived and the replica that supplied them cannot change it. Two stores merge by taking the union of their files, and a file received twice changes nothing.
+- **Absence is unknown.** A release whose baseline, approvals or provider is not in the store is unknown, never passed and never failed. When the file arrives, the verdict completes.
+- **Each release has its own status.** A failed release, or a file that cannot be read, withholds nothing from the others.
+
+When two different releases of one project hold its highest version, the store reports a fork. Nothing is lost: both stay verifiable by digest and every pin on either still resolves. Where a tool needs a single answer it takes the one with the smaller digest, so every replica takes the same one. The fork is settled by an ordinary approved release that names one of the two. Its line then holds the highest version and the other is listed as an orphaned head. The store never deletes a file.
+
+There are no witness services. Every successor names its baseline by digest and every consumer names its providers by digest, each under the signatures of its own approvers. Anyone who pinned a release cannot be shown another in its place.
+
+A store cannot show that it is complete or current. Withholding the newest release is not detectable from the files that are present; a consumer that needs a particular release pins it. The chain verifies link by link back to a first release, which governs itself: pin that digest through a channel the organization trusts.
+
+### AX-L-011 — Impact across specifications
+
+When a provider moves from one release to the next, the comparison of the two (G14) is followed into the specifications that import it.
+
+1. A use is reached when the ID it names changed, or when a change is linked to it by the provider's declared links, at the highest level among those changes. An ID withdrawn from the exports is reached at major.
+2. In the consumer, the local objects of a reached use lead to requirements as in AX-L-009.
+3. Each such requirement counts as a dependent does within one specification: its weight times the factor of the level, at most 25%.
+
+The report lists each consumer with its pin, the uses reached, the local requirements and a score in the consumer's own units. It examines the head of each project in the store and follows declared uses only.
+
+Moving a pin is a change of the consumer and is classified from the provider's version number: to a later major version, backwards or to another provider is a breaking candidate; to a later minor version, or to other content under the same version, is minor; to a later patch is patch.

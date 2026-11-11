@@ -24,6 +24,7 @@ def load(name):
 
 
 qa, diff, migration, run_checks = load('check_package'), load('release_diff'), load('migrate_0_1'), load('run_checks')
+migration_0_2 = load('migrate_0_2')
 SPEC, BASE = 'examples/refund-ledger/spec.json', 'examples/refund-ledger/releases/1.0.0.json'
 
 
@@ -532,7 +533,7 @@ class Migration(unittest.TestCase):
     def source(self):
         """Release 1.0.0 of the ledger written back in format 0.1."""
         old = qa.read(BASE)
-        for key in ('release', 'flags'):
+        for key in ('release', 'flags', 'approval', 'imports', 'exports'):
             del old[key]
         del old['project']['weight_minor_units']
         for node in old['nodes']:
@@ -546,6 +547,9 @@ class Migration(unittest.TestCase):
         before = copy.deepcopy(source)
         candidate, decisions = migration.migrate(source, '1.0.0', 10)
         self.assertEqual(source, before)
+        self.assertEqual((candidate['format'], candidate['profile']), ('axiomspec/0.2', 'AX-CORE-0.2'))
+        candidate, later = migration_0_2.migrate(candidate)  # 0.1 reaches the current format in two declared steps
+        self.assertEqual([d['field'] for d in later], ['approval.policy', 'approval.keys', 'exports'])
         self.assertTrue(qa.make_validator(qa.read('schemas/spec.schema.json')).is_valid(candidate))
         self.assertEqual(qa.reference_errors(candidate), [])
         self.assertEqual(candidate['release'], dict(version='1.0.0', previous=None, compatibility=[]))
@@ -558,6 +562,7 @@ class Migration(unittest.TestCase):
         for node, original in zip(candidate['nodes'], reviewed['nodes']):
             if node['kind'] == 'Requirement':
                 node['data']['weight_minor'] = original['data']['weight_minor']
+        candidate['approval'] = reviewed['approval']  # and with the approval policy and keys decided
         self.assertEqual(qa.canonical(candidate), qa.canonical(reviewed))
 
     def test_optional_requirement_gets_a_flag_to_review(self):
@@ -570,7 +575,7 @@ class Migration(unittest.TestCase):
         self.assertEqual(next(n for n in candidate['nodes'] if n['id'] == 'REQ-007')['data']['flag_id'], 'FLAG-001')
         self.assertIn('FLAG-001', [d['subject_id'] for d in decisions])
         # The migration decides nothing about tests: the missing flag-state coverage stays a visible failure.
-        self.assertEqual(qa.reference_errors(candidate), ['FLAG_STATE_UNTESTED'])
+        self.assertEqual(qa.reference_errors(migration_0_2.migrate(candidate)[0]), ['FLAG_STATE_UNTESTED'])
 
     def test_unsupported_input_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'Unsupported source format'):

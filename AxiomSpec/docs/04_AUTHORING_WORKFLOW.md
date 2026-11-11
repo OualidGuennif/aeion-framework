@@ -75,4 +75,8 @@ Declare the definitions, constraints, models, examples and sources needed for th
 
 A baseline becomes a release when it carries a version. For a later release, name the previous one by version and digest, run the comparison (G14) and read its three outputs: the breaking candidates, the version step they require and the change risk score. Record a decision for each candidate, either breaking with its migration or compatible with the reason. Take the step the comparison requires. Review first what the score says the release touches most.
 
+State the approval policy before the first release: how many approvers each risk band needs, through which methods, and the keys that verify them. These are the organization's values, zero included. Each approver then signs the statement of the release, on their own device or through the organization's approval service, in any order; the approval files are merged and checked against the policy of the release before (G12).
+
+List in `exports` what other specifications may rely on. Pin in `imports` each release this one relies on and say which local objects use it. When a provider releases, read the impact report before moving the pin.
+
 Output: scoped goals, terms, requirements, decisions, assumptions, models, constraints, scenarios, test plan, context assets and a report of checks actually available. A manual review is labeled manual. The presence of these artifacts alone does not establish `design_ready`.

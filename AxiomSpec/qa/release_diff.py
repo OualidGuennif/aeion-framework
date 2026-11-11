@@ -16,7 +16,7 @@ import sys
 from check_package import (canonical, digest, make_validator, read, reference_errors, strict_json,
                            version_step)
 
-FORMAT = 'axiomspec/0.2'
+FORMAT = 'axiomspec/0.3'
 LEVELS = dict(none=0, patch=1, minor=2, major=3)
 FACTOR_PERCENT = dict(major=100, minor=50, patch=10)
 DEPENDENT_CAP_PERCENT = 25
@@ -76,7 +76,7 @@ class Index:
         self.by_id = {}
         for section, kind in (('environments', 'Environment'), ('flags', 'Flag'), ('edges', 'Edge'),
                               ('bindings', 'Binding'), ('context_assets', 'ContextAsset'),
-                              ('actors', 'Actor'), ('sources', 'Source')):
+                              ('actors', 'Actor'), ('sources', 'Source'), ('imports', 'Import')):
             for item in spec[section]:
                 self.by_id[item['id']] = (kind, item)
 
@@ -97,6 +97,8 @@ class Index:
             return many([item['node_id']] if item['node_id'] in self.nodes else [])
         if kind == 'ContextAsset':
             return many([i for i in item['supports'] if i in self.nodes])
+        if kind == 'Import':
+            return many([i for use in item['uses'] for i in use['local_ids'] if i in self.nodes])
         return None
 
     def of_node(self, node):
@@ -128,10 +130,10 @@ def without(item, *keys):
 
 
 def compare(baseline, candidate):
-    """Return the deterministic G14 comparison of two axiomspec/0.2 documents."""
+    """Return the deterministic G14 comparison of two axiomspec/0.3 documents."""
     for document in (baseline, candidate):
         if document.get('format') != FORMAT:
-            raise ValueError('Both releases must be axiomspec/0.2; migrate an older baseline first')
+            raise ValueError('Both releases must be axiomspec/0.3; migrate an older baseline first')
     errors, changes = [], {}
 
     def error(code, subject_id, message):
@@ -304,6 +306,38 @@ def compare(baseline, candidate):
     if baseline['project'] != candidate['project']:
         mode = baseline['project']['mode'] != candidate['project']['mode']
         change(candidate['project']['id'], 'Project', 'changed', 'minor' if mode else 'patch', 'project record edited')
+
+    # Imports (AX-M-021): the provider's own version number says how far a pin moved.
+    old_imports, new_imports = by_id(baseline, 'imports'), by_id(candidate, 'imports')
+    for iid in sorted(set(old_imports) | set(new_imports)):
+        old, new = old_imports.get(iid), new_imports.get(iid)
+        if old is None:
+            change(iid, 'Import', 'added', 'minor', 'now depends on another specification')
+        elif new is None:
+            change(iid, 'Import', 'removed', 'minor', 'no longer depends on that specification')
+        elif old != new:
+            a, b = (tuple(int(p) for p in item['version'].split('.')) for item in (old, new))
+            if old['project_id'] != new['project_id'] or b < a or b[0] > a[0]:
+                change(iid, 'Import', 'changed', 'major', 'the pin moved to another provider, backwards or across a major version')
+            elif b[:2] > a[:2] or (a == b and old['spec_sha256'] != new['spec_sha256']):
+                change(iid, 'Import', 'changed', 'minor', 'the pin moved to a later minor version or to other content')
+            change(iid, 'Import', 'changed', 'patch', 'import edited')
+    # Exports (AX-M-021): what other specifications may rely on.
+    for nid in sorted(set(baseline['exports']) ^ set(candidate['exports'])):
+        kind = (new_nodes.get(nid) or old_nodes.get(nid) or {}).get('kind', 'Node')
+        if nid in baseline['exports']:
+            change(nid, kind, 'changed', 'major', 'no longer exported')
+        else:
+            change(nid, kind, 'changed', 'minor', 'now exported')
+    # Approval policy and keys (AX-M-020): governance, never a compatibility question.
+    old_keys = {key['id']: key for key in baseline['approval']['keys']}
+    new_keys = {key['id']: key for key in candidate['approval']['keys']}
+    for kid in sorted(set(old_keys) | set(new_keys)):
+        if old_keys.get(kid) != new_keys.get(kid):
+            what = 'added' if kid not in old_keys else 'removed' if kid not in new_keys else 'changed'
+            change(kid, 'ApprovalKey', what, 'patch', 'approval key ' + what)
+    if baseline['approval']['policy'] != candidate['approval']['policy']:
+        change(candidate['project']['id'], 'Project', 'changed', 'patch', 'approval policy changed')
 
     # Compatibility decisions (AX-L-007): every breaking candidate is acknowledged or overridden on record.
     entries = {entry['subject_id']: entry for entry in candidate['release']['compatibility']}

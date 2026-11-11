@@ -1,11 +1,11 @@
 {
-  "format": "axiomspec/0.2",
-  "profile": "AX-CORE-0.2",
+  "format": "axiomspec/0.3",
+  "profile": "AX-CORE-0.3",
   "release": {
     "version": "1.1.0",
     "previous": {
       "version": "1.0.0",
-      "spec_sha256": "68fd20c88a17423133f937d5bef5beeb11e4259317df141d6926dc1697ae6949"
+      "spec_sha256": "c4f5ecc220b313ae53b7cdd6f28862dfefb8e7722d430024eacc05bf84d037da"
     },
     "compatibility": [
       {
@@ -48,8 +48,79 @@
       "name": "Demonstration spec author",
       "type": "ai",
       "binding_status": "asserted"
+    },
+    {
+      "id": "ACTOR-003",
+      "name": "Demonstration security-reviewer role",
+      "type": "human_role",
+      "binding_status": "asserted"
     }
   ],
+  "approval": {
+    "policy": {
+      "low": {
+        "approvers": 0,
+        "methods": []
+      },
+      "medium": {
+        "approvers": 1,
+        "methods": []
+      },
+      "high": {
+        "approvers": 1,
+        "methods": []
+      },
+      "critical": {
+        "approvers": 2,
+        "methods": [
+          "device_passkey"
+        ]
+      }
+    },
+    "keys": [
+      {
+        "id": "KEY-001",
+        "actor_id": "ACTOR-001",
+        "method": "device_passkey",
+        "algorithm": "webauthn-es256",
+        "public_key": "BI/bn6WrwUon0kujBqg9mvefTGdYWRn388X7OTHH8D5ed6bDVt7C/qVx9TqMb8kTAJa6mClv/tj8/Kwav9hC/lI=",
+        "attests": false
+      },
+      {
+        "id": "KEY-002",
+        "actor_id": "ACTOR-003",
+        "method": "device_passkey",
+        "algorithm": "webauthn-es256",
+        "public_key": "BLwNdU0Yd6IDt/81wrtL7/C19pM5UkKFkaD5qvoVu2mGlw0lUhGuiKLNJ+VpUTopXdzFHvvPoCUcWisqZeAMcXA=",
+        "attests": false
+      }
+    ]
+  },
+  "imports": [
+    {
+      "id": "IMP-001",
+      "project_id": "PROJECT-002",
+      "version": "1.0.0",
+      "spec_sha256": "428d1ad6a435170befeaf1928d186e84e49b7f7c8b93699ba3e77f2b71735fe5",
+      "uses": [
+        {
+          "external_id": "REQ-001",
+          "local_ids": [
+            "REQ-004"
+          ],
+          "rationale": "Tenant isolation relies on the principal the identity adapter marks verified."
+        },
+        {
+          "external_id": "TERM-001",
+          "local_ids": [
+            "TERM-005"
+          ],
+          "rationale": "The ledger's principal is the adapter's verified principal."
+        }
+      ]
+    }
+  ],
+  "exports": [],
   "sources": [
     {
       "id": "SRC-001",

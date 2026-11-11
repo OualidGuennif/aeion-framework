@@ -146,14 +146,14 @@ Human review should show the proposed meaning, its source, examples, counterexam
 
 ## 7. Produce a small canonical draft
 
-Use `axiomspec/0.2` and `AX-CORE-0.2` unless the actual supplied package says otherwise. Stable IDs survive renames. Sources preserve where an assertion came from. Render requirement sentences from structured fields; do not add another editable `statement`.
+Use `axiomspec/0.3` and `AX-CORE-0.3` unless the actual supplied package says otherwise. Stable IDs survive renames. Sources preserve where an assertion came from. Render requirement sentences from structured fields; do not add another editable `statement`.
 
-The following is a complete **structural draft example**, not a ready product specification. It is fictional, in `example` mode, with draft nodes, an unresolved decision, no executable constraint, no scenarios and no tests. It is a first release, so it names no previous one, and it declares no feature flag. Its requirement weighs 70 of 100 points, which is the `high` band. Do not promote it by changing status fields. Replace its fixture source with actual product sources when authoring a real project.
+The following is a complete **structural draft example**, not a ready product specification. It is fictional, in `example` mode, with draft nodes, an unresolved decision, no executable constraint, no scenarios and no tests. It is a first release, so it names no previous one, and it declares no feature flag. Its approval policy asks for no approver in any band and declares no key; it imports and exports nothing. Those are placeholders an organization replaces with its own policy. Its requirement weighs 70 of 100 points, which is the `high` band. Do not promote it by changing status fields. Replace its fixture source with actual product sources when authoring a real project.
 
 ```json
 {
-  "format": "axiomspec/0.2",
-  "profile": "AX-CORE-0.2",
+  "format": "axiomspec/0.3",
+  "profile": "AX-CORE-0.3",
   "release": {
     "version": "0.1.0",
     "previous": null,
@@ -175,6 +175,17 @@ The following is a complete **structural draft example**, not a ready product sp
       "binding_status": "asserted"
     }
   ],
+  "approval": {
+    "policy": {
+      "low": {"approvers": 0, "methods": []},
+      "medium": {"approvers": 0, "methods": []},
+      "high": {"approvers": 0, "methods": []},
+      "critical": {"approvers": 0, "methods": []}
+    },
+    "keys": []
+  },
+  "imports": [],
+  "exports": [],
   "sources": [
     {
       "id": "SRC-001",

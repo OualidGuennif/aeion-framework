@@ -1,6 +1,6 @@
 {
-  "format": "axiomspec/0.2",
-  "profile": "AX-CORE-0.2",
+  "format": "axiomspec/0.3",
+  "profile": "AX-CORE-0.3",
   "release": {
     "version": "1.0.0",
     "previous": null,
@@ -26,8 +26,56 @@
       "name": "Demonstration spec author",
       "type": "ai",
       "binding_status": "asserted"
+    },
+    {
+      "id": "ACTOR-003",
+      "name": "Demonstration security-reviewer role",
+      "type": "human_role",
+      "binding_status": "asserted"
     }
   ],
+  "approval": {
+    "policy": {
+      "low": {
+        "approvers": 0,
+        "methods": []
+      },
+      "medium": {
+        "approvers": 1,
+        "methods": []
+      },
+      "high": {
+        "approvers": 1,
+        "methods": []
+      },
+      "critical": {
+        "approvers": 2,
+        "methods": [
+          "device_passkey"
+        ]
+      }
+    },
+    "keys": [
+      {
+        "id": "KEY-001",
+        "actor_id": "ACTOR-001",
+        "method": "device_passkey",
+        "algorithm": "webauthn-es256",
+        "public_key": "BI/bn6WrwUon0kujBqg9mvefTGdYWRn388X7OTHH8D5ed6bDVt7C/qVx9TqMb8kTAJa6mClv/tj8/Kwav9hC/lI=",
+        "attests": false
+      },
+      {
+        "id": "KEY-002",
+        "actor_id": "ACTOR-003",
+        "method": "device_passkey",
+        "algorithm": "webauthn-es256",
+        "public_key": "BLwNdU0Yd6IDt/81wrtL7/C19pM5UkKFkaD5qvoVu2mGlw0lUhGuiKLNJ+VpUTopXdzFHvvPoCUcWisqZeAMcXA=",
+        "attests": false
+      }
+    ]
+  },
+  "imports": [],
+  "exports": [],
   "sources": [
     {
       "id": "SRC-001",

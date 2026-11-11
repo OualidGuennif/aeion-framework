@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "format": {
-      "const": "axiomspec-report/0.3"
+      "const": "axiomspec-report/0.4"
     },
     "scope": {
       "enum": [
@@ -300,7 +300,7 @@
       "maxItems": 256
     },
     "profile": {
-      "const": "AX-CORE-0.2"
+      "const": "AX-CORE-0.3"
     },
     "requested_phase": {
       "enum": [

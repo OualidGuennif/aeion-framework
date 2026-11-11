@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.5.1 · 11 November 2026. The fourth review describes edition 0.3.1 and the two sections after it editions 0.4.0 and 0.5.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.6.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the three sections after it editions 0.4.0, 0.5.0 and 0.6.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -144,7 +144,7 @@ The example now has two releases. Comparing them raises two breaking candidates,
 - The classification and the score were exercised on one fictional example and on synthetic single-change candidates. Whether the classifier's candidates match what reviewers of a real product call breaking, and whether the score orders releases as incident history would, is unmeasured.
 - The factors (100%, 50%, 10%, dependents at most 25%) and the band limits (25, 50, 75) are choices, not findings. They are stated in one place each so a pilot can change and compare them.
 - The executed evidence is one example on local SQLite from an untrusted producer. No runner adapter, other language or other store is qualified.
-- One specification is one file of at most one megabyte. References between specifications are undefined.
+- One specification is one file of at most one megabyte. References between specifications are undefined. *(Closed in 0.6.0.)*
 - aeion-factory and aeion-core read format 0.1. The external `design_ready` result reported for 0.4.0 does not carry over to release 1.1.0.
 - This is still a review by the assistant that wrote the change.
 
@@ -160,6 +160,64 @@ Writing the predicate exposed one loose end in the implementation: an operation 
 Release 1.1.0 of the example was amended in place, not followed by a 1.2.0. The example's releases illustrate the comparison; no one depends on them. A product would not do this. CON-011 is a third breaking candidate, accepted as compatible under the same DEC-004, and REQ-007 now counts at 50% instead of 10%: the score is 194.25 of 592.5 points.
 
 BCIR still has no substring operator. "No stored column contains the credential" remains an assertion in test code on the raw rows; CON-011 says the stronger thing that can be said in the formula language, which is what each field must equal.
+
+## Edition 0.6.0
+
+11 November 2026. The specification format changes to `axiomspec/0.3` and the profile to `AX-CORE-0.3`. Edition 0.5.0 left three things open: nothing authenticated an approval, one specification was one file of a megabyte, and specifications could not refer to each other. This edition closes them under one constraint that shaped every choice: verification must need no shared service.
+
+### What the format gains
+
+| Subject | Field or file | Checked rule | Contract |
+|---|---|---|---|
+| Approval policy | `approval.policy`: approvers and accepted methods per risk band | Stated for all four bands; satisfiable by the declared keys | AX-M-020 |
+| Keys | `approval.keys`: actor, method label, algorithm, public key, `attests` | No key twice; an attesting key is held by a service | AX-M-020 |
+| Approvals | A separate file per release: signatures over the release digest | The baseline governs; bands reached; distinct approvers per band and method | AX-G-014 |
+| Imports and exports | `imports`, `exports` | Exact pin by digest; only exported IDs are used; classification of a moved pin | AX-M-021 |
+| Parts | A manifest and part files | Joining reproduces the canonical digest | AX-M-022 |
+| Release store | Any set of files | Verdict per release from files alone; forks reported; missing is unknown | AX-L-010 |
+| Impact | Two provider releases and a store | Uses reached, consumer requirements and score | AX-L-011 |
+
+`qa/approvals.py`, `qa/release_store.py`, `qa/spec_parts.py` and `qa/migrate_0_2.py` are the reference implementations. Five conformance vectors and 42 regression tests cover the new rules. Signature checks use the `cryptography` library, a new QA dependency.
+
+### Decisions taken in the design
+
+- **The policy is the organization's.** The number of approvers per band is any integer from 0 to 128, zero included. The method is a label the organization chooses. Nothing is hard-coded: not a threshold, not a role, not one authentication technology.
+- **Any authentication fits through one mechanism.** A person's own key signs directly. Everything else, such as single sign-on, e-mail confirmation or a ticket workflow, is attested by a service key the specification declares. The check is the same signature check either way.
+- **No blockchain, no log, no witness servers.** A private chain run by one organization is no harder to rewrite than a signed file and adds a service that can be down or out of step. What a chain is wanted for is here without one: each release names its baseline by digest, each approval signs the digest, and each consumer pins its providers by digest under its own approvers' signatures. The pins are the witnesses, and they scale with use.
+- **The verdict is a function of a set of files.** No index, no clock, no ordering service. Files may arrive in any order from any replica, stores merge by union, and a file received twice changes nothing. Twenty of the 720 arrival orders of the example store are replayed in the tests and give one verdict.
+- **Absence is unknown; conflict is a fork; neither corrupts.** A missing baseline or provider leaves a release unknown until the file arrives. Two releases claiming the same highest version are reported as a fork on every replica, with the same preferred head, while both stay verified. A later approved release settles it. Nothing is deleted.
+- **A bad fragment blocks nothing.** An approval that does not verify is set aside and reported. A file that cannot be read is listed. Each release has its own status.
+- **The baseline governs its successor.** This is what removes the clock: a key added by a release cannot approve that release, a removed key cannot approve the next, and earlier releases stay valid.
+- **Exact pins.** No version ranges and no resolver, so there is nothing to resolve differently in two places.
+
+### The examples
+
+The ledger's two releases are signed by two simulated passkeys under a policy of 0, 1, 1 and 2 approvers. A second specification, the identity adapter, is approved through an attesting service under a policy of 0, 0, 1 and 1. Ledger 1.1.0 pins it by digest and declares two uses. The `examples` directory verifies as one store.
+
+### Measured
+
+On one laptop (Apple silicon, Python 3.12), with a specification generated by repeating one requirement:
+
+| Requirements | Size | Parts | Rule checks | Comparison | Approval check | Store of two releases |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1,000 | 0.8 MB | 1 | under 0.01 s | 0.02 s | 0.04 s | 0.8 s |
+| 10,000 | 7.1 MB | 8 | 0.03 s | 0.13 s | 0.31 s | 7 s |
+| 50,000 | 35 MB | 36 | 0.19 s | 0.88 s | 1.6 s | 39 s |
+
+The store time is almost entirely JSON Schema validation in Python. The schema's own bound was 10,000 nodes; it is now 100,000 nodes and 500,000 edges.
+
+### What this edition does not establish
+
+- **Who holds a key.** The check proves that declared keys signed. Binding a key to a person, and a label such as `device_passkey` to real hardware, is enrolment, and stays with the organization's identity system.
+- **Real authenticators.** The passkey assertions are produced by a simulated authenticator with fictional keys. The verification follows the WebAuthn assertion format; no browser or device produced one here.
+- **The attesting service.** Its key can approve for any actor, so it is as sensitive as all of them together. A band that must not depend on it accepts personal methods only, as the ledger's critical band does.
+- **Freshness.** A store cannot show that it holds the newest release. A consumer that needs a particular release pins it.
+- **The first release.** It governs itself. Trust in it comes from pinning its digest through a channel the organization trusts.
+- **A compromised approver device.** A key signs what its machine sends. Showing the digest on a second device is outside the package.
+- **Scale on a real product.** The measurements use generated requirements of one shape on one machine. A real specification of that size has formulas and scenarios whose evaluation budgets were not exercised.
+- **Legal weight.** These are integrity signatures, not qualified electronic signatures.
+- aeion-factory and aeion-core read format 0.1.
+- This is still a review by the assistant that wrote the change.
 
 ## Confirmed findings and corrections
 

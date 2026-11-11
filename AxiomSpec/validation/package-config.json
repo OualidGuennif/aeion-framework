@@ -1,6 +1,6 @@
 {
   "format": "axiomspec-package-config/0.1",
-  "profile": "AX-CORE-0.2",
+  "profile": "AX-CORE-0.3",
   "bounds": {
     "max_input_bytes": 1048576,
     "max_expression_depth": 24,
@@ -9,7 +9,7 @@
     "max_collection_items": 10000
   },
   "json_depth_limit": 128,
-  "corpus_version": "0.2",
+  "corpus_version": "0.3",
   "observation_coverage": "all_canonical_scenarios_and_bcir_constraints",
   "application_test_execution": "worked_example_only",
   "external_schema_retrieval": false,

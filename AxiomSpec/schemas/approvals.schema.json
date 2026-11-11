@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiomspec.invalid/schema/approvals-0.1.json",
+  "title": "AxiomSpec approvals of one release",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "axiomspec-approvals/0.1"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+    },
+    "spec_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actor_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "key_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "signature": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9+/]{4,2048}={0,2}$"
+          },
+          "authenticator_data": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]{4,2048}={0,2}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "client_data_json": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9+/]{4,2048}={0,2}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "actor_id",
+          "key_id",
+          "signature",
+          "authenticator_data",
+          "client_data_json"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 1024
+    }
+  },
+  "required": [
+    "format",
+    "project_id",
+    "version",
+    "spec_sha256",
+    "approvals"
+  ],
+  "additionalProperties": false
+}

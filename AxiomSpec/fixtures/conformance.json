@@ -1,5 +1,5 @@
 {
-  "format": "axiomspec-conformance-vectors/0.2",
+  "format": "axiomspec-conformance-vectors/0.3",
   "baseline": "examples/refund-ledger/spec.json",
   "vectors": [
     {
@@ -248,6 +248,77 @@
       },
       "expected_schema_valid": true,
       "expected_gate": "G04",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-019",
+      "purpose": "Approval band naming a method no declared key provides rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/approval/policy/high/methods",
+        "value": [
+          "retina_scan"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-020",
+      "purpose": "Approval band asking for more approvers than the declared keys can supply rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/approval/policy/critical/approvers",
+        "value": 3
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-021",
+      "purpose": "Export of an object the specification does not hold rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/exports",
+        "value": [
+          "REQ-999"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-022",
+      "purpose": "Import used by an object the specification does not hold rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/imports/0/uses/0/local_ids",
+        "value": [
+          "REQ-999"
+        ]
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
+      "expected_outcome": "fail"
+    },
+    {
+      "id": "V-023",
+      "purpose": "Attesting key held by an actor that is not a service rejected",
+      "layer": "references",
+      "mutation": {
+        "op": "replace",
+        "path": "/approval/keys/0/attests",
+        "value": true
+      },
+      "expected_schema_valid": true,
+      "expected_gate": "G02",
       "expected_outcome": "fail"
     },
     {

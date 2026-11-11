@@ -4,7 +4,7 @@
 
 Design contracts, artifact schemas, a structured example in two releases, reference observations, conformance vectors and package QA. The example has a reference implementation and executed tests. A reference release comparison and a migration from format 0.1 are included. Execution and CROA declarations are optional sidecars. Actual checks and review results are linked from the README.
 
-The product CLI, static compiler, graph engine, identity integration, deployed execution controls and runner adapters remain unimplemented. One example executed on local SQLite is evidence about that example only.
+The product CLI, static compiler, graph engine, identity integration, deployed execution controls and runner adapters remain unimplemented. Approval signatures are verified against declared keys; enrolling those keys for real people is part of that missing identity integration. One example executed on local SQLite is evidence about that example only.
 
 ### AX-ACT-001 — Demonstrate advertised capabilities
 
@@ -24,7 +24,7 @@ The framework exposes these boundaries; it does not remove the need for decision
 
 ## Proportionate use
 
-A small reversible change does not need the full example model. Use a declared profile proportionate to actual risk. The format deliberately uses one canonical file and global invalidation. That file is bounded at one megabyte, which the ledger's shape reaches at roughly a thousand requirements: a large organization needs one specification per product or service, not one for everything, and composition across specifications is not defined yet. Measure conflicts and cost before introducing modular merge semantics or dependency-sensitive caching.
+A small reversible change does not need the full example model. Use a declared profile proportionate to actual risk. The format uses one canonical specification per product or service and global invalidation. A large organization has many specifications that pin each other by digest (AX-M-021); one that is large by nature is stored in parts (AX-M-022). Verification needs only files (AX-L-010), so it works the same on a laptop, in a pipeline and across regions. Measure conflicts and cost before introducing dependency-sensitive caching.
 
 Weights, flags and versions are required fields, not options. They cost one integer and one null per requirement when a product has no flags and a single release. What they buy is a mechanical answer to "what changed, is it breaking, and how much of what matters does it touch" at every release.
 

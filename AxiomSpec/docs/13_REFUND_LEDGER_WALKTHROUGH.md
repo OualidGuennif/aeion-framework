@@ -4,6 +4,8 @@ The [canonical example](../examples/refund-ledger/spec.json) models a fictional 
 
 A [reference implementation](../examples/refund-ledger/app/ledger.py) on SQLite and its [tests](../examples/refund-ledger/tests/test_ledger.py) exist so that the test plan runs against a real store. They are a demonstration of the method, not a product.
 
+Both releases are approved by signature, and release 1.1.0 pins a second, very small specification, the [identity adapter](../examples/identity-adapter/spec.json). The `examples` directory is a complete release store.
+
 ## Decisions and vocabulary
 
 Reserved and committed amounts consume captured capacity. Cancellation releases capacity but retains the idempotency key. Same key and payload returns the existing result; conflicting payload is refused. Keys are scoped to tenant/payment and retained for the example ledger's lifetime.
@@ -138,7 +140,7 @@ Implementing the tests settled one detail the prose had left open: a retry of a 
 
 ## Release 1.1.0
 
-Release 1.0.0 is the ledger of edition 0.4.0 migrated to format 0.2 with reviewed weights. Release 1.1.0 adds the cancel/commit and audit environments, REQ-009, REQ-010 behind FLAG-001, CON-009 to CON-011, fourteen scenarios, four tests and the real bindings. The comparison (gate G14, `python3 qa/release_diff.py`) reports 121 changed objects.
+Release 1.0.0 is the ledger of edition 0.4.0 migrated to format 0.2 with reviewed weights. Release 1.1.0 adds the cancel/commit and audit environments, REQ-009, REQ-010 behind FLAG-001, CON-009 to CON-011, fourteen scenarios, four tests, the real bindings and the import of the identity adapter. The comparison (gate G14, `python3 qa/release_diff.py`) reports 122 changed objects.
 
 | Output | Result |
 |---|---|
@@ -153,13 +155,31 @@ The score separates two groups. REQ-004 to REQ-007, REQ-009 and REQ-010 are reac
 
 FLAG-001 (`remaining_capacity_report`) ships disabled, was introduced in 1.1.0 and must be gone by 1.3.0. TEST-019 runs with it on, TEST-020 with it off, and the implementation's default is checked against the state the release declares.
 
+## Approvals, the import and the store
+
+The ledger's policy asks for no approver in the low band, one in the medium and high bands and two in the critical band, where only the `device_passkey` method counts. Two keys are declared, one per approver role. These numbers are this example's; another organization writes its own.
+
+| Release | Governed by | Bands required | Approvals |
+|---|---|---|---|
+| Ledger 1.0.0 | itself, as a first release | all four: it reaches every requirement | ACTOR-001 and ACTOR-003, by passkey |
+| Ledger 1.1.0 | ledger 1.0.0 | all four: it reaches REQ-004, which is critical | ACTOR-001 and ACTOR-003, by passkey |
+| Identity adapter 1.0.0 | itself | low and critical | ACTOR-001, attested by the approval service through `sso_mfa` |
+
+The identity adapter shows the other route: its policy accepts single sign-on with a second factor, and the signature is the approval service's, vouching for the person. Its low and medium bands ask for nobody.
+
+Release 1.1.0 pins identity adapter 1.0.0 by digest and declares two uses: REQ-004 relies on the adapter's REQ-001, and the ledger's principal (TERM-005) is the adapter's verified principal (TERM-001). If the adapter changed REQ-001 in a breaking way, the impact report would reach REQ-004 at the dependent cap: 95 points at 25%, 23.75 points.
+
+`python3 qa/release_store.py verify examples` reads the three releases and their approvals and checks every link, approval and pin from the files alone.
+
+The keys are fictional. Each private key is derived from a public label so that the example can be re-signed by anyone, and the passkey assertions come from a simulated authenticator. They show that the rules work, not that anyone approved anything.
+
 ## Remaining gaps
 
 - BCIR has no substring operator. CON-011 states what each audit field equals; "no stored column contains the credential" is still asserted in test code on the raw rows.
 - After DEC-002 nothing writes a `rejected` record, yet the status and TRN-002 remain. Removing them is a breaking change to the model and the environments; it is left for a major release.
 - A before/after pair describes one completed attempt. Interleaving is covered by the executed concurrency test on SQLite, not by a predicate, and no other store is qualified.
 - CON-004 is quadratic and exceeds the reference step budget at 500 rows although the schema admits 1,000. CON-007 is unknown from 267 rows; CON-009 and CON-010 have the same form. Qualify a more efficient realization before claiming full-bound coverage.
-- The evidence is local and its producer untrusted. Nothing here authenticates an actor or an approval (G12), and there is no runtime observation (G13).
+- The evidence is local and its producer untrusted. The approvals verify against declared keys, but the keys are fictional and nothing binds a key to a person. No hardware authenticator was used, and there is no runtime observation (G13).
 - The aeion-factory engine reported `design_ready` for the edition 0.4.0 ledger. It reads format 0.1 and has not been run on release 1.1.0.
 
 For a cancellation change, retrieve REQ-005, REQ-009, terms, applicable constraints, MODEL-001, tests and bindings, including project-level capacity and authorization rules. Unmodeled key purging is an unmapped change, not proof of no impact.

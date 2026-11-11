@@ -1,0 +1,15 @@
+{
+  "format": "axiomspec-approvals/0.1",
+  "project_id": "PROJECT-002",
+  "version": "1.0.0",
+  "spec_sha256": "428d1ad6a435170befeaf1928d186e84e49b7f7c8b93699ba3e77f2b71735fe5",
+  "approvals": [
+    {
+      "actor_id": "ACTOR-001",
+      "key_id": "KEY-001",
+      "signature": "T+kaYGKds67V2+xtpoREuMLz+zdcXheEk1C99+GcMZxIdsMkz5ZNfLndsW5IXRocq7OQwV1SLPrwqnkOLuUXBg==",
+      "authenticator_data": null,
+      "client_data_json": null
+    }
+  ]
+}

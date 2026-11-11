@@ -1,20 +1,23 @@
 {
-  "regression_tests_recorded": 108,
+  "regression_tests_recorded": 150,
   "observations": 31,
   "boolean_expectations": 84,
-  "mutations_executed": 18,
+  "mutations_executed": 23,
   "product_obligations_pending": 30,
   "croa_items": 37,
   "croa_red_flag_rules": 13,
-  "release_changes": 121,
+  "release_changes": 122,
   "release_step": "minor",
   "release_risk_score": "194.250",
+  "approval_signatures_verified": 5,
+  "store_releases": 3,
+  "store_imports_resolved": 1,
   "example_tests_executed": 33,
   "example_bindings_resolved": 30,
   "example_test_cases_covered": 20,
   "qa_self_checks": 17,
-  "normative_rules": 112,
-  "local_links": 171,
+  "normative_rules": 118,
+  "local_links": 181,
   "json_blocks": 3,
   "toolchain": {
     "python": "3.12.8",
@@ -27,7 +30,10 @@
       "jsonschema-specifications": "2025.9.1",
       "referencing": "0.37.0",
       "rpds-py": "2026.9.1",
-      "typing-extensions": "4.16.0"
+      "typing-extensions": "4.16.0",
+      "cryptography": "50.0.2",
+      "cffi": "2.1.1",
+      "pycparser": "3.12"
     },
     "jsonschema": "4.26.0"
   }

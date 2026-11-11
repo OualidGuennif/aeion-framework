@@ -1,0 +1,22 @@
+{
+  "format": "axiomspec-approvals/0.1",
+  "project_id": "PROJECT-001",
+  "version": "1.0.0",
+  "spec_sha256": "c4f5ecc220b313ae53b7cdd6f28862dfefb8e7722d430024eacc05bf84d037da",
+  "approvals": [
+    {
+      "actor_id": "ACTOR-001",
+      "key_id": "KEY-001",
+      "signature": "MEQCIDeC2cWfs3b0YjNQjS2T/OVItqS8mX0w7SZv//520aW2AiBXP2hTjHZpZHP9pOr3U7MKfwlO/4vcarGhAHizNWXbFQ==",
+      "authenticator_data": "2Ji0nIivKGfZzWiZXYz8MgWTjFAUFoDBO/0vcA4KJLQFAAAAAA==",
+      "client_data_json": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiSEpVc1RJY1Zxd1ZjOW5YcFlNVHJsWWRCUXA3dnBPQ3oteW1ZRmxvdUszQSIsIm9yaWdpbiI6Imh0dHBzOi8vYXBwcm92YWxzLmF4aW9tc3BlYy5pbnZhbGlkIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ=="
+    },
+    {
+      "actor_id": "ACTOR-003",
+      "key_id": "KEY-002",
+      "signature": "MEUCIQCEpRThBHMwCqbpt7EEW6OXgnvlBao8p4pGYFEpzqRg/QIgaGRaTQIUydrXGgU6j0fu3I+T0nJh1sPaf3k1Ump+aQE=",
+      "authenticator_data": "2Ji0nIivKGfZzWiZXYz8MgWTjFAUFoDBO/0vcA4KJLQFAAAAAA==",
+      "client_data_json": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoidVVyRTQ3TzFTcTJNRk9oOHdEM1JmcEo4NlhkeDFRcFVSNVFXUTZWNEFlVSIsIm9yaWdpbiI6Imh0dHBzOi8vYXBwcm92YWxzLmF4aW9tc3BlYy5pbnZhbGlkIiwiY3Jvc3NPcmlnaW4iOmZhbHNlfQ=="
+    }
+  ]
+}

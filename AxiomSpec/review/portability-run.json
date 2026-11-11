@@ -2,21 +2,33 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-11T09:02:53.651795+00:00",
+  "evaluated_at": "2026-11-11T09:39:08.646430+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 108,
+  "test_count": 150,
   "tested_inputs": [
+    {
+      "path": "examples/identity-adapter/approvals.json",
+      "sha256": "b01aa8bbadd540cd681b95f62a4d4d7d6817f626e478b473c698af7dbf14f2e4"
+    },
+    {
+      "path": "examples/identity-adapter/spec.json",
+      "sha256": "a06358e5cc147aa2ff57f4489637e065645f5414c6f4e794b7656bcc9cc9cf1f"
+    },
     {
       "path": "examples/refund-ledger/app/ledger.py",
       "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa"
     },
     {
+      "path": "examples/refund-ledger/approvals.json",
+      "sha256": "725978250a19d483f02b81728d1e9bd295a1f8a0830f494ecf565c39e8be73a8"
+    },
+    {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "ba8e39a2bf9bc9d080dc7c17e26b72d33e6105b7ad7709c62d268223edf55c90"
+      "sha256": "3184f6ddecff9ddfde4b90f2306788d111d382a61b71f5f0c30b247165d27d50"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -27,12 +39,16 @@
       "sha256": "49295cc11ab9a6ed3b890f0babdb0572bf08b44e661f321a642b157654d1b2b1"
     },
     {
+      "path": "examples/refund-ledger/releases/1.0.0.approvals.json",
+      "sha256": "d14ca43413fc9b89b11df335f94971e1012b978062cccba52e04f6844c9c0c4d"
+    },
+    {
       "path": "examples/refund-ledger/releases/1.0.0.json",
-      "sha256": "93ea973d983ddcad61b159d760541061cb9f9470743b730dd4bcf5b193d491ef"
+      "sha256": "98f8fa03b28189d740bf3d7ddd56c3db3efe4d6ea4888ce9def546f609a32d84"
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "96b4dca9b86ed49764e3acbff79cd0854100472bef468422f1a69a2adbc396df"
+      "sha256": "fae8c91fad899ddf7ee6564edb410daba84d4008d48a66b62bcfc8746af9fa9c"
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
@@ -40,31 +56,55 @@
     },
     {
       "path": "fixtures/conformance.json",
-      "sha256": "f37cc069ddd01968c842915aa1ff1758b9785183bb6ef72ed0ec16decde1ab0d"
+      "sha256": "11c88405e883e6706f28644f7ceaab102e68f8db76fcde56536481732ea90f81"
+    },
+    {
+      "path": "qa/approvals.py",
+      "sha256": "ad276750980a3baa3f6bb908b3fe2c2a3307f162e1cd5479c8a486041f9f7d30"
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "a92fe3193d9907776507f2a62f2bee11c5c741f3c9244bf4f9538def682dcc52"
+      "sha256": "5d565be71f5713902cc286699bf32d3d1f0903b5a1466e22aad05d79a884523a"
     },
     {
       "path": "qa/croa_readiness.py",
       "sha256": "4f02c882f2fe09f28ab188d6f554c033b8e8ca308c03bb6b23f5a86d9e09ee45"
     },
     {
+      "path": "qa/fictional_keys.py",
+      "sha256": "bdbb27d18e9229d39675260c2e3f48beef7e103198063a27affa085cf0224964"
+    },
+    {
       "path": "qa/migrate_0_1.py",
       "sha256": "83b433272947f71fe25a1afe08ee8659428cf8a4ad7e7298331b4a9419ee30b6"
     },
     {
+      "path": "qa/migrate_0_2.py",
+      "sha256": "989740aef8fdd66f58d72de62c44d2e0371495b3d9cd7f1c2eed53e0a8f0a25e"
+    },
+    {
       "path": "qa/release_diff.py",
-      "sha256": "99b17a91f85a6fa272660479915aa20ac8ebc3a95eec870d936bc0fe95b91c71"
+      "sha256": "eb05175cf0622e0afb35561b0c0dda1afba3e3108409521684f0f37f3546b71d"
+    },
+    {
+      "path": "qa/release_store.py",
+      "sha256": "028cb7ba88eba22d579b76da44efa8b8746ae71eb39452fb1ffcd3cdc2f85a54"
     },
     {
       "path": "qa/requirements-qa.txt",
-      "sha256": "7467fc0132d4dc44309dbc436294ea21cbe39ce1f76ca6d9d7258b1949cf1e3a"
+      "sha256": "426baddebb672eba7819a510eef8a0de87edfdd0fd0ad2c1ff0cdab334f8907f"
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "71ea57d5856df1f85abe665ab6e271f9d61f843051e9d60095d6c8494d99669f"
+      "sha256": "9b92373aebeacafb853b6f22fc294e014c529c3cbe851bf5dd3e9178a2e78cdd"
+    },
+    {
+      "path": "qa/spec_parts.py",
+      "sha256": "44a80bcd032d665c8c567d79786cd751a42c8d85284f9f565fb90d378deeaab4"
+    },
+    {
+      "path": "qa/test_approvals_store_parts.py",
+      "sha256": "d88fcac6e20636bfaa05cd9c8c5835baefe72798146f518e15a0efbfdadc2589"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -72,11 +112,11 @@
     },
     {
       "path": "qa/test_releases_weights_flags.py",
-      "sha256": "590be854d68afe03a18ad1c68d45ac8e254510b900661ffdc59ee21e31f2a340"
+      "sha256": "04b828a7f742d536e2795dc95257d7dbcc1827086417283d4fd44f5618f30744"
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "af10376898c203c36ab81307faca4e060529b198bfb90055b5919c8dbd471fb4"
+      "sha256": "f591be59cf36a86d63df80f4a2902bc0d3b93377034b6eac6f075cdc0aa2fd1d"
     },
     {
       "path": "qa/test_second_review.py",
@@ -91,6 +131,10 @@
       "sha256": "2e4ec4945388d0b15ba1a26488644603e7269b19aea902d43fbd96a7c52463a2"
     },
     {
+      "path": "schemas/approvals.schema.json",
+      "sha256": "3d15d3efa2a4f6f162045d836c61a93a76ac1edb690c5e7cef599c2771988e7f"
+    },
+    {
       "path": "schemas/croa-readiness.schema.json",
       "sha256": "84b112c8d737c28ad91b45139f85990132d5b1ac806747a2ac5b0cfb1bddaef3"
     },
@@ -100,11 +144,11 @@
     },
     {
       "path": "schemas/report.schema.json",
-      "sha256": "2aacaae48fef02a56d393ffded6d9e499cc0f431b9a39c69e4ace7a115aebe49"
+      "sha256": "1ce6569d096bcfa736a57169a516fb008812abb598a0e922a6a8fa1ce17a1c98"
     },
     {
       "path": "schemas/spec.schema.json",
-      "sha256": "d529053da4a74d096ce10067d60ebb78781e183209399049ff5b6fb5d053b770"
+      "sha256": "4468234c817f8ac1120b2e24df37b2bdf45d2e7cce9c94e5419f3e51717a8140"
     }
   ],
   "toolchain": {
@@ -118,7 +162,10 @@
       "jsonschema-specifications": "2025.9.1",
       "referencing": "0.37.0",
       "rpds-py": "2026.9.1",
-      "typing-extensions": "4.16.0"
+      "typing-extensions": "4.16.0",
+      "cryptography": "50.0.2",
+      "cffi": "2.1.1",
+      "pycparser": "3.12"
     }
   },
   "limitations": [
