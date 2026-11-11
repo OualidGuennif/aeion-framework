@@ -1,0 +1,5 @@
+# Versions used to test the reference service. It also needs AxiomSpec/qa/requirements-qa.txt.
+fastapi==0.162.4
+uvicorn==0.54.0
+mcp==2.3.0
+httpx==0.28.1

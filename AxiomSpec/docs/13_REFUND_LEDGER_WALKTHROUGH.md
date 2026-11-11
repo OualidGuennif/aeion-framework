@@ -173,8 +173,15 @@ Release 1.1.0 pins identity adapter 1.0.0 by digest and declares two uses: REQ-0
 
 The keys are fictional. Each private key is derived from a public label so that the example can be re-signed by anyone, and the passkey assertions come from a simulated authenticator. They show that the rules work, not that anyone approved anything.
 
+## What an agent is given
+
+The ledger code carries seven annotations naming thirteen IDs, such as `# @req REQ-004 CON-005` above `authorize`. With the 30 bindings they yield the 43 traces of the [graph index](../examples/refund-ledger/axiom-graph.json), a 29 KB file beside a 209 KB specification.
+
+A search of the index for `Ledger.command` returns three lines: REQ-005, REQ-006 and REQ-009. The brief of REQ-005 is 3.8 KB. What binds REQ-005 and REQ-009 together is 22 objects in one 24 KB page. The context of a change to them is 98 objects in four pages, because the two hard project rules bring the capacity and tenant requirements with their scenarios and tests.
+
 ## Remaining gaps
 
+- REQ-010 has a test in each flag state and no scenario. The `gaps` query reports it.
 - BCIR has no substring operator. CON-011 states what each audit field equals; "no stored column contains the credential" is still asserted in test code on the raw rows.
 - After DEC-002 nothing writes a `rejected` record, yet the status and TRN-002 remain. Removing them is a breaking change to the model and the environments; it is left for a major release.
 - A before/after pair describes one completed attempt. Interleaving is covered by the executed concurrency test on SQLite, not by a predicate, and no other store is qualified.

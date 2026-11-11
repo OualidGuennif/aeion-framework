@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-test-receipt/0.1",
   "scope": "example_application",
-  "edition": "0.6.0",
+  "edition": "0.7.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-11T09:39:19.880594+00:00",
+  "evaluated_at": "2026-11-11T14:08:12.467766+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -60,7 +60,7 @@
   "inputs": [
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa"
+      "sha256": "d6c30eede427aa100b5f40775302c174d058141ed63e60f694964b875482ed33"
     },
     {
       "path": "examples/refund-ledger/spec.json",
@@ -72,7 +72,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "5d565be71f5713902cc286699bf32d3d1f0903b5a1466e22aad05d79a884523a"
+      "sha256": "71b92334947402065e9d4cad05c120f9954365b729960075331288212034e487"
     }
   ],
   "toolchain": {
@@ -95,7 +95,7 @@
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "184a92ebf188faed69acc611ca9ac40c04f5da70b4433e8bd5c820da67604cf6"
+    "sha256": "57fb244f207086b7d5f120c70640a900dd110e3ff728c7c83ff478553edf6c7e"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

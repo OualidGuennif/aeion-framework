@@ -122,3 +122,11 @@ Generated from normative headings. The linked documents define each rule.
 | AX-X-007 | Time is input data | [17_CONTEXT_DOMAIN_INTERFACE](docs/17_CONTEXT_DOMAIN_INTERFACE.md) |
 | AX-X-008 | AI proposals retain provenance | [17_CONTEXT_DOMAIN_INTERFACE](docs/17_CONTEXT_DOMAIN_INTERFACE.md) |
 | AX-X-009 | Govern rule evolution | [17_CONTEXT_DOMAIN_INTERFACE](docs/17_CONTEXT_DOMAIN_INTERFACE.md) |
+| AX-V-001 | Graph index | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-002 | Requirement annotations | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-003 | Immutable reads | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-004 | One behavior, two transports | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-005 | Context scopes | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-006 | Sandbox mode | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-007 | Content-named writes | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |
+| AX-V-008 | Candidates from edits | [19_SERVICE_INTERFACE](docs/19_SERVICE_INTERFACE.md) |

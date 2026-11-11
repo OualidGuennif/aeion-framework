@@ -1,0 +1,279 @@
+{
+  "format": "axiomspec-mcp-tools/0.1",
+  "openapi": "openapi.json",
+  "tools": [
+    {
+      "name": "axiom_lookup",
+      "operation_id": "lookup",
+      "modes": [
+        "sandbox",
+        "organization"
+      ],
+      "description": "One requirement or other object by ID: its statement, weight, links and where it is implemented. Start here.",
+      "output": "NodeView",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "snapshot": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Digest of the release. Omit when the service serves one snapshot."
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "detail": {
+            "enum": [
+              "brief",
+              "full"
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_context",
+      "operation_id": "context",
+      "modes": [
+        "sandbox",
+        "organization"
+      ],
+      "description": "The rules, terms and decisions that bind the given IDs (scope direct), or everything a change to them must take into view (scope change). Paged.",
+      "output": "ContextPage",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "snapshot": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Digest of the release. Omit when the service serves one snapshot."
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "scope": {
+            "enum": [
+              "direct",
+              "change"
+            ]
+          },
+          "budget_bytes": {
+            "type": "integer",
+            "minimum": 4096,
+            "maximum": 32768
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_trace",
+      "operation_id": "trace",
+      "modes": [
+        "sandbox",
+        "organization"
+      ],
+      "description": "Which requirements govern a file or symbol, or where an ID is implemented and tested. Give path, or id.",
+      "output": "TracePage",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "snapshot": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Digest of the release. Omit when the service serves one snapshot."
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "symbol": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "budget_bytes": {
+            "type": "integer",
+            "minimum": 4096,
+            "maximum": 32768
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_gaps",
+      "operation_id": "gaps",
+      "modes": [
+        "sandbox",
+        "organization"
+      ],
+      "description": "What is missing before a phase: open decisions, requirements without scenario, test or code.",
+      "output": "GapsPage",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "snapshot": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Digest of the release. Omit when the service serves one snapshot."
+          },
+          "phase": {
+            "enum": [
+              "design",
+              "implementation"
+            ]
+          },
+          "budget_bytes": {
+            "type": "integer",
+            "minimum": 4096,
+            "maximum": 32768
+          },
+          "cursor": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_propose",
+      "operation_id": "propose",
+      "modes": [
+        "organization"
+      ],
+      "description": "Build a candidate release from a baseline and edits by ID (put, retire, remove, set). Returns its digest and checks.",
+      "output": "CandidateResult",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "operations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "baseline",
+          "version",
+          "operations"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_compare",
+      "operation_id": "compare",
+      "modes": [
+        "organization"
+      ],
+      "description": "Compare two releases: what changed by ID, breaking candidates, required version step, change risk score.",
+      "output": "Comparison",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "candidate": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "baseline",
+          "candidate"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_impact",
+      "operation_id": "impact",
+      "modes": [
+        "organization"
+      ],
+      "description": "Which consuming specifications a provider step reaches, and their requirements.",
+      "output": "Impact",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "candidate": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "baseline",
+          "candidate"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "axiom_verdict",
+      "operation_id": "getVerdict",
+      "modes": [
+        "organization"
+      ],
+      "description": "Whether a release verifies from the files held: chain link, comparison, approvals, imports.",
+      "output": "Verdict",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "digest"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.6.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the three sections after it editions 0.4.0, 0.5.0 and 0.6.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.7.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the four sections after it editions 0.4.0, 0.5.0, 0.6.0 and 0.7.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -217,6 +217,59 @@ The store time is almost entirely JSON Schema validation in Python. The schema's
 - **Scale on a real product.** The measurements use generated requirements of one shape on one machine. A real specification of that size has formulas and scenarios whose evaluation budgets were not exercised.
 - **Legal weight.** These are integrity signatures, not qualified electronic signatures.
 - aeion-factory and aeion-core read format 0.1.
+- This is still a review by the assistant that wrote the change.
+
+## Edition 0.7.0
+
+11 November 2026. The specification format stays `axiomspec/0.3`. This edition adds the service interface: how an agent and an organization reach a release without holding the whole specification.
+
+### Decisions
+
+- **The specification stays one canonical JSON document.** Every pin, approval and store check rests on one unambiguous byte form. On the ledger, JSON parsed in 0.5 ms and YAML in 20 ms with its C parser; the YAML text was larger than compact JSON, and YAML retypes values silently (`no` became false, `010` became 8). A specification written as code would have to be executed to be read.
+- **The implementation stays in Python.** At 50,000 requirements the rule checks take 0.2 s and the comparison 0.9 s. The contract is language-neutral, so an organization can implement it in another language.
+- **HTTP with a contract, plus MCP; no query language.** Reads are GETs on an immutable release, so they cache without limit and a sandbox can allow the service read-only by method. A free-form query language would work against the bounded, fixed queries the package already requires (AX-K-006).
+- **One behavior, two transports.** The queries live in the package (`qa/queries.py`). The server beside it and its MCP tools only transport them, and the tests require the same answer from each.
+- **Few tools.** Four for an agent and four for authoring, because tool definitions are read before any question is asked.
+
+### What was added
+
+| Subject | Where | Contract |
+|---|---|---|
+| Graph index, one record per line | `qa/graph_index.py`, `schemas/graph.schema.json` | AX-V-001 |
+| `@req` annotations in code | `qa/graph_index.py` | AX-V-002 |
+| Immutable, bounded reads with stateless cursors | `qa/queries.py` | AX-V-003, AX-K-006 |
+| HTTP and MCP contract | `api/openapi.json`, `api/mcp-tools.json` | AX-V-004 |
+| Context in two scopes | `qa/queries.py` | AX-V-005, AX-K-010 |
+| Sandbox and organization modes | the reference server | AX-V-006, AX-V-007 |
+| Candidates from edits by ID | `qa/queries.py` | AX-V-008 |
+
+Thirty-four regression tests cover them in the package. The reference server has nineteen more, which replay each operation over HTTP, MCP and a listening port.
+
+### Found while building
+
+- **The conservative closure is most of a small specification.** The plan estimated 5 to 28 KB for the context of a requirement. Implemented as AX-K-010 states it, the closure of any ledger requirement is 79 to 90 KB of a 117 KB specification, because two hard project rules bring the capacity and tenant requirements with all their scenarios and tests. The contract is right for a change and wrong for a doubt, so a second scope, `direct`, was added: 9 to 22 KB in one page. Its answer says it is not the context of a change.
+- **A real gap in the example.** The `gaps` query reports that REQ-010 has no scenario. It was not fixed.
+- **A stale read in the server.** With two processes on one directory, a lookup read the store before the reload that resolving the digest triggered. The two-process test caught it.
+- **An oversized object on an early page.** `complete` was computed per page, so an answer could end complete after naming an object it could not deliver. It now covers the whole answer.
+
+### Measured on the ledger
+
+| Question | Answer |
+|---|---|
+| The index, against the specification file | 29 KB against 209 KB |
+| Search of the index for one symbol | 0.5 KB |
+| One requirement, brief | 2 to 6 KB |
+| What binds one requirement | 9 to 22 KB, one page |
+| The context of a change | 79 to 90 KB, three or four pages |
+
+### What this edition does not establish
+
+- **Benefit to an agent.** No agent was measured on a real task with and without this setup. The two 2026 studies found on context files disagree, and none was found on requirement IDs in code.
+- **A real sandbox.** The OpenShell policy in the playbook is written from the version 0.1.8 documentation and was not run there.
+- **Access control.** The reference server authenticates nobody and filters nothing (AX-K-009 is not implemented). It was not load-tested and keeps every release in memory.
+- **Symbols outside Python.** Annotations are found in any language; the symbol they belong to is resolved for Python only. No call graph is built.
+- **Truth of an annotation.** It says where a requirement was placed. Only an executed test says it is met.
+- **Other MCP clients.** The tools were exercised with the official Python SDK, version 2.3.0, in process and over HTTP.
 - This is still a review by the assistant that wrote the change.
 
 ## Confirmed findings and corrections

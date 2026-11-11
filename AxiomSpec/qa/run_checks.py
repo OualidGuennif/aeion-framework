@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-EDITION = '0.6.0'
+EDITION = '0.7.0'
 TEST_COMMAND = ['python3', 'qa/run_checks.py', '--tests-only']
 EXAMPLE = 'examples/refund-ledger'
 EXAMPLE_COMMAND = ['python3', 'qa/run_checks.py', '--example-tests']
@@ -59,7 +59,7 @@ def toolchain(root):
 
 def regression_manifest(root):
     result = []
-    for folder in ['qa', 'schemas', 'fixtures', 'examples']:
+    for folder in ['qa', 'schemas', 'fixtures', 'examples', 'api']:
         for path in sorted((root / folder).rglob('*')):
             require(not path.is_symlink(), 'Regression inputs cannot contain symlinks')
             if path.is_file() and '__pycache__' not in path.parts:

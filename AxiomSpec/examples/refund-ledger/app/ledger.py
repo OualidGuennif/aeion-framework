@@ -25,17 +25,20 @@ class Result:
     remaining_minor: int | None = None
 
 
+# @req REQ-004 CON-005
 def authorize(principal, request_tenant, resource_tenant):
     """CON-005: a verified principal whose tenant is both the requested and the owning tenant."""
     return (principal.verified is True and resource_tenant is not None
             and principal.tenant_id == request_tenant == resource_tenant)
 
 
+# @req CON-002
 def fits(captured_minor, consumed_minor, amount_minor):
     """CON-002: a positive amount within the remaining captured capacity."""
     return amount_minor > 0 and consumed_minor + amount_minor <= captured_minor
 
 
+# @req REQ-007
 def record_outcome(connection, operation_id, operation, outcome):
     """REQ-007: the audit row holds an operation identifier, its kind and its outcome, and nothing else."""
     connection.execute('INSERT INTO audit(operation_id, operation, outcome) VALUES (?, ?, ?)',
@@ -66,6 +69,7 @@ class Ledger:
         if name in self.hooks:
             self.hooks[name]()
 
+    # @req CON-001
     @contextmanager
     def transaction(self):
         """Take the write lock before reading, so check and write cannot interleave with another writer."""
@@ -103,6 +107,7 @@ class Ledger:
         self.hook('after_commit')
         return result
 
+    # @req REQ-001 REQ-002 REQ-003 REQ-008
     def reserve(self, principal, tenant_id, payment_id, key, amount_minor, operation_id='op'):
         def body():
             owner, captured = self.resource(payment_id)
@@ -124,6 +129,7 @@ class Ledger:
             return Result('reserved', f'r-{cursor.lastrowid}')  # REQ-008
         return self.run('reserve', operation_id, body)
 
+    # @req REQ-005 REQ-006 REQ-009
     def command(self, kind, principal, tenant_id, payment_id, record_id, operation_id='op'):
         target = dict(cancel='released', commit='committed')[kind]
 
@@ -148,6 +154,7 @@ class Ledger:
     def commit(self, principal, tenant_id, payment_id, record_id, operation_id='op'):
         return self.command('commit', principal, tenant_id, payment_id, record_id, operation_id)
 
+    # @req REQ-010
     def remaining(self, principal, tenant_id, payment_id, operation_id='op'):
         """REQ-010, behind FLAG-001. With the flag off nothing is read and nothing is disclosed."""
         def body():

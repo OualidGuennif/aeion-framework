@@ -902,10 +902,10 @@ def main():
     def schemas():
         Draft202012Validator.check_schema(spec_schema)
         Draft202012Validator.check_schema(report_schema)
-        for relative in ['schemas/execution.schema.json', 'schemas/croa-readiness.schema.json', 'schemas/approvals.schema.json']:
+        for relative in ['schemas/execution.schema.json', 'schemas/croa-readiness.schema.json', 'schemas/approvals.schema.json', 'schemas/graph.schema.json']:
             Draft202012Validator.check_schema(read(relative))
         validator.validate(baseline)
-        return 'Five schema documents valid under Draft 2020-12; example shape valid.'
+        return 'Six schema documents valid under Draft 2020-12; example shape valid.'
     check('PKG.SCHEMAS', schemas)
 
     def references():
@@ -1006,6 +1006,63 @@ def main():
                 f'chain links, approvals and {resolved} pinned import. No index, log or clock is consulted.')
     check('PKG.RELEASE_STORE', store_check)
 
+    def service_contract():
+        import graph_index, queries
+        document, listed = read('api/openapi.json'), read('api/mcp-tools.json')['tools']
+        require(document['openapi'].startswith('3.1'), 'The service contract is an OpenAPI 3.1 document')
+        components = document['components']['schemas']
+        for schema in components.values():
+            Draft202012Validator.check_schema(schema)
+        operations = {operation['operationId']: operation for path in document['paths'].values() for operation in path.values()}
+        require(len(operations) == sum(len(path) for path in document['paths'].values()), 'Operation IDs are unique')
+        for tool in listed:
+            operation = operations.get(tool['operation_id'], {})
+            require(operation.get('x-mcp-tool') == tool['name'] and tool['output'] in components
+                    and set(tool['modes']) == set(operation['x-axiom-modes']), f"Tool {tool['name']} differs from its operation")
+            Draft202012Validator.check_schema(tool['input_schema'])
+        require(sorted(o['x-mcp-tool'] for o in operations.values() if 'x-mcp-tool' in o) == sorted(t['name'] for t in listed),
+                'Every operation offered as a tool is listed, and no other')
+        graph_schema = read('schemas/graph.schema.json')
+        Draft202012Validator.check_schema(graph_schema)
+        annotations = graph_index.scan(ROOT, ['examples/refund-ledger'])
+        require(not graph_index.check(baseline, annotations), 'An annotation of the example names an unknown or retired object')
+        index = graph_index.build(baseline, annotations)
+        make_validator(graph_schema).validate(index)
+        require(graph_index.dumps(index) == (ROOT / 'examples/refund-ledger/axiom-graph.json').read_text(),
+                'The committed graph index is not the one the example yields; rebuild it')
+        snapshot = queries.Snapshot(baseline, annotations, ROOT)
+        validators = {name: queries.contract_validator(name) for name in ('NodeView', 'ContextPage', 'TracePage', 'GapsPage', 'GraphIndex')}
+        validators['GraphIndex'].validate(index)
+        answers = 0
+        for node in baseline['nodes']:
+            if node['kind'] != 'Requirement':
+                continue
+            for detail in ('brief', 'full'):
+                validators['NodeView'].validate(queries.lookup(snapshot, node['id'], detail))
+                answers += 1
+            for scope in ('direct', 'change'):
+                cursor = None
+                while True:
+                    page = queries.context(snapshot, [node['id']], scope, cursor=cursor)
+                    validators['ContextPage'].validate(page)
+                    require(len(canonical(page)) <= queries.MAX_BYTES, 'A context page exceeds its budget')
+                    answers += 1
+                    cursor = page['next_cursor']
+                    if cursor is None:
+                        require(page['complete'], 'A context did not complete')
+                        break
+            validators['TracePage'].validate(queries.trace(snapshot, object_id=node['id']))
+            answers += 1
+        for phase in ('design', 'implementation'):
+            validators['GapsPage'].validate(queries.gaps(snapshot, phase))
+            answers += 1
+        stats.update(service_operations=len(operations), service_tools=len(listed), service_answers_validated=answers,
+                     example_annotations=sum(len(a['ids']) for a in annotations))
+        return (f'{len(operations)} operations and {len(listed)} MCP tools agree; {answers} reference answers on the example validate '
+                f"against the contract and stay within budget; the committed graph index is current with "
+                f"{stats['example_annotations']} annotated IDs. Reference queries, not a qualified service.")
+    check('PKG.SERVICE_CONTRACT', service_contract)
+
     def example_tests():
         executed = validate_example_receipt(ROOT, read(EXAMPLE_RECEIPT))
         resolved, cases = check_example_evidence(baseline, executed)
@@ -1093,7 +1150,7 @@ def main():
                          input_change_policy='reject_detected_changes')
     config_text = json.dumps(configuration, ensure_ascii=False, indent=2) + '\n'
     limitations = [
-        'Artifact QA only. The product CLI, static type/unit compiler, graph/query engine and test adapters are not implemented.',
+        'Artifact QA only. The product CLI, static type/unit compiler, an access-controlled query engine and test adapters are not implemented.',
         f"{stats.get('product_obligations_pending', 30)} future product obligations are descriptions, not executed tests.",
         'The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.',
         'Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.',
@@ -1105,8 +1162,8 @@ def main():
     status = 'error' if any(c['status'] == 'error' for c in checks) else ('fail' if any(c['status'] != 'pass' for c in checks) else 'pass')
     report = dict(format='axiomspec-report/0.4', scope='package', status=status,
                   profile='AX-CORE-0.3', requested_phase='package',
-                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'reference_approval_verification', 'reference_release_store', 'specification_parts', 'format_migration_0_1', 'format_migration_0_2', 'example_python_binding_resolution', 'example_application_tests'],
-                  unsupported_capabilities=['static_type_unit_compiler', 'graph_queries', 'general_binding_resolution', 'product_application_tests', 'identity_binding_of_approval_keys', 'authenticator_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
+                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'reference_approval_verification', 'reference_graph_index', 'reference_bounded_queries', 'reference_release_store', 'specification_parts', 'format_migration_0_1', 'format_migration_0_2', 'example_python_binding_resolution', 'example_application_tests'],
+                  unsupported_capabilities=['static_type_unit_compiler', 'access_controlled_queries', 'code_call_analysis', 'general_binding_resolution', 'product_application_tests', 'identity_binding_of_approval_keys', 'authenticator_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
                   configuration=dict(path='validation/package-config.json', sha256=digest(config_text.encode('utf-8'))),
                   subject=dict(spec_sha256=digest(canonical(baseline)), source_tree_sha256=digest(canonical(manifest)),
                                policy_sha256=None, toolchain_sha256=digest(canonical(toolchain)), observations_sha256=digest(canonical(observations))),

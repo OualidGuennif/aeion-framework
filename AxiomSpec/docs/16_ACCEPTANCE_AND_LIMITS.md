@@ -4,7 +4,7 @@
 
 Design contracts, artifact schemas, a structured example in two releases, reference observations, conformance vectors and package QA. The example has a reference implementation and executed tests. A reference release comparison and a migration from format 0.1 are included. Execution and CROA declarations are optional sidecars. Actual checks and review results are linked from the README.
 
-The product CLI, static compiler, graph engine, identity integration, deployed execution controls and runner adapters remain unimplemented. Approval signatures are verified against declared keys; enrolling those keys for real people is part of that missing identity integration. One example executed on local SQLite is evidence about that example only.
+The product CLI, static compiler, an access-controlled query engine, identity integration, deployed execution controls and runner adapters remain unimplemented. The queries and the service of the [service interface](19_SERVICE_INTERFACE.md) are references. Approval signatures are verified against declared keys; enrolling those keys for real people is part of that missing identity integration. One example executed on local SQLite is evidence about that example only.
 
 ### AX-ACT-001 — Demonstrate advertised capabilities
 

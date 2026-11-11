@@ -1,0 +1,2911 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AxiomSpec service interface",
+    "version": "1.0.0",
+    "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest: the answer never changes, so it can be cached without limit, and a sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents. Rules: docs/19_SERVICE_INTERFACE.md."
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "tags": [
+    {
+      "name": "read",
+      "description": "Served in sandbox and organization modes."
+    },
+    {
+      "name": "organization",
+      "description": "Served in organization mode only."
+    }
+  ],
+  "paths": {
+    "/v1/snapshots": {
+      "get": {
+        "operationId": "listSnapshots",
+        "summary": "The releases this service serves.",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The snapshots held.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/snapshots/{digest}/index": {
+      "get": {
+        "operationId": "getIndex",
+        "summary": "The graph index of the release (AX-V-001).",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "const": "current"
+                }
+              ]
+            },
+            "description": "Canonical digest of the release. `current` is accepted when the service serves exactly one snapshot."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The index, as in axiom-graph.json.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GraphIndex"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/snapshots/{digest}/nodes/{id}": {
+      "get": {
+        "operationId": "lookup",
+        "summary": "One object, its statement, its links and where it is implemented (AX-K-003).",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "const": "current"
+                }
+              ]
+            },
+            "description": "Canonical digest of the release. `current` is accepted when the service serves exactly one snapshot."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "description": "ID of the object."
+          },
+          {
+            "name": "detail",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "brief",
+                "full"
+              ],
+              "default": "brief"
+            },
+            "description": "`full` adds the canonical content."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_lookup"
+      }
+    },
+    "/v1/snapshots/{digest}/context": {
+      "get": {
+        "operationId": "context",
+        "summary": "What binds the given objects, or the mandatory context of a change to them (AX-V-005, AX-K-007).",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "const": "current"
+                }
+              ]
+            },
+            "description": "Canonical digest of the release. `current` is accepted when the service serves exactly one snapshot."
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}(,[A-Z][A-Z0-9_]*-[0-9]{3,6}){0,99}$"
+            },
+            "description": "IDs, separated by commas."
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "direct",
+                "change"
+              ],
+              "default": "direct"
+            },
+            "description": "`direct`: what the requirements demand and the rules that bind them. `change`: the conservative closure a change must take into view."
+          },
+          {
+            "name": "budget_bytes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 4096,
+              "maximum": 32768,
+              "default": 32768
+            },
+            "description": "Largest response, in bytes."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "description": "The `next_cursor` of the previous page of the same query."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of context.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContextPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_context"
+      }
+    },
+    "/v1/snapshots/{digest}/trace": {
+      "get": {
+        "operationId": "trace",
+        "summary": "The requirements behind a file or symbol, or the code and tests behind an object.",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "const": "current"
+                }
+              ]
+            },
+            "description": "Canonical digest of the release. `current` is accepted when the service serves exactly one snapshot."
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "description": "Repository-relative file path."
+          },
+          {
+            "name": "symbol",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "description": "Qualified symbol in that file."
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "description": "ID of an object. Give either `path` or `id`."
+          },
+          {
+            "name": "budget_bytes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 4096,
+              "maximum": 32768,
+              "default": 32768
+            },
+            "description": "Largest response, in bytes."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "description": "The `next_cursor` of the previous page of the same query."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of traces.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TracePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_trace"
+      }
+    },
+    "/v1/snapshots/{digest}/gaps": {
+      "get": {
+        "operationId": "gaps",
+        "summary": "What is missing before a phase, by gate and subject (AX-K-005).",
+        "tags": [
+          "read"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                {
+                  "const": "current"
+                }
+              ]
+            },
+            "description": "Canonical digest of the release. `current` is accepted when the service serves exactly one snapshot."
+          },
+          {
+            "name": "phase",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "design",
+                "implementation"
+              ],
+              "default": "design"
+            },
+            "description": "The phase to check."
+          },
+          {
+            "name": "budget_bytes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 4096,
+              "maximum": 32768,
+              "default": 32768
+            },
+            "description": "Largest response, in bytes."
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "description": "The `next_cursor` of the previous page of the same query."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of gaps.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GapsPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_gaps"
+      }
+    },
+    "/v1/projects/{project_id}": {
+      "get": {
+        "operationId": "getProject",
+        "summary": "The releases of one project, its head and any fork (AX-L-010).",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "description": "Project ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The project.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/releases/{digest}": {
+      "get": {
+        "operationId": "getRelease",
+        "summary": "The canonical specification of a release.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The release.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Release"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putRelease",
+        "summary": "Add a release to the store. The body must have the digest in the path, so a repeat changes nothing.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The release is held.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verdict"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The body does not match the digest in the path.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The document is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Release"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/releases/{digest}/approvals": {
+      "get": {
+        "operationId": "getApprovals",
+        "summary": "The approvals held for a release.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The approvals.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approvals"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putApprovals",
+        "summary": "Add approvals to a release. They merge by union, in any order.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The approvals are held.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verdict"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The body does not match the digest in the path.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The document is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approvals"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/releases/{digest}/verdict": {
+      "get": {
+        "operationId": "getVerdict",
+        "summary": "The verdict on a release from the files held: link, comparison, approvals and imports.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The verdict.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verdict"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_verdict"
+      }
+    },
+    "/v1/releases/{digest}/statement": {
+      "get": {
+        "operationId": "getStatement",
+        "summary": "The statement an approver signs for a release (AX-G-014).",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "digest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Canonical digest of the release."
+          },
+          {
+            "name": "actor",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "description": "The approving actor."
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "description": "The key, as declared by the release that governs."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The statement, its digest and the passkey challenge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Statement"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compare": {
+      "get": {
+        "operationId": "compare",
+        "summary": "The comparison of two releases held by the store (G14).",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "baseline",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Digest of the baseline."
+          },
+          {
+            "name": "candidate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Digest of the candidate."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The comparison.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comparison"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_compare"
+      }
+    },
+    "/v1/impact": {
+      "get": {
+        "operationId": "impact",
+        "summary": "The consumers a provider step reaches (AX-L-011).",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [
+          {
+            "name": "baseline",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Digest of the provider baseline."
+          },
+          {
+            "name": "candidate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "description": "Digest of the provider candidate."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The impact.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Impact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_impact"
+      }
+    },
+    "/v1/candidates": {
+      "post": {
+        "operationId": "propose",
+        "summary": "Build a candidate release from a baseline and edits addressed by ID. The same request always yields the same digest.",
+        "tags": [
+          "organization"
+        ],
+        "x-axiom-modes": [
+          "organization"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "The candidate and its checks. It is held by the store whether or not it passes; approvals decide its use.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is not valid.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-mcp-tool": "axiom_propose",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "status": {
+            "type": "integer"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "detail": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "detail"
+        ],
+        "additionalProperties": false
+      },
+      "RequirementSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ]
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could"
+            ]
+          },
+          "risk": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "weight_minor": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "priority",
+          "risk",
+          "weight_minor"
+        ],
+        "additionalProperties": false
+      },
+      "Trace": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "line": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "code",
+              "test",
+              "enforcement",
+              "observation"
+            ]
+          },
+          "origin": {
+            "enum": [
+              "binding",
+              "annotation"
+            ]
+          },
+          "node_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "path",
+          "line",
+          "symbol",
+          "kind",
+          "origin",
+          "node_id",
+          "requirement_ids"
+        ],
+        "additionalProperties": false
+      },
+      "GraphIndex": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "const": "axiomspec-graph/0.1"
+          },
+          "project_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "weight_minor_units": {
+            "enum": [
+              1,
+              10,
+              100,
+              1000
+            ]
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "kind": {
+                  "enum": [
+                    "Requirement",
+                    "Goal",
+                    "Term",
+                    "Constraint",
+                    "StateModel",
+                    "Decision",
+                    "Assumption",
+                    "Risk",
+                    "Control",
+                    "Scenario",
+                    "TestCase",
+                    "Component"
+                  ]
+                },
+                "status": {
+                  "enum": [
+                    "draft",
+                    "active",
+                    "retired"
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "priority": {
+                  "enum": [
+                    "must",
+                    "should",
+                    "could"
+                  ]
+                },
+                "risk": {
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high",
+                    "critical"
+                  ]
+                },
+                "weight_minor": {
+                  "type": "integer"
+                },
+                "flag_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "status",
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "relation": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "to": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                }
+              },
+              "required": [
+                "from",
+                "relation",
+                "to"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 500000
+          },
+          "traces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "line": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "symbol": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "kind": {
+                  "enum": [
+                    "code",
+                    "test",
+                    "enforcement",
+                    "observation"
+                  ]
+                },
+                "origin": {
+                  "enum": [
+                    "binding",
+                    "annotation"
+                  ]
+                },
+                "node_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "requirement_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                  },
+                  "maxItems": 100000
+                }
+              },
+              "required": [
+                "path",
+                "line",
+                "symbol",
+                "kind",
+                "origin",
+                "node_id",
+                "requirement_ids"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 1000000
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "key": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "state": {
+                  "enum": [
+                    "enabled",
+                    "disabled"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "key",
+                "state"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 1024
+          },
+          "imports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "project_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+                },
+                "spec_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "id",
+                "project_id",
+                "version",
+                "spec_sha256"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 256
+          },
+          "exports": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "maxItems": 10000
+          }
+        },
+        "required": [
+          "format",
+          "project_id",
+          "version",
+          "spec_sha256",
+          "weight_minor_units",
+          "nodes",
+          "edges",
+          "traces",
+          "flags",
+          "imports",
+          "exports"
+        ],
+        "additionalProperties": false
+      },
+      "SnapshotList": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "enum": [
+              "sandbox",
+              "organization"
+            ]
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "project_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+                },
+                "spec_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "project_id",
+                "version",
+                "spec_sha256"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "mode",
+          "snapshots"
+        ],
+        "additionalProperties": false
+      },
+      "NodeView": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "query_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "id": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "kind": {
+            "enum": [
+              "Requirement",
+              "Goal",
+              "Term",
+              "Constraint",
+              "StateModel",
+              "Decision",
+              "Assumption",
+              "Risk",
+              "Control",
+              "Scenario",
+              "TestCase",
+              "Component",
+              "Environment",
+              "Flag",
+              "Import",
+              "Binding",
+              "Actor",
+              "Source",
+              "ContextAsset",
+              "ApprovalKey"
+            ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "draft",
+                  "active",
+                  "retired"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "statement": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16384
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requirement": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  "status": {
+                    "enum": [
+                      "draft",
+                      "active",
+                      "retired"
+                    ]
+                  },
+                  "priority": {
+                    "enum": [
+                      "must",
+                      "should",
+                      "could"
+                    ]
+                  },
+                  "risk": {
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "critical"
+                    ]
+                  },
+                  "weight_minor": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100000
+                  },
+                  "flag_id": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "verification_mode": {
+                    "enum": [
+                      "executable",
+                      "manual",
+                      "mixed"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "status",
+                  "priority",
+                  "risk",
+                  "weight_minor",
+                  "flag_id",
+                  "verification_mode"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "relation": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "direction": {
+                  "enum": [
+                    "in",
+                    "out"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "kind": {
+                  "enum": [
+                    "Requirement",
+                    "Goal",
+                    "Term",
+                    "Constraint",
+                    "StateModel",
+                    "Decision",
+                    "Assumption",
+                    "Risk",
+                    "Control",
+                    "Scenario",
+                    "TestCase",
+                    "Component",
+                    "Environment",
+                    "Flag",
+                    "Import",
+                    "Binding",
+                    "Actor",
+                    "Source",
+                    "ContextAsset",
+                    "ApprovalKey"
+                  ]
+                },
+                "title": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 256
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "relation",
+                "direction",
+                "id",
+                "kind",
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "links_total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "traces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "line": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "symbol": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "kind": {
+                  "enum": [
+                    "code",
+                    "test",
+                    "enforcement",
+                    "observation"
+                  ]
+                },
+                "origin": {
+                  "enum": [
+                    "binding",
+                    "annotation"
+                  ]
+                }
+              },
+              "required": [
+                "path",
+                "line",
+                "symbol",
+                "kind",
+                "origin"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "query_digest",
+          "id",
+          "kind",
+          "status",
+          "title",
+          "statement",
+          "requirement",
+          "links",
+          "links_total",
+          "traces",
+          "content",
+          "complete"
+        ],
+        "additionalProperties": false
+      },
+      "ContextPage": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "query_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "kind": {
+                  "enum": [
+                    "Requirement",
+                    "Goal",
+                    "Term",
+                    "Constraint",
+                    "StateModel",
+                    "Decision",
+                    "Assumption",
+                    "Risk",
+                    "Control",
+                    "Scenario",
+                    "TestCase",
+                    "Component",
+                    "Environment",
+                    "Flag",
+                    "Import",
+                    "Binding",
+                    "Actor",
+                    "Source",
+                    "ContextAsset",
+                    "ApprovalKey"
+                  ]
+                },
+                "role": {
+                  "enum": [
+                    "seed",
+                    "required"
+                  ]
+                },
+                "statement": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 16384
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [
+                      {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      {
+                        "enum": [
+                          "in",
+                          "out"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "maxLength": 64
+                      }
+                    ],
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "maxItems": 100000
+                },
+                "content": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "role",
+                "statement",
+                "links",
+                "content"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "returned_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total_visible_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "omissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "enum": [
+                    "exceeds_budget"
+                  ]
+                },
+                "bytes": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "reason",
+                "bytes"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "analysis_limits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "maxItems": 16
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "query_digest",
+          "items",
+          "returned_count",
+          "total_visible_count",
+          "complete",
+          "next_cursor",
+          "omissions",
+          "analysis_limits"
+        ],
+        "additionalProperties": false
+      },
+      "TracePage": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "query_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "line": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "symbol": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "kind": {
+                  "enum": [
+                    "code",
+                    "test",
+                    "enforcement",
+                    "observation"
+                  ]
+                },
+                "origin": {
+                  "enum": [
+                    "binding",
+                    "annotation"
+                  ]
+                },
+                "node_id": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                },
+                "requirement_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                  },
+                  "maxItems": 100000
+                },
+                "requirements": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "maxLength": 256
+                      },
+                      "status": {
+                        "enum": [
+                          "draft",
+                          "active",
+                          "retired"
+                        ]
+                      },
+                      "priority": {
+                        "enum": [
+                          "must",
+                          "should",
+                          "could"
+                        ]
+                      },
+                      "risk": {
+                        "enum": [
+                          "low",
+                          "medium",
+                          "high",
+                          "critical"
+                        ]
+                      },
+                      "weight_minor": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100000
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "title",
+                      "status",
+                      "priority",
+                      "risk",
+                      "weight_minor"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "maxItems": 100000
+                }
+              },
+              "required": [
+                "path",
+                "line",
+                "symbol",
+                "kind",
+                "origin",
+                "node_id",
+                "requirement_ids",
+                "requirements"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "returned_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total_visible_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "omissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "enum": [
+                    "exceeds_budget"
+                  ]
+                },
+                "bytes": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "reason",
+                "bytes"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "analysis_limits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "maxItems": 16
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "query_digest",
+          "items",
+          "returned_count",
+          "total_visible_count",
+          "complete",
+          "next_cursor",
+          "omissions",
+          "analysis_limits"
+        ],
+        "additionalProperties": false
+      },
+      "GapsPage": {
+        "type": "object",
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "query_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "gate": {
+                  "type": "string",
+                  "pattern": "^G[0-9]{2}$"
+                },
+                "code": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "id",
+                "gate",
+                "code",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "returned_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "total_visible_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 512
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "omissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "reason": {
+                  "enum": [
+                    "exceeds_budget"
+                  ]
+                },
+                "bytes": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "id",
+                "reason",
+                "bytes"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "analysis_limits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "maxItems": 16
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "query_digest",
+          "items",
+          "returned_count",
+          "total_visible_count",
+          "complete",
+          "next_cursor",
+          "omissions",
+          "analysis_limits"
+        ],
+        "additionalProperties": false
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "releases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+                },
+                "spec_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "status": {
+                  "enum": [
+                    "pass",
+                    "fail",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "version",
+                "spec_sha256",
+                "status"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          },
+          "head": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+              },
+              "spec_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "version",
+              "spec_sha256"
+            ],
+            "additionalProperties": false
+          },
+          "tied_heads": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "maxItems": 100000
+          },
+          "orphaned_heads": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "project_id",
+          "releases",
+          "head",
+          "tied_heads",
+          "orphaned_heads"
+        ],
+        "additionalProperties": false
+      },
+      "Release": {
+        "type": "object",
+        "description": "A specification in format axiomspec/0.3 (schemas/spec.schema.json).",
+        "properties": {
+          "format": {
+            "const": "axiomspec/0.3"
+          }
+        },
+        "required": [
+          "format",
+          "release",
+          "project",
+          "nodes",
+          "edges"
+        ]
+      },
+      "Approvals": {
+        "type": "object",
+        "description": "Approvals of one release (schemas/approvals.schema.json).",
+        "properties": {
+          "format": {
+            "const": "axiomspec-approvals/0.1"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "approvals": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "format",
+          "project_id",
+          "version",
+          "spec_sha256",
+          "approvals"
+        ]
+      },
+      "Verdict": {
+        "type": "object",
+        "description": "The store verdict on one release (AX-L-010).",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail",
+              "unknown"
+            ]
+          },
+          "link": {
+            "enum": [
+              "genesis",
+              "present",
+              "unknown"
+            ]
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pass",
+                  "fail"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvals": {
+            "enum": [
+              "pass",
+              "fail",
+              "unknown"
+            ]
+          },
+          "imports": {
+            "type": "array"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                "subject": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 4096
+                }
+              },
+              "required": [
+                "code",
+                "subject",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "project_id",
+          "version",
+          "spec_sha256",
+          "status",
+          "link",
+          "comparison",
+          "approvals",
+          "imports",
+          "errors"
+        ]
+      },
+      "Statement": {
+        "type": "object",
+        "properties": {
+          "statement": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "webauthn_challenge": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "statement",
+          "sha256",
+          "webauthn_challenge"
+        ],
+        "additionalProperties": false
+      },
+      "Comparison": {
+        "type": "object",
+        "description": "The G14 comparison of two releases (AX-G-013).",
+        "properties": {
+          "format": {
+            "const": "axiomspec-release-comparison/0.1"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          }
+        },
+        "required": [
+          "format",
+          "gate",
+          "status",
+          "baseline",
+          "candidate",
+          "declared_step",
+          "required_step",
+          "counts",
+          "errors",
+          "changes",
+          "risk"
+        ]
+      },
+      "Impact": {
+        "type": "object",
+        "description": "The consumers a provider step reaches (AX-L-011).",
+        "properties": {
+          "format": {
+            "const": "axiomspec-impact/0.1"
+          },
+          "consumers": {
+            "type": "array"
+          }
+        },
+        "required": [
+          "format",
+          "provider",
+          "comparison",
+          "required_step",
+          "consumers",
+          "limitations"
+        ]
+      },
+      "Edit": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "put"
+              },
+              "section": {
+                "enum": [
+                  "nodes",
+                  "edges",
+                  "bindings",
+                  "environments",
+                  "flags",
+                  "actors",
+                  "sources",
+                  "context_assets",
+                  "imports"
+                ]
+              },
+              "item": {
+                "type": "object",
+                "required": [
+                  "id"
+                ]
+              }
+            },
+            "required": [
+              "op",
+              "section",
+              "item"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "retire"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              }
+            },
+            "required": [
+              "op",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "remove"
+              },
+              "section": {
+                "enum": [
+                  "edges",
+                  "bindings",
+                  "flags",
+                  "context_assets",
+                  "imports",
+                  "environments"
+                ]
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              }
+            },
+            "required": [
+              "op",
+              "section",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "op": {
+                "const": "set"
+              },
+              "field": {
+                "enum": [
+                  "exports",
+                  "approval",
+                  "compatibility"
+                ]
+              },
+              "value": {}
+            },
+            "required": [
+              "op",
+              "field",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "CandidateRequest": {
+        "type": "object",
+        "properties": {
+          "baseline": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Edit"
+            },
+            "maxItems": 10000,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "baseline",
+          "version",
+          "operations"
+        ],
+        "additionalProperties": false
+      },
+      "CandidateResult": {
+        "type": "object",
+        "properties": {
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "baseline": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+              },
+              "spec_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "version",
+              "spec_sha256"
+            ],
+            "additionalProperties": false
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          },
+          "schema_errors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "maxItems": 50
+          },
+          "reference_errors": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "maxItems": 200
+          },
+          "comparison": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "candidate": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "spec_sha256",
+          "version",
+          "baseline",
+          "status",
+          "schema_errors",
+          "reference_errors",
+          "comparison",
+          "candidate"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

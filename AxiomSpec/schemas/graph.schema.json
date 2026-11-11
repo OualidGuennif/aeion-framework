@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://axiomspec.invalid/schema/graph-0.1.json",
+  "title": "AxiomSpec graph index of one release",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "axiomspec-graph/0.1"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+    },
+    "spec_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "weight_minor_units": {
+      "enum": [
+        1,
+        10,
+        100,
+        1000
+      ]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "kind": {
+            "enum": [
+              "Requirement",
+              "Goal",
+              "Term",
+              "Constraint",
+              "StateModel",
+              "Decision",
+              "Assumption",
+              "Risk",
+              "Control",
+              "Scenario",
+              "TestCase",
+              "Component"
+            ]
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could"
+            ]
+          },
+          "risk": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "weight_minor": {
+            "type": "integer"
+          },
+          "flag_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100000
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "relation": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          }
+        },
+        "required": [
+          "from",
+          "relation",
+          "to"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 500000
+    },
+    "traces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "line": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "code",
+              "test",
+              "enforcement",
+              "observation"
+            ]
+          },
+          "origin": {
+            "enum": [
+              "binding",
+              "annotation"
+            ]
+          },
+          "node_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+            },
+            "maxItems": 100000
+          }
+        },
+        "required": [
+          "path",
+          "line",
+          "symbol",
+          "kind",
+          "origin",
+          "node_id",
+          "requirement_ids"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000000
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "state": {
+            "enum": [
+              "enabled",
+              "disabled"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1024
+    },
+    "imports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "project_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "spec_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "version",
+          "spec_sha256"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 256
+    },
+    "exports": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*-[0-9]{3,6}$"
+      },
+      "maxItems": 10000
+    }
+  },
+  "required": [
+    "format",
+    "project_id",
+    "version",
+    "spec_sha256",
+    "weight_minor_units",
+    "nodes",
+    "edges",
+    "traces",
+    "flags",
+    "imports",
+    "exports"
+  ],
+  "additionalProperties": false
+}

@@ -47,6 +47,9 @@ that a person or an agent can author and a program can check:
 - **Specifications compose.** One specification per product or service. It pins the releases it
   relies on by digest, lists what others may rely on, and a change in a provider is followed into
   the requirements of its consumers.
+- **An agent does not need the specification.** It gets a small index, code annotated with
+  `@req REQ-004`, and a read-only service it asks only when in doubt: one requirement, what binds
+  it, or the full context of a change. The same answers are available over HTTP and MCP.
 - **Verification needs only files.** There is no log, index, quorum or clock. The verdict depends on
   the set of files alone, in any order and from any replica; a missing file is unknown, never a
   wrong answer, and a conflict is a reported fork, never a corrupted store.
@@ -68,16 +71,18 @@ flowchart LR
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.6.0: nineteen contract documents, five JSON schemas, the rule index, two worked examples (a fictional refund ledger in two signed releases, with a reference implementation and executed tests, and the small identity adapter it pins), a conformance corpus, reference checks of releases, approvals and a release store, migrations from formats 0.1 and 0.2, package QA and its review records |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.7.0: twenty contract documents, six JSON schemas, the service contract for HTTP and MCP, the rule index, two worked examples (a fictional refund ledger in two signed releases, with a reference implementation and executed tests, and the small identity adapter it pins), a conformance corpus, reference checks of releases, approvals and a release store, migrations from formats 0.1 and 0.2, package QA and its review records |
 | [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
 | [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
+| [`server/`](server/README.md) | The reference service: the package's queries over HTTP (FastAPI) and MCP, read-only for one release in a sandbox, or over a whole release store for an organization |
+| [`playbooks/03_AGENT_IN_A_SANDBOX.md`](playbooks/03_AGENT_IN_A_SANDBOX.md) | The sandbox playbook: giving a coding agent an index, annotated code and a read-only service instead of the specification |
 | [`tools/check_repo.py`](tools/check_repo.py) | A check of this README and the playbooks (links, JSON examples, the specification draft), which the self-contained package QA cannot read |
 
 The two playbooks are the source material Æion Factory 3.0.0 and Æion Core were built from. The
 existing-project playbook is a verbatim copy; the specification draft in the new-project playbook was
 moved to format 0.3 in edition 0.6.0.
 
-The package is edition 0.6.0, with specification format `axiomspec/0.3`. Release, weights, flags,
+The package is edition 0.7.0, with specification format `axiomspec/0.3`. Release, weights, flags,
 the approval policy, imports and exports are required fields, so an older specification is not valid
 0.3: `AxiomSpec/qa/migrate_0_1.py` and `AxiomSpec/qa/migrate_0_2.py` each write a candidate and list
 what a person must still decide. Æion Factory and Æion Core vendor edition 0.3.0
@@ -100,8 +105,10 @@ that is not published; that one link does not resolve.
 ## Status and limits
 
 - This is a design package. It defines contracts and includes checks of the package itself; it
-  contains no product CLI, compiler, graph engine or runner adapter. The commands the package names
-  `axiom ...` are proposed interfaces here, and exist as code in aeion-factory for format 0.1.
+  contains no product CLI, compiler or runner adapter. The commands the package names `axiom ...`
+  are proposed interfaces here, and exist as code in aeion-factory for format 0.1. The service in
+  `server/` is a reference: it has no authentication, was not load-tested and was not run inside
+  a real sandbox.
 - The refund ledger is fictional. Its 20 test cases run against a reference implementation on local
   SQLite every time the package is verified, and its release 1.1.0 is compared with its release
   1.0.0. That is evidence about one example from an untrusted local producer, not a qualified runner.
@@ -120,6 +127,12 @@ that is not published; that one link does not resolve.
   ```bash
   python3 -m venv .venv && .venv/bin/pip install -r AxiomSpec/qa/requirements-qa.txt
   cd AxiomSpec && PATH="$PWD/../.venv/bin:$PATH" python3 qa/run_checks.py
+  ```
+
+- The reference service has its own dependencies and tests:
+
+  ```bash
+  .venv/bin/pip install -r server/requirements.txt && .venv/bin/python -m unittest discover -s server/tests
   ```
 
   `.venv/bin/python tools/check_repo.py` then checks this README and the playbooks. Both run on

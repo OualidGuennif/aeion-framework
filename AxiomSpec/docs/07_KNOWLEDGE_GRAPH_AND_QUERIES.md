@@ -39,7 +39,7 @@ Version the endpoint registry. An attests edge does not authenticate its author.
 
 Start with sorted JSON and in-memory adjacency maps. An index is disposable. Add parameterized SQLite queries only after measuring a need. Do not expose arbitrary SQL, scripts or filesystem paths as agent queries.
 
-Proposed interfaces, not implemented commands:
+The [service interface](19_SERVICE_INTERFACE.md) defines these queries over HTTP and MCP, with reference implementations. The command-line forms below remain proposed:
 
 ```text
 axiom query node --id REQ-001 --snapshot <digest>

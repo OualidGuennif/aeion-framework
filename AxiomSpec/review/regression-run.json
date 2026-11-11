@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.6.0",
+  "edition": "0.7.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-11T09:39:17.527302+00:00",
+  "evaluated_at": "2026-11-11T14:08:10.066880+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -67,6 +67,40 @@
       "test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix",
       "test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf",
       "test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement",
+      "test_graph_queries.Annotations.test_a_scan_cannot_leave_its_root",
+      "test_graph_queries.Annotations.test_a_test_file_is_recognized_by_name_or_folder",
+      "test_graph_queries.Annotations.test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in",
+      "test_graph_queries.Annotations.test_only_the_exact_token_in_source_files_counts",
+      "test_graph_queries.Context.test_a_seed_that_is_not_a_requirement_leads_to_the_requirements_it_concerns",
+      "test_graph_queries.Context.test_a_shared_term_does_not_lead_back_to_unrelated_requirements",
+      "test_graph_queries.Context.test_change_scope_is_the_conservative_closure",
+      "test_graph_queries.Context.test_direct_scope_is_the_requirement_and_what_binds_it",
+      "test_graph_queries.Context.test_retired_objects_stay_out_unless_asked_for",
+      "test_graph_queries.Contract.test_every_operation_documents_its_answers_and_errors",
+      "test_graph_queries.Contract.test_every_read_is_a_get_and_names_its_release",
+      "test_graph_queries.Contract.test_the_tools_are_few_and_each_is_one_operation",
+      "test_graph_queries.Gaps.test_each_design_gap",
+      "test_graph_queries.Gaps.test_each_implementation_gap",
+      "test_graph_queries.Gaps.test_the_ledger_has_one_design_gap",
+      "test_graph_queries.Index.test_command_line",
+      "test_graph_queries.Index.test_requirements_carry_their_weight_and_a_trace_leads_to_requirements",
+      "test_graph_queries.Index.test_the_file_is_json_with_one_record_per_line",
+      "test_graph_queries.Index.test_the_index_is_valid_sorted_and_the_committed_file_is_current",
+      "test_graph_queries.Index.test_the_ledger_code_is_annotated_and_every_annotation_names_a_live_object",
+      "test_graph_queries.Lookup.test_a_requirement_is_returned_with_its_sentence_weight_links_and_code",
+      "test_graph_queries.Lookup.test_each_requirement_pattern_renders_its_sentence",
+      "test_graph_queries.Lookup.test_every_identified_object_can_be_looked_up_and_an_unknown_id_is_not_guessed",
+      "test_graph_queries.Paging.test_a_cursor_serves_only_its_own_snapshot_and_query",
+      "test_graph_queries.Paging.test_an_object_too_large_for_the_budget_is_named_never_cut",
+      "test_graph_queries.Paging.test_at_most_one_hundred_items_per_page",
+      "test_graph_queries.Paging.test_pages_stay_within_any_budget_and_join_to_the_whole_answer",
+      "test_graph_queries.Propose.test_a_candidate_that_breaks_a_rule_is_returned_with_the_reason",
+      "test_graph_queries.Propose.test_an_edit_by_id_yields_a_checked_successor",
+      "test_graph_queries.Propose.test_invalid_edits_are_refused",
+      "test_graph_queries.Propose.test_retire_remove_and_set",
+      "test_graph_queries.Propose.test_the_service_owns_the_revision",
+      "test_graph_queries.Trace.test_a_file_or_symbol_leads_to_its_requirements",
+      "test_graph_queries.Trace.test_an_object_leads_to_its_code_and_tests",
       "test_releases_weights_flags.ExampleEvidence.test_audit_predicate_fails_on_each_way_of_recording_too_much_or_too_little",
       "test_releases_weights_flags.ExampleEvidence.test_every_active_test_case_is_bound_resolved_and_executed",
       "test_releases_weights_flags.ExampleEvidence.test_every_unflagged_requirement_has_a_scenario_a_hard_predicate_and_a_test_citing_a_scenario",
@@ -163,7 +197,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 150,
+    "tests_run": 184,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -171,6 +205,14 @@
     "unexpected_successes": 0
   },
   "inputs": [
+    {
+      "path": "api/mcp-tools.json",
+      "sha256": "525005f903322710921bf2511290075a53e66161f5bf00508dd47e0e09b0e165"
+    },
+    {
+      "path": "api/openapi.json",
+      "sha256": "f3a40e9dcb73f73734826f13c88e037ee6d0eb613e13a7c1f308ca8bf31980cc"
+    },
     {
       "path": "examples/identity-adapter/approvals.json",
       "sha256": "b01aa8bbadd540cd681b95f62a4d4d7d6817f626e478b473c698af7dbf14f2e4"
@@ -181,11 +223,15 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "228c91524378e5349bedd34a0559c01d001c8bf1a8cdcdb848875c9dd6022efa"
+      "sha256": "d6c30eede427aa100b5f40775302c174d058141ed63e60f694964b875482ed33"
     },
     {
       "path": "examples/refund-ledger/approvals.json",
       "sha256": "725978250a19d483f02b81728d1e9bd295a1f8a0830f494ecf565c39e8be73a8"
+    },
+    {
+      "path": "examples/refund-ledger/axiom-graph.json",
+      "sha256": "07757dad0e3fe849d08375bcb80523aa922522891dc06d94434fb9a030fce039"
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
@@ -225,7 +271,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "5d565be71f5713902cc286699bf32d3d1f0903b5a1466e22aad05d79a884523a"
+      "sha256": "71b92334947402065e9d4cad05c120f9954365b729960075331288212034e487"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -236,12 +282,20 @@
       "sha256": "bdbb27d18e9229d39675260c2e3f48beef7e103198063a27affa085cf0224964"
     },
     {
+      "path": "qa/graph_index.py",
+      "sha256": "93ff997baa2904a6478922610b641098fd0948220c0af6f8d296679479fcb116"
+    },
+    {
       "path": "qa/migrate_0_1.py",
       "sha256": "83b433272947f71fe25a1afe08ee8659428cf8a4ad7e7298331b4a9419ee30b6"
     },
     {
       "path": "qa/migrate_0_2.py",
       "sha256": "989740aef8fdd66f58d72de62c44d2e0371495b3d9cd7f1c2eed53e0a8f0a25e"
+    },
+    {
+      "path": "qa/queries.py",
+      "sha256": "8b95487b1b174b9b1bab2469a65e173381cd171fb11156c4700d0996f3d0135a"
     },
     {
       "path": "qa/release_diff.py",
@@ -257,7 +311,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "9b92373aebeacafb853b6f22fc294e014c529c3cbe851bf5dd3e9178a2e78cdd"
+      "sha256": "44b08535903393ba0618ef8dca6c4e1681ff83f8ade853b95a6d0f6f27e5682d"
     },
     {
       "path": "qa/spec_parts.py",
@@ -270,6 +324,10 @@
     {
       "path": "qa/test_fourth_review.py",
       "sha256": "15364b0470f75196da6ada082144c9f0aa9cff709830be6758c5ccd27cc71973"
+    },
+    {
+      "path": "qa/test_graph_queries.py",
+      "sha256": "248695974554ee8308dad9ee7f436809cf285526b77f3f344d33b9db9dba1499"
     },
     {
       "path": "qa/test_releases_weights_flags.py",
@@ -304,6 +362,10 @@
       "sha256": "2d097ae71aab6ff5525a1fc8d26ff75f1d41bc8e44c94036fb139b6ac82f7ae4"
     },
     {
+      "path": "schemas/graph.schema.json",
+      "sha256": "a41c6c8bbac9cce3d11dbb90e5f3e85127d92cc3d290a89c2a415cdc44b2bc40"
+    },
+    {
       "path": "schemas/report.schema.json",
       "sha256": "1ce6569d096bcfa736a57169a516fb008812abb598a0e922a6a8fa1ce17a1c98"
     },
@@ -331,7 +393,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "f8fb38003572483bc7139b5a418d7cf2215adb96e6a9c70f8bd9ef9a1f880258"
+    "sha256": "7d6f33e1359f6edce61e49d5dc6625c8a65657acde317d548e14e098cbd68c1c"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

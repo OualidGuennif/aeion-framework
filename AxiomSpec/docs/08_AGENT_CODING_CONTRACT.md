@@ -8,6 +8,8 @@ Include change ID, objective, scope/exclusions, specification/source/policy/grap
 
 Incomplete packets permit investigation or independent work, not invented business answers.
 
+An agent need not hold the specification. It may hold the graph index and ask the [service](19_SERVICE_INTERFACE.md) for a requirement, for what binds it, or for the context of a change (AX-V-005).
+
 ## Execution mode and decision rights
 
 Execution cadence and decision authority are separate. A task may run without step-by-step interaction while protected decisions still require an authorized decision-maker.
@@ -35,7 +37,7 @@ If a UI needs `autonomous: true/false`, derive it from the validated mode. Do no
 3. Compare discovered impact with the packet.
 4. Implement the smallest coherent change.
 5. Preserve oracles and add relevant tests.
-6. Run authorized verification, update bindings, regenerate views and collect evidence on the final inputs.
+6. Run authorized verification, update bindings and `@req` annotations (AX-V-002), regenerate views and collect evidence on the final inputs.
 7. Return actual results and remaining limits.
 
 ### AX-D-002 — Scope changes
