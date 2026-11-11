@@ -18,7 +18,7 @@ test_empty_or_missing_vector_is_rejected (test_review_regressions.ReviewRegressi
 test_external_schema_references_are_rejected_without_network (test_review_regressions.ReviewRegressions.test_external_schema_references_are_rejected_without_network) ... ok
 test_malformed_input_replaces_previous_green_report (test_review_regressions.ReviewRegressions.test_malformed_input_replaces_previous_green_report) ... ok
 test_missing_or_empty_observations_are_rejected (test_review_regressions.ReviewRegressions.test_missing_or_empty_observations_are_rejected) ... ok
-test_reference_corpus_still_exercises_45_expectations (test_review_regressions.ReviewRegressions.test_reference_corpus_still_exercises_45_expectations) ... ok
+test_reference_corpus_still_exercises_its_expectations (test_review_regressions.ReviewRegressions.test_reference_corpus_still_exercises_its_expectations) ... ok
 test_removing_an_expectation_from_both_copies_is_rejected (test_review_regressions.ReviewRegressions.test_removing_an_expectation_from_both_copies_is_rejected) ... ok
 test_review_protocol_is_not_accepted_as_state_guard (test_review_regressions.ReviewRegressions.test_review_protocol_is_not_accepted_as_state_guard) ... ok
 test_unit_term_reference_is_checked (test_review_regressions.ReviewRegressions.test_unit_term_reference_is_checked) ... ok
@@ -58,8 +58,16 @@ test_generated_outputs_do_not_invalidate_input_snapshot (test_third_review.Third
 test_read_rejects_symlink_before_opening_target (test_third_review.ThirdReview.test_read_rejects_symlink_before_opening_target) ... ok
 test_reference_checks_do_not_depend_on_node_order (test_third_review.ThirdReview.test_reference_checks_do_not_depend_on_node_order) ... ok
 test_writers_refuse_symlinked_output_parent (test_third_review.ThirdReview.test_writers_refuse_symlinked_output_parent) ... ok
+test_array_field_of_a_bound_element_is_a_collection (test_transition_scenarios.RulesDecidedIn040.test_array_field_of_a_bound_element_is_a_collection) ... ok
+test_binding_kind_fixes_the_node_kinds_it_may_name (test_transition_scenarios.RulesDecidedIn040.test_binding_kind_fixes_the_node_kinds_it_may_name) ... ok
+test_literal_array_is_not_a_collection (test_transition_scenarios.RulesDecidedIn040.test_literal_array_is_not_a_collection) ... ok
+test_same_link_declared_twice_is_a_duplicate (test_transition_scenarios.RulesDecidedIn040.test_same_link_declared_twice_is_a_duplicate) ... ok
+test_200_seeded_transitions_match_direct_domain_oracles (test_transition_scenarios.TransitionObservations.test_200_seeded_transitions_match_direct_domain_oracles) ... ok
+test_300_row_comparison_is_explicitly_unresolved_under_default_budget (test_transition_scenarios.TransitionObservations.test_300_row_comparison_is_explicitly_unresolved_under_default_budget) ... ok
+test_every_transition_scenario_states_both_assertions (test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions) ... ok
+test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 60 tests in 1.796s
+Ran 68 tests in 2.785s
 
 OK

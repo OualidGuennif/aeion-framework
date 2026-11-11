@@ -30,8 +30,9 @@ class ReviewRegressions(unittest.TestCase):
         self.vectors = qa.read('fixtures/conformance.json', fixture_values=True)['vectors']
         self.validator = qa.Draft202012Validator(qa.read('schemas/spec.schema.json'))
 
-    def test_reference_corpus_still_exercises_45_expectations(self):
-        self.assertEqual(qa.check_observation_corpus(self.baseline, self.observations), (9, 45))
+    def test_reference_corpus_still_exercises_its_expectations(self):
+        # 9 snapshot observations x 5 constraints, 8 before/after observations x 2 constraints.
+        self.assertEqual(qa.check_observation_corpus(self.baseline, self.observations), (17, 61))
         self.assertEqual(qa.check_vector_corpus(self.baseline, self.vectors, self.validator), (10, 30))
 
     def test_missing_or_empty_observations_are_rejected(self):

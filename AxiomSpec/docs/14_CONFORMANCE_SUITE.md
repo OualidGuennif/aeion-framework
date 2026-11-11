@@ -35,7 +35,7 @@ V-101-103 cover parsing/confinement; 104-108 types, units, budget and missing da
 
 ## Observations and regressions
 
-Nine observations carry 45 Boolean expectations for five BCIR constraints. Require one observation per canonical Scenario and one expectation per active BCIR constraint in its environment. Reject duplicate/missing cases or expectations removed from both copies. This establishes declared-corpus coverage, not completeness of the business model.
+Seventeen observations carry 61 Boolean expectations: nine ledger snapshots for the five BCIR constraints of ENV-001, and eight before/after observations for the two of ENV-002. Require one observation per canonical Scenario and one expectation per active BCIR constraint in its environment. Reject duplicate/missing cases or expectations removed from both copies. This establishes declared-corpus coverage, not completeness of the business model.
 
 The reference evaluator does not implement complete static typing, unit analysis or reachability. Package self-checks and review regressions cover specific defects. The 500-row uniqueness test expects an explicit budget limit; it does not claim the performance issue is fixed.
 
@@ -57,6 +57,6 @@ Local documentation links must be relative, even when an absolute path happens t
 
 Third-review tests also check ordering invariance of selected reference resolution and 100 seeded ledger observations against direct domain calculations. They broaden the exercised reference subset without qualifying a general BCIR compiler or product behavior.
 
-Fourth-review tests cover rules that the contracts stated and the reference checks did not enforce: a witness scenario must illustrate a requirement its test verifies, goals and requirements at the far end of a required link must be active, requirement patterns fix their populated fields, effective windows are UTC and ordered, transition IDs use `TRN-`, a terminal state has no exit, unit annotations name one integer leaf and a `binding:` locator agrees with its binding. Local links must also match the file name's letter case, which a case-insensitive filesystem would otherwise hide. These remain selected reference checks, not a complete G02-G07 implementation.
+Fourth-review tests cover rules that the contracts stated and the reference checks did not enforce: a witness scenario must illustrate a requirement its test verifies, goals and requirements at the far end of a required link must be active, requirement patterns fix their populated fields, effective windows are UTC and ordered, transition IDs use `TRN-`, a terminal state has no exit, unit annotations name one integer leaf and a `binding:` locator agrees with its binding. Local links must also match the file name's letter case, which a case-insensitive filesystem would otherwise hide. Edition 0.4.0 adds the cases for a literal array used as a collection, a binding naming the wrong node kind and a link declared twice, and compares the two before/after predicates with direct calculations on 200 seeded transitions. These remain selected reference checks, not a complete G02-G07 implementation.
 
 The optional execution and CROA fixtures receive structural/reference checks. Their fields cannot authorize execution or certify CROA conformance.

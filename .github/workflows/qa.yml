@@ -1,0 +1,26 @@
+name: qa
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the pinned QA dependencies
+        run: python3 -m pip install -r AxiomSpec/qa/requirements-qa.txt
+      # The replay rewrites its receipts for this runner; it fails on any test, link or digest problem.
+      - name: Replay the package QA
+        working-directory: AxiomSpec
+        run: python3 qa/run_checks.py
+      - name: Check the README and the playbooks
+        run: python3 tools/check_repo.py

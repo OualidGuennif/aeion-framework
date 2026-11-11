@@ -126,7 +126,7 @@ An operational observation also needs adapter identity, version and coverage lim
 | mitigates | Control -> Risk |
 | realizes | Requirement -> Control |
 
-Each edge has an ID, `from`, `relation`, `to`, `origin: declared` and rationale. Endpoints must exist with permitted kinds. Extracted code relationships belong to a derived provenance layer.
+Each edge has an ID, `from`, `relation`, `to`, `origin: declared` and rationale. Endpoints must exist with permitted kinds. A given source, relation and target is declared once; a second edge with the same three is a duplicate, not a stronger link. Extracted code relationships belong to a derived provenance layer.
 
 ### AX-M-011 — Cycles and retirement
 
@@ -145,6 +145,15 @@ Actors have ID, name, type human_role/ai/service and binding status unbound/asse
 ### AX-M-014 — Bindings
 
 Bindings contain ID, kind, node_id, path, symbol, language and expected_resolution. Kinds: code, test, enforcement, observation. Languages: python, typescript, java, generic. Resolution is planned or must_resolve.
+
+| Binding kind | Node it names | Meaning |
+|---|---|---|
+| code | Component, or a Constraint's evaluation method | Where the responsibility or the calculation is realized |
+| test | TestCase | The test artifact a receipt will identify |
+| enforcement | Constraint or Control | The boundary that prevents the forbidden action |
+| observation | Constraint or Requirement | Where runtime observations of it are produced |
+
+A requirement is realized through a Component and verified through a TestCase; binding code or a test directly to a Requirement skips the object that carries the claim.
 
 Paths are repository-relative with `/`, without absolute paths, URLs or `..`. Reject symlink escapes. A selector is not evidence of resolution. A resolution receipt identifies the file digest, actual location, extractor and version. File existence alone does not resolve a symbol or establish a call relationship.
 

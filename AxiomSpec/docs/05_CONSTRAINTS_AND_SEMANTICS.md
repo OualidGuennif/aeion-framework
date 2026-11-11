@@ -49,7 +49,7 @@ A qualified optimized adapter must preserve completed Boolean/error semantics an
 
 ### AX-C-005 — Aggregates
 
-Collection is finite; filter is Boolean. Bind a declared environment array reached by a path. Whether a literal array may serve as a collection is undecided in this profile: the package reference evaluator accepts one and the first engine rejects it. An implementation may refuse it; a portable specification does not use it. `sum` adds integer projections in a common unit, preserving duplicates. Empty sum is zero in the statically established projection unit. `count` counts retained elements and requires projection to be the literal integer 1. Validate all intermediate integers against the safe range; overflow is an error.
+Collection is finite; filter is Boolean. A collection is a declared array reached by a path: an environment array, or an array field of an enclosing bound element. A literal array is not a collection; it appears only as the right operand of `in`. Iterating a constant list would hide domain data inside a formula, where it has no unit, source or bound. `sum` adds integer projections in a common unit, preserving duplicates. Empty sum is zero in the statically established projection unit. `count` counts retained elements and requires projection to be the literal integer 1. Validate all intermediate integers against the safe range; overflow is an error.
 
 ### AX-C-006 — Quantifiers
 

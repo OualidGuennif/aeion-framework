@@ -163,6 +163,25 @@ PREFIXES = dict(Goal='GOAL', Term='TERM', Requirement='REQ', Constraint='CON',
                 Decision='DEC', Assumption='ASM', Risk='RISK', Control='CTRL')
 
 
+BINDING_TARGETS = {  # AX-M-014: binding kind -> node kinds it may name
+    'code': {'Component', 'Constraint'}, 'test': {'TestCase'},
+    'enforcement': {'Constraint', 'Control'}, 'observation': {'Constraint', 'Requirement'}}
+
+
+def literal_collection(expression):
+    """AX-C-005: True when an aggregate or quantifier iterates anything but a path."""
+    pending = [expression]
+    while pending:
+        e = pending.pop()
+        if isinstance(e, dict):
+            if e.get('kind') in {'aggregate', 'quantifier'} and e['collection'].get('kind') != 'path':
+                return True
+            pending.extend(e.values())
+        elif isinstance(e, list):
+            pending.extend(e)
+    return False
+
+
 PATTERN_FIELDS = {  # AX-M-006: pattern -> (conditions, trigger, feature) populated
     'ubiquitous': (False, False, False), 'event': (False, True, False), 'state': (True, False, False),
     'unwanted': (False, True, False), 'optional': (False, False, True), 'composite': (True, True, False)}
@@ -257,6 +276,8 @@ def reference_errors(spec):
                     errors.append('INVALID_WINDOW')
             except ValueError:
                 errors.append('INVALID_WINDOW')
+            if data['expression'] is not None and literal_collection(data['expression']):
+                errors.append('LITERAL_COLLECTION')
         if n['kind'] == 'Constraint':
             review = data['predicate_role'] == 'review'
             if review:
@@ -300,6 +321,9 @@ def reference_errors(spec):
                     elif (guard['data']['representation'] != 'bcir'
                           or guard['data']['environment_id'] != data['environment_id']):
                         errors.append('INCOMPATIBLE_GUARD')
+    triples = [(e['from'], e['relation'], e['to']) for e in spec['edges']]
+    if len(triples) != len(set(triples)):
+        errors.append('DUPLICATE_EDGE')
     adjacency = {nid: [] for nid, n in nodes.items() if n['kind'] == 'Requirement'}
     for edge in spec['edges']:
         a, b = nodes.get(edge['from']), nodes.get(edge['to'])
@@ -353,6 +377,8 @@ def reference_errors(spec):
         path = PurePosixPath(b['path'])
         if b['node_id'] not in nodes:
             errors.append('UNKNOWN_BINDING_NODE')
+        elif nodes[b['node_id']]['kind'] not in BINDING_TARGETS[b['kind']]:
+            errors.append('WRONG_BINDING_TARGET')
         if path.is_absolute() or '..' in path.parts or '\\' in b['path'] or ':' in b['path'] or '\x00' in b['path']:
             errors.append('UNSAFE_BINDING_PATH')
     for asset in spec['context_assets']:
@@ -434,8 +460,10 @@ class ReferenceEvaluator:
             if e['kind'] == 'apply':
                 children = e['arguments']
             elif e['kind'] == 'aggregate':
+                require(e['collection']['kind'] == 'path', 'A collection is a declared array reached by a path')
                 children = [e['collection'], e['filter'], e['projection']]
             elif e['kind'] == 'quantifier':
+                require(e['collection']['kind'] == 'path', 'A collection is a declared array reached by a path')
                 children = [e['collection'], e['predicate']]
             else:
                 require(e['kind'] in {'literal', 'path'}, 'Unknown expression kind')
@@ -761,10 +789,13 @@ def main():
         env['state']['refunds'] = [item, copy.deepcopy(item)]
         require(ReferenceEvaluator().evaluate(aggregate, env) == 2 * item['amount_minor'], 'Duplicate amounts lost')
         count += 1
+        empty = dict(kind='path', root='env', pointer='/items')
         for operator, expected in [('all', True), ('exists', False)]:
-            e = dict(kind='quantifier', operator=operator, bind='x', collection=lit([]), predicate=lit(True))
-            require(ReferenceEvaluator().evaluate(e, {}) is expected, 'Empty collection semantics')
+            e = dict(kind='quantifier', operator=operator, bind='x', collection=empty, predicate=lit(True))
+            require(ReferenceEvaluator().evaluate(e, {'items': []}) is expected, 'Empty collection semantics')
             count += 1
+        rejected(lambda: ReferenceEvaluator().evaluate(
+            dict(kind='quantifier', operator='all', bind='x', collection=lit([]), predicate=lit(True)), {}))
         stats['qa_self_checks'] = count
         return f'{count} targeted QA parser/evaluator self-checks passed; no full static typing qualification.'
     check('PKG.QA_SELF_CHECKS', self_checks)

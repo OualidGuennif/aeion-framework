@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.3.1 · 11 November 2026. Sections below the fourth review describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.4.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the section after it edition 0.4.0. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -57,7 +57,9 @@ The conformance document also states that a fixture `add` creates a new object m
 
 One addition, AX-G-005: a terminal state has no outgoing transition and every state is reachable from the initial state. `terminal` was a required field with no stated meaning. The example and three specifications in sibling repositories already satisfy it. This tightens profile `AX-CORE-0.1` without renaming it; an implementation built from 0.3.0 does not check it yet.
 
-### Left open
+### Left open by 0.3.1
+
+Items 1 to 3 were decided in edition 0.4.0, and item 4 was tried there; see the next section.
 
 1. **Literal arrays as collections.** AX-C-003 gives a bound variable "the element type", which a literal array has; the reference evaluator and one QA self-check use a literal collection; the aeion-factory analyzer rejects it. The contract now says a portable specification avoids it. A profile revision should decide.
 2. **Binding kinds and node kinds.** AX-M-014 does not say which node kinds a `code`, `test` or `observation` binding may target; only `enforcement` is constrained, through the Constraint that names it. A `test` binding on a Requirement is accepted.
@@ -67,6 +69,41 @@ One addition, AX-G-005: a terminal state has no outgoing transition and every st
 ### Literature check
 
 Google Scholar and arXiv were searched on 10-11 November 2026 for work on specification-driven development, requirement traceability, test oracles and agent context. Ten studies were added to [Foundations](docs/01_FOUNDATIONS.md) as later context, from their abstracts only. The five arXiv links already cited were reloaded and match. No study evaluates this package, and none changes a rule.
+
+## Edition 0.4.0
+
+11 November 2026. This edition acts on the four items the fourth review left open. Format and profile names are unchanged; three rules are tighter.
+
+### Rules decided
+
+| Question | Decision | Diagnostic |
+|---|---|---|
+| May a literal array be a collection? (AX-C-005) | No. A collection is a declared array reached by a path; a literal array is only the right operand of `in`. The reference evaluator now refuses it, as the aeion-factory analyzer already did. | LITERAL_COLLECTION |
+| Which nodes may a binding name? (AX-M-014) | code: Component or Constraint. test: TestCase. enforcement: Constraint or Control. observation: Constraint or Requirement. | WRONG_BINDING_TARGET |
+| Is a link declared twice meaningful? (AX-M-010) | No. One source, relation and target is declared once. | DUPLICATE_EDGE |
+
+The 216 bindings and all edges of the worked example and of three specifications in sibling repositories already comply: every code binding names a Component, every test binding a TestCase, every enforcement binding a Constraint, and no link is repeated. The observation row and the Control and Constraint-method targets are not exercised by any of them.
+
+### Before/after scenarios
+
+The reference ledger gains ENV-002, which holds the ledger before and after one reservation attempt with the request and its outcome, two `observation_assertion` constraints over that pair, and eight scenarios, three of them counterexamples in which the wrong thing happened. No schema or format change was needed. The [authoring workflow](docs/04_AUTHORING_WORKFLOW.md) describes the pattern.
+
+Writing the predicates exposed two things the snapshot scenarios had hidden:
+
+- **No requirement asked the ledger to admit anything.** All seven requirements were refusals, retries or later transitions, so a ledger refusing every request satisfied them, and the tests that reserve successfully verified nothing. REQ-008 and GOAL-004 state the admission.
+- **"Without changing the ledger" was ambiguous.** The environments and the state model carry a `rejected` status, which suggests that a refusal writes a record; REQ-001 says it changes nothing. DEC-002 records the reading the predicate uses and keeps the leftover status visible.
+
+Both are fictional reference decisions, like DEC-001. They are the kind of finding the method is meant to force, and they were found by formalizing, not by review.
+
+TEST-015 and TEST-016 are the normal cases that REQ-003 and REQ-004 lacked. Run on this ledger, the aeion-factory 3.0.0 engine computes the same digest (`1496f052...`), matches all 61 expectations and reports G01-G07 pass, `design_ready: pass`. This package's QA emits no phase status; it checks that the 61 expectations hold and that the two new predicates agree with direct calculations on 200 seeded transitions.
+
+### Still open for the ledger
+
+Cancellation, commitment and audit output have no before/after observation. No requirement covers a command on a record in the wrong state. CON-007 is quadratic and is unknown from 267 rows under the default budget, as CON-004 is at 500. One attempt observed before and after says nothing about two attempts interleaving. All 16 tests are planned and none has run.
+
+### Outside the package
+
+`tools/check_repo.py` applies the package's link, JSON and specification checks to the root README and the playbooks, which the self-contained package QA cannot read. A workflow replays both on every push. The playbooks themselves are unchanged.
 
 ## Confirmed findings and corrections
 
@@ -121,7 +158,7 @@ The optional sidecar carries selected readiness inputs and evidence links, with 
 
 ## Remaining blockers to stronger claims
 
-1. **Ledger design readiness:** authorized-access, retry, invalid-transition and recovery cases need full behavioral oracles. Its 14 application tests remain planned. No design_ready status is emitted.
+1. **Ledger design readiness:** authorized-access, retry, invalid-transition and recovery cases need full behavioral oracles. Its 14 application tests remain planned. No design_ready status is emitted. *(0.4.0: authorized access, retry, refusal, conflict and denial now have scenarios and predicates; an external engine reports design_ready for the declared model. Invalid transitions still have no requirement, and the 16 tests remain planned.)*
 2. **Evaluation cost:** CON-004 is quadratic and exhausts the reference budget at 500 rows although the environment admits 1,000. This remains unknown, not pass. Qualify the algorithm and its declared budget together before claiming the full bound.
 3. **Engine implementation:** complete static analysis, graph/query APIs, real binding resolution, product runners, trusted identity and operational evidence are absent from this package. The matrix lists gaps per gate. *(0.3.1: aeion-factory 3.0.0 implements G01-G07, graph queries, context packets and one test adapter outside this package; it reports identity, policy and runtime observation as unsupported. This package does not qualify it.)*
 4. **External validity:** no independent assessor or comparative study establishes generality or scale benefits. *(0.3.1: aeion-factory carries a second domain as a field test, a holiday planner built by a coding agent against a checked specification. It is the authors' own demonstration, not a comparative study.)*

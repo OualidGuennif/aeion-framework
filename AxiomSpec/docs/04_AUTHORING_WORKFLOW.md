@@ -57,6 +57,8 @@ Transitions identify source, target, event, guard and intended effect. An effect
 
 State the business meaning and terms, required data and origin, expression or review protocol, positive witness, counterexample, unknown cases, enforcement boundary and tests. Include transient states that consume a resource. Two concurrent reservations must not each reuse the same available capacity.
 
+A snapshot predicate cannot say that an operation changed nothing or added one record. For an obligation about what an operation does, declare an environment that holds the state before, the state after and the request with its outcome, and write an `observation_assertion` over that pair: "if the outcome is a refusal, every earlier record is still present and identical". Give it a witness and a counterexample in which the wrong thing happened. This uses the existing format; it describes one completed operation and says nothing about interleavings.
+
 ### AX-A-005 — Prepare independent expectations
 
 Write expectations from requirements and decisions before inspecting candidate implementation output. Additional generated tests are useful; they do not replace reference cases. Oracles may assert output, state, conservation, authorization or a reviewed judgment. A model's approval is not a deterministic oracle.

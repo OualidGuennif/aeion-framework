@@ -30,15 +30,15 @@
     "sha256": "74f2203f9d9455f98799297eeba2bc0c948bcc5c85d2a9d03e63073483e40793"
   },
   "subject": {
-    "spec_sha256": "af5192c25a178b4f7becd26b2354974d2675dd837220f25a267e00484044ec3e",
-    "source_tree_sha256": "1001f0ef0c20b0e3431bd1117e9cbeba0a647cc1002718a18087e49851c14e26",
+    "spec_sha256": "1496f052873be20e7580d75babf4c47246fe1e0b770d0c18db456e3a9edaeb3c",
+    "source_tree_sha256": "d81ea90abd310f81901c829717eb4ea6e949efcb5efc0e3102b2469443fad02f",
     "policy_sha256": null,
     "toolchain_sha256": "3e9c27dc980b9fa1cd8e75883abb20ba3e6ce0aad31d01c17086ebd80ec7885c",
-    "observations_sha256": "dda046cf718abdecdbb29e7b50967a1eea8fa777ada77a2748ae0a240ef6bea5"
+    "observations_sha256": "f912c1c7048c0dba4523cefe56d5085ec8cce6b4fad83d368ca5b92cfa076c28"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -49,7 +49,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "156 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "158 local link targets, 3 JSON blocks and 104 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -82,7 +82,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "45 reference expectations checked across all 9 synthetic observations; no application tests.",
+      "message": "61 reference expectations checked across all 17 synthetic observations; no application tests.",
       "evidence": [],
       "limitations": []
     },
@@ -104,7 +104,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "16 targeted QA parser/evaluator self-checks passed; no full static typing qualification.",
+      "message": "17 targeted QA parser/evaluator self-checks passed; no full static typing qualification.",
       "evidence": [],
       "limitations": []
     },
@@ -115,7 +115,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "Selected reference checks passed: 52 nodes, 94 edges. No completeness claim.",
+      "message": "Selected reference checks passed: 67 nodes, 135 edges. No completeness claim.",
       "evidence": [],
       "limitations": []
     },
@@ -126,7 +126,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "60 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "message": "68 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
       "evidence": [],
       "limitations": []
     },
@@ -150,7 +150,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-10T23:59:55.303428+00:00",
+    "evaluated_at": "2026-11-11T00:18:55.392086+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

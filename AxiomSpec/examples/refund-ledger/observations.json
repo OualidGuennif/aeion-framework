@@ -321,6 +321,362 @@
         "CON-004": true,
         "CON-005": false
       }
+    },
+    {
+      "scenario_id": "SCN-010",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 100,
+          "outcome": "rejected"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-011",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            },
+            {
+              "id": "r-c",
+              "key": "c",
+              "amount_minor": 100,
+              "status": "rejected"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 100,
+          "outcome": "rejected"
+        }
+      },
+      "expected": {
+        "CON-007": false,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-012",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "a",
+          "amount_minor": 600,
+          "outcome": "replayed"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-013",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-a2",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "a",
+          "amount_minor": 600,
+          "outcome": "replayed"
+        }
+      },
+      "expected": {
+        "CON-007": false,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-014",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "a",
+          "amount_minor": 250,
+          "outcome": "conflict"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-015",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-c",
+              "key": "c",
+              "amount_minor": 300,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 300,
+          "outcome": "reserved"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": true
+      }
+    },
+    {
+      "scenario_id": "SCN-016",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-c",
+              "key": "c",
+              "amount_minor": 400,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 300,
+          "outcome": "reserved"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": false
+      }
+    },
+    {
+      "scenario_id": "SCN-017",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 100,
+          "outcome": "denied"
+        }
+      },
+      "expected": {
+        "CON-007": true,
+        "CON-008": true
+      }
     }
   ]
 }

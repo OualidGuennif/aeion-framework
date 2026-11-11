@@ -32,4 +32,4 @@ BCIR has a compiler and qualification cost. Reuse a suitable existing model/solv
 
 Define comparable tasks, participants, time accounting, defect criteria, corpus and assessment method before measuring benefits. Track useful early defects, context omissions, clarification effort and maintenance cost, including failures. A well-documented toy example is not evidence of performance at scale.
 
-Next step: complete the example's missing behavioral scenarios, then build S1 and the smallest useful declared-graph view. Qualify each additional capability rather than treating the document count as progress.
+Next step: give cancellation and commitment the before/after scenarios that reservation attempts now have, decide what a command on a record in the wrong state does, then implement the planned tests against a real store. Qualify each additional capability rather than treating the document count as progress.

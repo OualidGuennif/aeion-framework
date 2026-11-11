@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "08a0495f82d2db1c6b7c4def1c8f01bd8e4f7ae378b1f64e2adaefaf492582f6",
-      "bytes": 4694
+      "sha256": "ce5ae3fa255c5f4e7c0469c58426d9a66c8d1e489b6b4614d7c071a3a632797c",
+      "bytes": 4939
     },
     {
       "path": "REVIEW.md",
-      "sha256": "d8a3a7b84dcc622720ea06467bf937b50c090628de0c09e0454313640f14383a",
-      "bytes": 13844
+      "sha256": "c3b6f34ea47f89e7d452711bd511414c1ae36d4accf1c7431a11c5c09b8e7b2e",
+      "bytes": 17756
     },
     {
       "path": "RULE_INDEX.md",
@@ -33,18 +33,18 @@
     },
     {
       "path": "docs/03_CANONICAL_MODEL.md",
-      "sha256": "feea2a72d423680b54215e6bc5476061413fae4a9f63cc81a15ce15ed8b33ee2",
-      "bytes": 9510
+      "sha256": "6d8234ad0c400715a33cff08c2767386949c7690e18d43cf29fb4f57e8f8ebff",
+      "bytes": 10225
     },
     {
       "path": "docs/04_AUTHORING_WORKFLOW.md",
-      "sha256": "c7d362d21e05723c7d06a9727dce8f942a0e5b55ac232853aeb5ef77cd1f9faf",
-      "bytes": 5113
+      "sha256": "979a039fcf9262f463347b22f7218123e6f763399de8f46c9bce47baa3457521",
+      "bytes": 5668
     },
     {
       "path": "docs/05_CONSTRAINTS_AND_SEMANTICS.md",
-      "sha256": "b78da63274d3ee08409cc80878d591f0a418e4e60ef4923efbb1c97238be34e1",
-      "bytes": 10060
+      "sha256": "c17069df20de16c73f79df78b89916c8e7074636cef9c9eef2306c9c7deda14f",
+      "bytes": 10087
     },
     {
       "path": "docs/06_GATES_AND_EVIDENCE.md",
@@ -83,13 +83,13 @@
     },
     {
       "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
-      "sha256": "bb5bc596f6b0bc594e50e6fb94a2a17cb893404c579a7e8d19a8926c3a710c2b",
-      "bytes": 5886
+      "sha256": "3b4ec567b7158f27d1158088eed0950523ec240892ae1a678d07133ac19114c3",
+      "bytes": 8693
     },
     {
       "path": "docs/14_CONFORMANCE_SUITE.md",
-      "sha256": "511aa08837674ab46732e5f9e9e92ac7ece0464a0aa88d10901178531a434c81",
-      "bytes": 6007
+      "sha256": "e2789a588552a41ad85a41628026063336a2622fc1b90cf764f2df32489c0cff",
+      "bytes": 6342
     },
     {
       "path": "docs/15_TEMPLATES_AND_PROMPTS.md",
@@ -98,8 +98,8 @@
     },
     {
       "path": "docs/16_ACCEPTANCE_AND_LIMITS.md",
-      "sha256": "09615cfe0cad623a37d56c93030ffae9c960f0dd2900a8e40c58136c450a651c",
-      "bytes": 2966
+      "sha256": "96a2a3ef68781cf3b3815f9a4a347893a5e578766159f11133802b1e80271cc9",
+      "bytes": 3064
     },
     {
       "path": "docs/17_CONTEXT_DOMAIN_INTERFACE.md",
@@ -113,7 +113,7 @@
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "a0c90977967a6bf9fd8cdce25dea95d625433f8e4ec610fe3d1386e3350bd02a",
+      "sha256": "70b1287de8e54d89def69100abefe82e523cf1abdd20a8e0046ca3ffd18ecc2c",
       "bytes": 8664
     },
     {
@@ -123,13 +123,13 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "ff31b1c4ac2a0dd151e209d8acdee96eb116d18ed295249b66a454cc0298cae2",
-      "bytes": 7583
+      "sha256": "086916fbb1554365ff8613b9737d5c42140713cdd4779c79c042b9ee13cacddc",
+      "bytes": 15559
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "b73c43a36b3a6ad7d7ee81ccc433746e05bb28ab4beff8cedee8b879bb1aa25c",
-      "bytes": 83637
+      "sha256": "91b3f89483a88b6d4c2e672d9fbc89f23c8a5326ac9697b22ceb92aa4897a6c1",
+      "bytes": 130871
     },
     {
       "path": "fixtures/conformance.json",
@@ -138,8 +138,8 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "598f10396e4df2c08924eecedd87069f5ae6c35980c75cb2cb809c08c10df2a4",
-      "bytes": 47659
+      "sha256": "c2b2e172c9adfaa80e17dbb59335808eba1ebc9a67d62a392aaa395347b90c0f",
+      "bytes": 49257
     },
     {
       "path": "qa/croa_readiness.py",
@@ -153,7 +153,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "10cec6dbc443e5b2ee9dc854b57ee757c5b835554a82bb124f93ab27d2849e03",
+      "sha256": "f06e3570543ec64d2f1849488e772d22c8207ea1c8c1ab6e4cf653f2b2da6898",
       "bytes": 8807
     },
     {
@@ -163,8 +163,8 @@
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "8453863961815f1322f658e94935f987ef5fd90c7d03b3e6619f063fc6ea21ed",
-      "bytes": 7380
+      "sha256": "951af45aeb73de9da7639e81a44960dcbc52868668c18432b64e49df866df2b4",
+      "bytes": 7478
     },
     {
       "path": "qa/test_second_review.py",
@@ -173,13 +173,18 @@
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "53a4aedd0f97781582e400b6786f566397f40a9375e1987eaf972a28b98418c4",
-      "bytes": 11771
+      "sha256": "f090925f73e87bc75ce6e3ccbd2d8c28015f7956354efd10d170d87a9d328b16",
+      "bytes": 11775
+    },
+    {
+      "path": "qa/test_transition_scenarios.py",
+      "sha256": "2e4ec4945388d0b15ba1a26488644603e7269b19aea902d43fbd96a7c52463a2",
+      "bytes": 9080
     },
     {
       "path": "review/ASSURANCE_MATRIX.md",
-      "sha256": "d42d7f987b40cca2a4ac1e9f643d39e5b151fd5298cce4f8e4e6915bfcfee202",
-      "bytes": 3174
+      "sha256": "afbc53b1e9c6d3565a5b94140230d35cc95da0b19150da40642a228335a045da",
+      "bytes": 3283
     },
     {
       "path": "review/SOURCE_AUDIT.md",
@@ -188,8 +193,8 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "ae7e6b5ac481afcc29daa8d28b456cca31190000db8f14eaf6af896c422351a6",
-      "bytes": 3242
+      "sha256": "51f0ccf5164c12f61bbc89280970eab5bec5b6c940f15bb049f57267536c15ed",
+      "bytes": 3387
     },
     {
       "path": "review/probes-before.json",
@@ -213,13 +218,13 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "c8162b25d4e1568ac79960e7381f10d8a5d4a3ef78782523e886bb64cb5bd4a6",
-      "bytes": 8859
+      "sha256": "c6bf3afa5dbd54bdfa2943df84d47b4d5c622eb2569f5f2103a5fa6d915ddea3",
+      "bytes": 10109
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "28774b0db0c906eddd9eac7e880c9062038bb560d3e6cb35beaf46a097b00b90",
-      "bytes": 9322
+      "sha256": "23d5a300c4a6a59cb2e37e794446ffbeb777cf69e947c6cf6780830b30717c9d",
+      "bytes": 10314
     },
     {
       "path": "schemas/croa-readiness.schema.json",

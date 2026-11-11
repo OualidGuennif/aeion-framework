@@ -79,12 +79,12 @@ class ThirdReview(unittest.TestCase):
             for field in ['nodes', 'edges', 'actors', 'sources', 'bindings']:
                 rng.shuffle(spec[field])
             self.assertEqual(qa.reference_errors(spec), [])
-            self.assertEqual(qa.check_observation_corpus(spec, observations), (9, 45))
+            self.assertEqual(qa.check_observation_corpus(spec, observations), (17, 61))
 
     def test_100_seeded_states_match_direct_domain_oracles(self):
         spec = qa.read('examples/refund-ledger/spec.json')
         expressions = {n['id']: n['data']['expression'] for n in spec['nodes']
-                       if n['kind'] == 'Constraint' and n['data']['representation'] == 'bcir'}
+                       if n['kind'] == 'Constraint' and n['data']['environment_id'] == 'ENV-001'}
         template = qa.read('examples/refund-ledger/observations.json')['cases'][0]['environment']
         validator = qa.make_validator(spec['environments'][0]['schema'])
         rng = random.Random(613)

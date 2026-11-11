@@ -2,17 +2,17 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-10T23:59:45.733014+00:00",
+  "evaluated_at": "2026-11-11T00:18:51.934816+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 60,
+  "test_count": 68,
   "tested_inputs": [
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "a0c90977967a6bf9fd8cdce25dea95d625433f8e4ec610fe3d1386e3350bd02a"
+      "sha256": "70b1287de8e54d89def69100abefe82e523cf1abdd20a8e0046ca3ffd18ecc2c"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -20,11 +20,11 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "ff31b1c4ac2a0dd151e209d8acdee96eb116d18ed295249b66a454cc0298cae2"
+      "sha256": "086916fbb1554365ff8613b9737d5c42140713cdd4779c79c042b9ee13cacddc"
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "b73c43a36b3a6ad7d7ee81ccc433746e05bb28ab4beff8cedee8b879bb1aa25c"
+      "sha256": "91b3f89483a88b6d4c2e672d9fbc89f23c8a5326ac9697b22ceb92aa4897a6c1"
     },
     {
       "path": "fixtures/conformance.json",
@@ -32,7 +32,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "598f10396e4df2c08924eecedd87069f5ae6c35980c75cb2cb809c08c10df2a4"
+      "sha256": "c2b2e172c9adfaa80e17dbb59335808eba1ebc9a67d62a392aaa395347b90c0f"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -44,7 +44,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "10cec6dbc443e5b2ee9dc854b57ee757c5b835554a82bb124f93ab27d2849e03"
+      "sha256": "f06e3570543ec64d2f1849488e772d22c8207ea1c8c1ab6e4cf653f2b2da6898"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -52,7 +52,7 @@
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "8453863961815f1322f658e94935f987ef5fd90c7d03b3e6619f063fc6ea21ed"
+      "sha256": "951af45aeb73de9da7639e81a44960dcbc52868668c18432b64e49df866df2b4"
     },
     {
       "path": "qa/test_second_review.py",
@@ -60,7 +60,11 @@
     },
     {
       "path": "qa/test_third_review.py",
-      "sha256": "53a4aedd0f97781582e400b6786f566397f40a9375e1987eaf972a28b98418c4"
+      "sha256": "f090925f73e87bc75ce6e3ccbd2d8c28015f7956354efd10d170d87a9d328b16"
+    },
+    {
+      "path": "qa/test_transition_scenarios.py",
+      "sha256": "2e4ec4945388d0b15ba1a26488644603e7269b19aea902d43fbd96a7c52463a2"
     },
     {
       "path": "schemas/croa-readiness.schema.json",
