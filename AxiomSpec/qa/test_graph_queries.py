@@ -121,6 +121,14 @@ class Annotations(unittest.TestCase):
             latin.write_bytes(b'# -*- coding: latin-1 -*-\n# V\xe9rifie\nclass Ledger:\n    def reserve(self):\n        pass\n')
             self.assertEqual([qa.resolve_symbol(path, 'Ledger.reserve') for path in (bom, latin)], [True, True])
 
+    def test_a_deeply_nested_expression_does_not_stop_the_scan(self):
+        # A thousand chained terms, as generated code has, overflowed the symbol walk and stopped every scan.
+        for terms in (3000, 100000):
+            found = self.scan({'gen.py': '# @req REQ-001\ndef f():\n    return ' + ' + '.join(['1'] * terms) + '\n',
+                               'other.py': '# @req REQ-002\ndef g():\n    pass\n'})
+            self.assertEqual([(a['path'], a['ids']) for a in found], [('gen.py', ['REQ-001']), ('other.py', ['REQ-002'])])
+        self.assertEqual(found[1]['symbol'], 'g')
+
     def test_a_test_file_is_recognized_by_name_or_folder(self):
         for path, expected in [('tests/test_ledger.py', True), ('pkg/ledger_test.go', True), ('src/__tests__/a.ts', True),
                                ('src/ledger.spec.ts', True), ('app/ledger.py', False), ('src/contest.py', False), ('test.py', False)]:

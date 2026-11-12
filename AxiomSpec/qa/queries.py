@@ -403,8 +403,8 @@ def gaps(snapshot, phase='design', budget_bytes=MAX_BYTES, cursor=None):
                     inside = target.resolve().is_relative_to(snapshot.repository.resolve())
                     resolved = inside and target.is_file() and resolve_symbol(target, binding['symbol'])
                     reason = f"{binding['path']} does not define {binding['symbol']}."
-                except (SyntaxError, ValueError, OSError):
-                    # A file being edited may not parse. That is a gap to report, not a failure of the query.
+                except (SyntaxError, ValueError, OSError, RecursionError):
+                    # A file being edited may not parse, nor one nested past the parser's depth. That is a gap to report, not a failure of the query.
                     resolved, reason = False, f"{binding['path']} cannot be parsed, so {binding['symbol']} is not resolved."
                 if not resolved:
                     gap('G09', 'UNRESOLVED_BINDING', binding['id'], reason)

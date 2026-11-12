@@ -180,6 +180,13 @@ class Sandbox(Case):
             self.assertEqual(response.headers['content-type'], 'application/problem+json')
             problem = valid('Problem', response.json())
             self.assertEqual((problem['status'], problem['code']), (status, code), path)
+        # A write the sandbox does not serve, or a method a path does not take, was FastAPI's {"detail": ...}.
+        for method, path, status, code in [('PUT', '/v1/releases/' + self.head, 404, 'NOT_FOUND'),
+                                           ('POST', base + '/index', 405, 'METHOD_NOT_ALLOWED')]:
+            response = self.http.request(method, path)
+            self.assertEqual((response.status_code, response.headers['content-type']), (status, 'application/problem+json'))
+            self.assertEqual(valid('Problem', response.json())['code'], code)
+        self.assertEqual(self.http.post(base + '/index').headers['allow'], 'GET')
 
     def test_the_service_never_writes(self):
         before = sorted(p.name for p in self.store.rglob('*'))

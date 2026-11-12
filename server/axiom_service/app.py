@@ -16,6 +16,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.concurrency import run_in_threadpool
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import mcp_tools
 from .http_limits import RequestLimits, problem
@@ -47,6 +48,14 @@ def required(request, name):
     return value
 
 
+def routing_problem(request, error):
+    """A path the service does not serve, or a method it does not take there, as a problem document too."""
+    code = {404: 'NOT_FOUND', 405: 'METHOD_NOT_ALLOWED'}.get(error.status_code, 'INVALID_PARAMETER')
+    response = problem(QueryError(code, str(error.detail), error.status_code))
+    response.headers.update(error.headers or {})  # 405 keeps its Allow header
+    return response
+
+
 def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15, allowed_origins=()):
     mcp_server = mcp_tools.build(service)
     hosts = ['127.0.0.1:*', 'localhost:*', '[::1]:*', *allowed_hosts]
@@ -63,6 +72,7 @@ def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15, allo
     app = FastAPI(title='AxiomSpec service', version=EDITION, openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
     app.add_middleware(RequestLimits, max_inflight=max_inflight, body_timeout=body_timeout)
     app.add_exception_handler(QueryError, lambda request, error: problem(error))
+    app.add_exception_handler(StarletteHTTPException, routing_problem)
     # Any other exception is a defect of the service. The caller still receives a problem document.
     app.add_exception_handler(Exception, lambda request, error: problem(
         QueryError('INTERNAL_ERROR', 'The service could not answer this request', 500)))

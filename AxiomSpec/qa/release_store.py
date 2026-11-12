@@ -120,7 +120,7 @@ def add_file(store, file):
         raw = source.read(BOUNDS['max_input_bytes'] + 1)
     try:
         document = strict_json(raw)
-    except ValueError as exc:
+    except (ValueError, RecursionError) as exc:  # a deeply nested file overflows the parser's stack
         if CLAIM.search(raw):
             store.rejected.append(dict(path=name, reason=f'{type(exc).__name__}: {str(exc)[:200]}'))
         return  # otherwise not strict JSON within bounds: not a store file

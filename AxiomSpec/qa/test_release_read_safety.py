@@ -94,6 +94,16 @@ class ReleaseAuthority(unittest.TestCase):
         self.assertEqual(self.entry(report, child)['status'], 'fail')
         self.assertTrue(any('WRONG_EDGE_TYPE' in e['message'] for e in report['errors']))
 
+    def test_a_deeply_nested_file_is_set_aside_without_stopping_the_store(self):
+        # The parser's RecursionError escaped the per-file guard: one such file stopped every verdict.
+        with tempfile.TemporaryDirectory(prefix='axiomspec-deep-') as directory:
+            Path(directory, 'notes.json').write_text('[' * 200000 + ']' * 200000)
+            Path(directory, 'claimed.json').write_text('{"format": "axiomspec/0.3", "x": ' + '[' * 200000 + ']' * 200000 + '}')
+            store = release_store.load([ROOT / 'examples', directory])
+        report = release_store.verify(store)
+        self.assertEqual(self.entry(report, self.spec)['status'], 'pass')
+        self.assertEqual([Path(r['path']).name for r in report['rejected_files']], ['claimed.json'])
+
 
 class ReadBudgets(unittest.TestCase):
     @classmethod

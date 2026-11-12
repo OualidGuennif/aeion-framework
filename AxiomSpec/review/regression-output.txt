@@ -72,6 +72,7 @@ test_transition_ids_use_the_trn_prefix (test_fourth_review.StatedRulesAreChecked
 test_unit_annotation_names_one_integer_leaf (test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf) ... ok
 test_witness_scenario_must_illustrate_a_verified_requirement (test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement) ... ok
 test_a_binding_resolves_in_a_file_python_reads_with_a_bom_or_a_coding_line (test_graph_queries.Annotations.test_a_binding_resolves_in_a_file_python_reads_with_a_bom_or_a_coding_line) ... ok
+test_a_deeply_nested_expression_does_not_stop_the_scan (test_graph_queries.Annotations.test_a_deeply_nested_expression_does_not_stop_the_scan) ... ok
 test_a_file_that_is_not_utf8_keeps_its_annotations (test_graph_queries.Annotations.test_a_file_that_is_not_utf8_keeps_its_annotations) ... ok
 test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations (test_graph_queries.Annotations.test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations) ... ok
 test_a_scan_cannot_leave_its_root (test_graph_queries.Annotations.test_a_scan_cannot_leave_its_root) ... ok
@@ -112,6 +113,7 @@ test_comments_survive_an_incomplete_python_edit_without_guessing_docstrings (tes
 test_only_comments_and_actual_docstrings_are_annotations (test_release_read_safety.PythonAnnotations.test_only_comments_and_actual_docstrings_are_annotations) ... ok
 test_a_lookup_never_returns_an_oversized_statement_or_content (test_release_read_safety.ReadBudgets.test_a_lookup_never_returns_an_oversized_statement_or_content) ... ok
 test_many_omissions_are_paged_within_the_byte_budget (test_release_read_safety.ReadBudgets.test_many_omissions_are_paged_within_the_byte_budget) ... ok
+test_a_deeply_nested_file_is_set_aside_without_stopping_the_store (test_release_read_safety.ReleaseAuthority.test_a_deeply_nested_file_is_set_aside_without_stopping_the_store) ... ok
 test_a_missing_ancestor_stays_unknown_in_either_arrival_order (test_release_read_safety.ReleaseAuthority.test_a_missing_ancestor_stays_unknown_in_either_arrival_order) ... ok
 test_an_unapproved_policy_cannot_authorize_its_descendants (test_release_read_safety.ReleaseAuthority.test_an_unapproved_policy_cannot_authorize_its_descendants) ... ok
 test_invalid_relations_do_not_prevent_other_verdicts (test_release_read_safety.ReleaseAuthority.test_invalid_relations_do_not_prevent_other_verdicts) ... ok
@@ -244,6 +246,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 244 tests in 22.386s
+Ran 246 tests in 22.985s
 
 OK

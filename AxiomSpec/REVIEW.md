@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.6 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.6](#edition-116) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.7 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.7](#edition-117) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,34 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.7
+
+12 November 2026. Two review passes that sent unusual input to every HTTP route in both modes, every MCP
+tool and every command, and unusual files to the store and the annotation scan. Thousands of odd requests
+produced no 500, and every malformed file given to `check`, `markdown` or `compare` ended with exit code 2
+or 4 and no traceback. The format stays
+`axiomspec/0.3`.
+
+- Reading a store file caught `ValueError` and not the `RecursionError` the JSON parser raises on deep
+  nesting. One JSON file of 200,000 nested arrays (400 KB), anywhere in a store folder and of any
+  format, stopped `verify-store` with exit code 4, made every organization request of the service answer
+  500 and kept the service from restarting. Such a file is now ignored, or listed as rejected when it
+  claims a store format, and the other files keep their verdicts.
+- The annotation scan looked for definitions by recursion through the whole syntax tree. A Python
+  expression of about a thousand chained terms (`1 + 1 + …`, `A | B | …`), common in generated code,
+  exceeded the recursion limit and stopped the scan: a sandbox service started with `--repo` could not
+  start, or answered 500 to every code-dependent read once such a file appeared. The walk now uses a
+  stack. When Python's own parser gives up, at around 100,000 terms, the file is treated like one that
+  does not parse: its comments are still read, without symbols. Binding resolution in `gaps` treats that
+  case as unparsable too.
+- A path the service does not serve, or a method a path does not take, answered with FastAPI's
+  `{"detail": ...}`, although the contract states that every error is a problem document with a `code`.
+  An agent sending a write to a sandbox met this case. These answers are now problem documents with
+  `NOT_FOUND` or `METHOD_NOT_ALLOWED`, and a 405 keeps its `Allow` header.
+
+Each defect has a regression test that fails on 1.1.6. The package suite has 246 tests and the service
+suite 60.
 
 ## Edition 1.1.6
 

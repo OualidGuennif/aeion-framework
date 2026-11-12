@@ -58,20 +58,20 @@ def python_symbols(text):
     """(first line, last line, qualified name) of every class and function, or [] when the file does not parse."""
     try:
         tree = ast.parse(text)
-    except (SyntaxError, ValueError):
+    except (SyntaxError, ValueError, RecursionError):  # generated code can nest past the parser's depth
         return []
-    spans = []
-
-    def visit(parent, prefix):
+    # A stack, not recursion: one expression of a thousand chained terms is a thousand levels deep.
+    spans, pending = [], [(tree, '')]
+    while pending:
+        parent, prefix = pending.pop()
         for child in ast.iter_child_nodes(parent):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 name = prefix + child.name
                 first = min([child.lineno] + [d.lineno for d in child.decorator_list])
                 spans.append((first, child.end_lineno, name))
-                visit(child, name + '.')
+                pending.append((child, name + '.'))
             else:
-                visit(child, prefix)
-    visit(tree, '')
+                pending.append((child, prefix))
     return spans
 
 
@@ -109,7 +109,7 @@ def python_annotation_lines(text):
         pass  # retain comments already identified before the incomplete token
     try:
         tree = ast.parse(text)
-    except (SyntaxError, ValueError):
+    except (SyntaxError, ValueError, RecursionError):
         return [''.join(line) for line in kept]
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.body:

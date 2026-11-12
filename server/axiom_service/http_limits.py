@@ -7,7 +7,7 @@ from starlette.responses import Response
 
 from .service import MAX_BODY_BYTES, QueryError
 
-TITLES = {400: 'Invalid request', 404: 'Not found', 408: 'Request timeout', 409: 'Conflict',
+TITLES = {400: 'Invalid request', 404: 'Not found', 405: 'Method not allowed', 408: 'Request timeout', 409: 'Conflict',
           413: 'Body too large', 422: 'Invalid document', 500: 'Internal error', 503: 'Service unavailable'}
 
 
