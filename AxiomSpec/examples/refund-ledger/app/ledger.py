@@ -76,10 +76,11 @@ class Ledger:
         self.connection.execute('BEGIN IMMEDIATE')
         try:
             yield
+            self.connection.execute('COMMIT')
         except BaseException:
-            self.connection.execute('ROLLBACK')
+            if self.connection.in_transaction:
+                self.connection.execute('ROLLBACK')
             raise
-        self.connection.execute('COMMIT')
 
     def open_payment(self, tenant_id, payment_id, captured_minor):
         self.connection.execute('INSERT INTO payments VALUES (?, ?, ?)', (payment_id, tenant_id, captured_minor))
@@ -95,7 +96,7 @@ class Ledger:
             (payment_id, *CONSUMING)).fetchone()[0]
 
     def run(self, operation, operation_id, body):
-        """One audited transaction. A held write lock yields `busy`: nothing was read or written."""
+        """One audited transaction. A lock conflict yields `busy` with no committed change."""
         try:
             with self.transaction():
                 result = body()

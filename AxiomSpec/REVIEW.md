@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.8 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.8](#edition-118) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.9 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.9](#edition-119) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,21 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.9
+
+12 November 2026. One correction in the reference SQLite ledger. The format stays `axiomspec/0.3`.
+
+The transaction handler rolled back failures in the operation body, but its `COMMIT` was outside the
+protected block. A concurrent reader could block that commit: the operation returned `busy` while
+leaving its uncommitted refund, audit row and transaction active. Other writers stayed busy, and a retry
+on the same connection failed with `cannot start a transaction within a transaction` even after the
+reader released its lock.
+
+The handler now protects the commit too and rolls back when a transaction remains active. One
+regression test fails on 1.1.8 and verifies that the failed operation leaves no refund or audit row,
+the same connection can retry, and another writer can proceed. The derived graph index was regenerated
+for the changed source lines. The package suite has 247 tests, the example 34 and the service 61.
 
 ## Edition 1.1.8
 

@@ -196,6 +196,23 @@ class Test007ConcurrentReservations(LedgerCase):
         self.assertEqual(self.ledger.consumed_minor(PAYMENT), 600)
         self.assertTrue(holds('CON-001', self.snapshot_observation()))
 
+    def test_a_reader_blocking_commit_rolls_back_and_the_connection_can_retry(self):
+        reader = sqlite3.connect(self.path, isolation_level=None)
+        self.addCleanup(reader.close)
+        reader.execute('BEGIN')
+        reader.execute('SELECT * FROM payments').fetchall()
+        try:
+            # The writer can begin and insert; the reader blocks its commit.
+            self.assertEqual(self.ledger.reserve(OWNER, TENANT, PAYMENT, 'a', 600).outcome, 'busy')
+            self.assertFalse(self.ledger.connection.in_transaction)
+            self.assertEqual(self.ledger.snapshot(PAYMENT)['refunds'], [])
+            self.assertEqual(self.ledger.audit_events(), [])
+        finally:
+            reader.rollback()
+        self.assertEqual(self.attempt('a', 600).outcome, 'reserved')
+        self.assertEqual(self.open().reserve(OWNER, TENANT, PAYMENT, 'b', 400).outcome, 'reserved')
+        self.assertEqual(len(self.ledger.audit_events()), 2)
+
     def test_same_interleaving_overbooks_a_non_atomic_ledger(self):
         # Test effectiveness: without one transaction around check and write, this test must fail.
         outer, inner, _ = self.interleave(self.open(NonAtomicLedger))

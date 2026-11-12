@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AxiomSpec service interface",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md. Runtime admission and body limits apply to REST and MCP; application overload returns a problem document, while Uvicorn may return a plain 503 before application dispatch. Health probes are transport operations."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",

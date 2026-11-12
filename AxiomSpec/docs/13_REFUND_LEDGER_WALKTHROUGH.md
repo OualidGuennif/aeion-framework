@@ -138,13 +138,13 @@ Each before/after predicate is an implication, so it is vacuously true for outco
 
 ## Executed tests
 
-All 20 TestCases are implemented, bound to a test class and executed by package QA: 33 test methods against SQLite database files in a temporary directory. A receipt records the executed test IDs and the digest of every executed input; it stops being accepted as soon as the application, the tests, the specification or the evaluator changes.
+All 20 TestCases are implemented, bound to a test class and executed by package QA: 34 test methods against SQLite database files in a temporary directory. A receipt records the executed test IDs and the digest of every executed input; it stops being accepted as soon as the application, the tests, the specification or the evaluator changes.
 
 Three things make these more than green ticks.
 
 - **The specification's formulas are the oracle.** Every reservation, cancellation and commitment in the tests is wrapped in a before/after observation read back from the store, and CON-007 to CON-010 are evaluated on it. CON-011 is evaluated on the audit rows each attempt added, and CON-012 on each report answer with the ledger read back. The admission guard and the principal guard in the code are compared with CON-002 and CON-005 at their boundaries. A property test checks CON-001, CON-003 and CON-004 after each of 600 seeded operations and requires that every outcome of every operation occurred.
 - **The dangerous interleaving is forced, not hoped for.** A second reservation is started inside the first one's critical section, after its capacity check. The ledger turns it away and admits one. The same interleaving run against a variant without the transaction admits both and reaches 1,200 against 1,000: the test fails on the defect it exists to catch. A third case runs two real threads.
-- **Failure points are named.** A response lost after commit, a restart after a write and a stop between check and commit each have a test that states what is durable and what a retry returns.
+- **Failure points are named.** A response lost after commit, a restart after a write and a stop between check and commit each have a test that states what is durable and what a retry returns. A reader blocking commit leaves no refund or audit row, and the same connection can retry once the reader releases its lock.
 
 Implementing the tests settled one detail the prose had left open: a retry of a cancelled reservation's key returns the released record as a replay, because the key is retained.
 

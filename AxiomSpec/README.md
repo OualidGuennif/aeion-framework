@@ -2,7 +2,7 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.1.8 · 12 November 2026**
+**Edition 1.1.9 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
@@ -90,6 +90,8 @@ Edition 1.1.6 fixes two answers that claimed more than was checked. `verify-stor
 Edition 1.1.7 fixes two failures that one unusual file could cause, and one error format. A JSON file nested a few hundred thousand levels deep, anywhere in a store folder, is now set aside; it used to stop `verify-store` and make every organization request of the service fail with 500. A Python expression of a thousand chained terms, as generated code has, no longer stops the annotation scan, which used to keep a sandbox service from starting. A path or method the service does not serve now gets a problem document with a `code`, like every other error. The [change record](REVIEW.md#edition-117) has the details.
 
 Edition 1.1.8 reports an unreadable source directory instead of silently dropping its annotations. Code-dependent reads return `CODE_UNAVAILABLE` (503) until access is restored, while release-only context reads remain available. The [change record](REVIEW.md#edition-118) has the details.
+
+Edition 1.1.9 fixes recovery after a reader blocks the reference ledger's commit. The failed operation now rolls back its refund and audit row, and the connection can retry after the reader releases its lock. The [change record](REVIEW.md#edition-119) has the details.
 
 ## Commands
 

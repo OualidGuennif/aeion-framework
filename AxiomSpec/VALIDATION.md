@@ -1,6 +1,6 @@
 # Package validation: pass
 
-Run: 2026-11-12T11:07:24.441255+00:00.
+Run: 2026-11-12T11:37:21.745447+00:00.
 
 **Scope: design package. No product or example-application acceptance is asserted.**
 
@@ -9,9 +9,9 @@ Python 3.15.2; jsonschema 4.26.0; untrusted local runner.
 ## Results
 
 - `PKG.APPROVALS` : **pass** — 5 approval signatures on 3 releases verify against the keys the governing release declares, with the approvers its policy requires per band (reference G12). The keys are fictional and derived from public labels; no authenticator hardware and no identity binding was involved.
-- `PKG.EDITORIAL` : **pass** — 210 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.
+- `PKG.EDITORIAL` : **pass** — 211 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.
 - `PKG.ENVIRONMENTS` : **pass** — Restricted environment shapes and all scenario observations valid.
-- `PKG.EXAMPLE_TESTS` : **pass** — 33 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.
+- `PKG.EXAMPLE_TESTS` : **pass** — 34 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.
 - `PKG.NEGATIVE_FIXTURES` : **pass** — 23 mutations verified with expected diagnostics; 30 future product obligations NOT executed.
 - `PKG.OBSERVATIONS` : **pass** — 89 reference expectations checked across all 35 synthetic observations. Fixtures, not application runs.
 - `PKG.OPTIONAL_EXTENSIONS` : **pass** — Execution declaration and CROA input fixture valid; 37 unassessed items, 13 unknown findings. No execution authority or CROA conformance.

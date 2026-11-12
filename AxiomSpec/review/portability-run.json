@@ -2,7 +2,7 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T11:07:22.035933+00:00",
+  "evaluated_at": "2026-11-12T11:37:19.240096+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
@@ -16,7 +16,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "15a9eaf6083f8dba44f5a336ec101cf42ff7fdefa3eb50b077f92e0c50167ac0"
+      "sha256": "30a390cedeb9f4df31be293c41b0f1afac9e31c85857c404ba137cee2cf70e6f"
     },
     {
       "path": "axiom.py",
@@ -32,7 +32,7 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "7edeb5ca387f3935f9a0e38980a2f2f13b143ec9fea019ce103f489e211746aa"
+      "sha256": "e735c41cef4e8bad9e02b1016be1f8ab8e2ad01794b33393c3617f2139c14324"
     },
     {
       "path": "examples/refund-ledger/approvals.json",
@@ -40,7 +40,7 @@
     },
     {
       "path": "examples/refund-ledger/axiom-graph.json",
-      "sha256": "b8f0bbc46687d15e2066828ce291b6656c1ba70e653eae2b9b7a172b1c6e9d59"
+      "sha256": "6e48174e0a180a743e15e7f5a15d3556fbfd7ecaca51d1986a9a14b7a8c392c4"
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
@@ -68,7 +68,7 @@
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "f4a57119cc3972fb38f2056e379a0932eba594ce4c48485c4eb38e6a20bba2d5"
+      "sha256": "6d62ad0f4d0f006a7ee9e7cfb1cfa67122e0233165771e9f83041e80ec4515ad"
     },
     {
       "path": "fixtures/conformance.json",
@@ -120,7 +120,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "fe34f5ae69ea8b32fc86c5200de1fbbbc2bb12b0f031ed5abe17f0fa68126253"
+      "sha256": "de020c0d5c862fe5d7a705a178b9a7402c65d2cf4d8d70508e9186bf4ebfaad2"
     },
     {
       "path": "qa/spec_parts.py",
@@ -224,5 +224,5 @@
     "Local untrusted runner on the same operating system and dependency environment.",
     "No claim of cross-platform compatibility or deployment qualification."
   ],
-  "example_test_count": 33
+  "example_test_count": 34
 }

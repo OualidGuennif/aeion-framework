@@ -7,6 +7,7 @@ test_duplicate_observation_is_detected (test_ledger.Test004DuplicateKeys.test_du
 test_store_refuses_a_second_row_for_one_key (test_ledger.Test004DuplicateKeys.test_store_refuses_a_second_row_for_one_key) ... ok
 test_guard_agrees_with_the_specified_formula (test_ledger.Test005PrincipalGuard.test_guard_agrees_with_the_specified_formula) ... ok
 test_seeded_sequences_keep_the_invariants_after_every_operation (test_ledger.Test006CapacityProperty.test_seeded_sequences_keep_the_invariants_after_every_operation) ... ok
+test_a_reader_blocking_commit_rolls_back_and_the_connection_can_retry (test_ledger.Test007ConcurrentReservations.test_a_reader_blocking_commit_rolls_back_and_the_connection_can_retry) ... ok
 test_same_interleaving_overbooks_a_non_atomic_ledger (test_ledger.Test007ConcurrentReservations.test_same_interleaving_overbooks_a_non_atomic_ledger) ... ok
 test_second_writer_inside_the_critical_section_is_turned_away (test_ledger.Test007ConcurrentReservations.test_second_writer_inside_the_critical_section_is_turned_away) ... ok
 test_two_threads_admit_exactly_one (test_ledger.Test007ConcurrentReservations.test_two_threads_admit_exactly_one) ... ok
@@ -33,6 +34,6 @@ test_flag_is_the_one_the_specification_declares (test_ledger.Test020RemainingRep
 test_report_is_unavailable_and_discloses_nothing (test_ledger.Test020RemainingReportOff.test_report_is_unavailable_and_discloses_nothing) ... ok
 
 ----------------------------------------------------------------------
-Ran 33 tests in 2.002s
+Ran 34 tests in 1.969s
 
 OK

@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "1.1.8",
+  "edition": "1.1.9",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T11:06:27.374427+00:00",
+  "evaluated_at": "2026-11-12T11:36:18.807749+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -274,7 +274,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "15a9eaf6083f8dba44f5a336ec101cf42ff7fdefa3eb50b077f92e0c50167ac0"
+      "sha256": "30a390cedeb9f4df31be293c41b0f1afac9e31c85857c404ba137cee2cf70e6f"
     },
     {
       "path": "axiom.py",
@@ -290,7 +290,7 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "7edeb5ca387f3935f9a0e38980a2f2f13b143ec9fea019ce103f489e211746aa"
+      "sha256": "e735c41cef4e8bad9e02b1016be1f8ab8e2ad01794b33393c3617f2139c14324"
     },
     {
       "path": "examples/refund-ledger/approvals.json",
@@ -298,7 +298,7 @@
     },
     {
       "path": "examples/refund-ledger/axiom-graph.json",
-      "sha256": "b8f0bbc46687d15e2066828ce291b6656c1ba70e653eae2b9b7a172b1c6e9d59"
+      "sha256": "6e48174e0a180a743e15e7f5a15d3556fbfd7ecaca51d1986a9a14b7a8c392c4"
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
@@ -326,7 +326,7 @@
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "f4a57119cc3972fb38f2056e379a0932eba594ce4c48485c4eb38e6a20bba2d5"
+      "sha256": "6d62ad0f4d0f006a7ee9e7cfb1cfa67122e0233165771e9f83041e80ec4515ad"
     },
     {
       "path": "fixtures/conformance.json",
@@ -378,7 +378,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "fe34f5ae69ea8b32fc86c5200de1fbbbc2bb12b0f031ed5abe17f0fa68126253"
+      "sha256": "de020c0d5c862fe5d7a705a178b9a7402c65d2cf4d8d70508e9186bf4ebfaad2"
     },
     {
       "path": "qa/spec_parts.py",
@@ -480,7 +480,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "c9e5d002565423eb07a21ba4d22865ec6ae02bfdac006fb37bf912a475153151"
+    "sha256": "162897a27f542f9fcb7dfe6a4a3103f87a88de71585c535459f117291e0bde08"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

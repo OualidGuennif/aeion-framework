@@ -45,14 +45,14 @@
   },
   "subject": {
     "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
-    "source_tree_sha256": "01b2dc3f6eb5344fb3f26780c0e4fc234f3111aa9e13c772b4936e57056f97df",
+    "source_tree_sha256": "2eba8c53b064a21fcb8343a8a7983bdf17c63e97e09af14ef2254534477edd68",
     "policy_sha256": null,
     "toolchain_sha256": "a44a9cae10a4db36b947444cd58263c76fda321b52899aff18382571fb86e3d1",
     "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -74,7 +74,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "210 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "211 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -96,7 +96,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "33 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.",
+      "message": "34 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.",
       "evidence": [],
       "limitations": []
     },
@@ -219,7 +219,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-12T11:07:24.441255+00:00",
+    "evaluated_at": "2026-11-12T11:37:21.745447+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

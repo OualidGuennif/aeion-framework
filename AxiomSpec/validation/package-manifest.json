@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "60a454fab5088237baeca32e5edb1f7651258ff32fbd644cc22352c7a5ad45c5",
-      "bytes": 15315
+      "sha256": "2576e78ca6798d0fff254f0f5738bfa18e129d46782232a9244a168e4c3b040c",
+      "bytes": 15585
     },
     {
       "path": "REVIEW.md",
-      "sha256": "0285d3150e2a7fdeadb4b4fe95e55ee66dca31ad56c9e7019578f862b2f7ae2b",
-      "bytes": 65967
+      "sha256": "a032146ac203b2c1b0789b26b241968d1031f195197759ce82d56b7fb6a8b82c",
+      "bytes": 66913
     },
     {
       "path": "RULE_INDEX.md",
@@ -23,7 +23,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "15a9eaf6083f8dba44f5a336ec101cf42ff7fdefa3eb50b077f92e0c50167ac0",
+      "sha256": "30a390cedeb9f4df31be293c41b0f1afac9e31c85857c404ba137cee2cf70e6f",
       "bytes": 104941
     },
     {
@@ -98,8 +98,8 @@
     },
     {
       "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
-      "sha256": "e196e442f6343aff39e8b9d72a21be0c0a83aef982d17a6cd4e865d4e0c5d2f8",
-      "bytes": 18403
+      "sha256": "6241987143cb26e4deb48f730b71e10e3680274981844f31a13c29b2255142d4",
+      "bytes": 18528
     },
     {
       "path": "docs/14_CONFORMANCE_SUITE.md",
@@ -143,8 +143,8 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "7edeb5ca387f3935f9a0e38980a2f2f13b143ec9fea019ce103f489e211746aa",
-      "bytes": 9986
+      "sha256": "e735c41cef4e8bad9e02b1016be1f8ab8e2ad01794b33393c3617f2139c14324",
+      "bytes": 10035
     },
     {
       "path": "examples/refund-ledger/approvals.json",
@@ -153,7 +153,7 @@
     },
     {
       "path": "examples/refund-ledger/axiom-graph.json",
-      "sha256": "b8f0bbc46687d15e2066828ce291b6656c1ba70e653eae2b9b7a172b1c6e9d59",
+      "sha256": "6e48174e0a180a743e15e7f5a15d3556fbfd7ecaca51d1986a9a14b7a8c392c4",
       "bytes": 30566
     },
     {
@@ -188,8 +188,8 @@
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "f4a57119cc3972fb38f2056e379a0932eba594ce4c48485c4eb38e6a20bba2d5",
-      "bytes": 25999
+      "sha256": "6d62ad0f4d0f006a7ee9e7cfb1cfa67122e0233165771e9f83041e80ec4515ad",
+      "bytes": 26952
     },
     {
       "path": "fixtures/conformance.json",
@@ -253,7 +253,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "fe34f5ae69ea8b32fc86c5200de1fbbbc2bb12b0f031ed5abe17f0fa68126253",
+      "sha256": "de020c0d5c862fe5d7a705a178b9a7402c65d2cf4d8d70508e9186bf4ebfaad2",
       "bytes": 13313
     },
     {
@@ -338,7 +338,7 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "32c5b48aa20da9a30b336a0804ad94397fd4dc9a3a306e93851496f91922f9a2",
+      "sha256": "4fee66ccd30edf6f996650b65dfb2d3111ff108a98f067adce9ae312a1d183c4",
       "bytes": 7701
     },
     {
@@ -363,12 +363,12 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "c9e5d002565423eb07a21ba4d22865ec6ae02bfdac006fb37bf912a475153151",
+      "sha256": "162897a27f542f9fcb7dfe6a4a3103f87a88de71585c535459f117291e0bde08",
       "bytes": 37282
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "74a1d9ab49ff1ae2bbbbe610dcbb58b089f4c8f12eef81a6d10b9e666e85a698",
+      "sha256": "0142305c6795a9567eb8ba80a347af54298cef4f3f9c4d952d654537fe89b753",
       "bytes": 32181
     },
     {
