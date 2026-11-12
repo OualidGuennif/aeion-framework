@@ -25,6 +25,8 @@ from axiom_service.service import PACKAGE, Service  # noqa: E402
 
 import approvals  # noqa: E402
 import fictional_keys as fk  # noqa: E402
+import graph_index  # noqa: E402
+import spec_parts  # noqa: E402
 import queries  # noqa: E402
 import release_diff  # noqa: E402
 import release_store  # noqa: E402
@@ -365,7 +367,8 @@ class FifthReview(Case):
         (self.store / 'dropped.json').write_text(json.dumps(self.forged(good)))
         verdict = http.get(f'/v1/releases/{key}/verdict').json()
         self.assertEqual((verdict['status'], verdict['approvals']), ('pass', 'pass'))
-        self.assertEqual(len(http.get(f'/v1/releases/{key}/approvals').json()['approvals']), 4)
+        self.assertEqual(len(service.store.approvals[key]['approvals']), 4)  # the store holds what was dropped
+        self.assertEqual(http.get(f'/v1/releases/{key}/approvals').json(), good)  # the answer is what counts
 
     def test_two_replicas_keep_every_approval_and_answer_the_same(self):
         (_, first), (_, second) = self.organization(), self.organization()
@@ -517,6 +520,94 @@ class FifthReview(Case):
             (self.store / 'arrived.json').unlink()
             self.assertEqual(http.get(f'/v1/releases/{key}').status_code, 404)
             self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['head']['version'], '1.1.0')
+
+
+class SixthReview(Case):
+    """Defects of edition 0.7.1, each reproduced through the service. Every case failed before its fix."""
+
+    def organization(self):
+        service = Service([self.store], 'organization')
+        return service, self.client(service)
+
+    def test_a_broken_file_does_not_make_every_upload_reread_the_store(self):
+        (self.store / 'broken.json').write_text('{"format": "axiomspec/0.3", ')
+        service, http = self.organization()
+        with mock.patch.object(release_store, 'add_file', wraps=release_store.add_file) as read:
+            for version, node in (('1.1.1', 'REQ-001'), ('1.1.1', 'REQ-002'), ('1.1.1', 'REQ-003')):
+                candidate = self.successor(self.spec, version, node)
+                self.assertEqual(http.put(f'/v1/releases/{digest(canonical(candidate))}', json=candidate).status_code, 200)
+            self.assertEqual(read.call_count, 6)  # each upload reads its own file and the rejected one again, nothing more
+        self.assertEqual([Path(r['path']).name for r in service.verify()['rejected_files']], ['broken.json'])
+
+    def test_a_rejected_manifest_is_read_again_when_its_parts_arrive(self):
+        candidate = self.successor(self.spec, '1.1.1')
+        key = digest(canonical(candidate))
+        staged = Path(self.directory.name) / 'staged'
+        manifest = spec_parts.write(candidate, staged, stem=key, budget=60000)
+        service, http = self.organization()
+        (self.store / 'late').mkdir()
+        shutil.copy(manifest, self.store / 'late' / manifest.name)  # the manifest first: its parts are missing
+        self.assertEqual(http.get(f'/v1/releases/{key}').status_code, 404)
+        self.assertEqual(len(service.verify()['rejected_files']), 1)
+        for part in sorted(staged.glob('*.part-*.json')):
+            shutil.copy(part, self.store / 'late' / part.name)
+        self.assertEqual(http.get(f'/v1/releases/{key}').json(), candidate)
+        self.assertEqual(service.verify()['rejected_files'], [])
+
+    def test_held_is_what_the_store_holds(self):
+        service, _ = self.organization()
+        node = copy.deepcopy(next(n for n in self.spec['nodes'] if n['id'] == 'REQ-010'))
+        node['title'] += ' (reworded)'
+        request = dict(baseline=self.head, version='1.1.1', operations=[dict(op='put', section='nodes', item=node)])
+        http = TestClient(create_app(service), raise_server_exceptions=False)
+        with mock.patch.object(Service, 'place', lambda *arguments: None):  # a write that does not land
+            answer = http.post('/v1/candidates', json=request)
+        self.assertEqual((answer.status_code, valid('Problem', answer.json())['code']), (500, 'INTERNAL_ERROR'))
+        kept = http.post('/v1/candidates', json=request).json()
+        self.assertEqual((kept['held'], kept['spec_sha256'] in service.store.releases), (True, True))
+
+    def test_approvals_are_returned_as_offered_until_their_baseline_is_held(self):
+        alone = Path(self.directory.name) / 'alone'
+        alone.mkdir()
+        shutil.copy(LEDGER / 'spec.json', alone / 'spec.json')  # release 1.1.0 without the release that governs it
+        service = Service([alone], 'organization')
+        http = self.client(service)
+        good = load(LEDGER / 'approvals.json')
+        forged = copy.deepcopy(good)
+        for approval in forged['approvals']:
+            approval['signature'] = approval['authenticator_data'] = '++++'
+        offered = dict(good, approvals=good['approvals'] + forged['approvals'])
+        self.assertEqual(http.put(f'/v1/releases/{self.head}/approvals', json=offered).json()['approvals'], 'unknown')
+        self.assertEqual(len(http.get(f'/v1/releases/{self.head}/approvals').json()['approvals']), 4)
+        shutil.copy(LEDGER / 'releases/1.0.0.json', alone / 'base.json')
+        shutil.copy(LEDGER / 'releases/1.0.0.approvals.json', alone / 'base.approvals.json')
+        self.assertEqual(valid('Approvals', http.get(f'/v1/releases/{self.head}/approvals').json()), good)
+
+    def test_a_context_does_not_look_at_the_code(self):
+        repository = Path(self.directory.name) / 'repository'
+        shutil.copytree(LEDGER, repository / 'examples/refund-ledger', ignore=shutil.ignore_patterns('__pycache__'))
+        service = Service([LEDGER / 'spec.json'], repository=repository, include=['examples/refund-ledger'])
+        http = self.client(service)
+        first = http.get('/v1/snapshots/current/context?ids=REQ-004&scope=change').json()
+        with mock.patch.object(graph_index, 'signature', wraps=graph_index.signature) as looked:
+            http.get('/v1/snapshots/current/context?ids=REQ-004')
+            self.assertEqual(looked.call_count, 0)
+            http.get('/v1/snapshots/current/nodes/REQ-004')
+            self.assertEqual(looked.call_count, 1)
+        code = repository / APP
+        code.write_text(code.read_text() + '\n\n# @req REQ-010\ndef added():\n    pass\n')
+        self.assertEqual(http.get(f'/v1/snapshots/current/trace?path={APP}').json()['items'][-1]['symbol'], 'added')
+        # The code changed and was read again; the pages of a context, which reads the release alone, continue.
+        second = http.get(f"/v1/snapshots/current/context?ids=REQ-004&scope=change&cursor={first['next_cursor']}")
+        self.assertEqual(second.status_code, 200)
+
+    def test_a_service_on_a_repository_that_contains_the_package_leaves_it_out(self):
+        whole = Service([LEDGER / 'spec.json'], repository=PACKAGE)  # the package mentions the token in its own code
+        reported = {gap['code'] for gap in whole.call('gaps', phase='implementation')['items']}
+        self.assertEqual(reported, {'MALFORMED_ANNOTATION', 'UNKNOWN_ANNOTATION_ID'})
+        service = Service([LEDGER / 'spec.json'], repository=PACKAGE, exclude=['qa'])
+        self.assertEqual(service.call('gaps', phase='implementation')['items'], [])
+        self.assertEqual(service.call('getIndex'), load(LEDGER / 'axiom-graph.json'))
 
 
 class Tools(Case):

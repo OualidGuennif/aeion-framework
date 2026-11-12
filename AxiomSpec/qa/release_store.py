@@ -12,6 +12,7 @@ status, so one failed or unreadable file does not withhold the verdict on the ot
 """
 from functools import lru_cache
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -52,20 +53,41 @@ def validators():
                  for name in ('spec', 'approvals'))
 
 
-def files(paths):
-    """Every JSON file under the given files and directories, sorted.
+def listing(paths):
+    """Every JSON file under the given files and directories: path -> (size, modification time).
 
     Symbolic links are not followed, and nothing is read below a name that starts with a dot: that is where
-    a writer stages a file before it moves it into place.
+    a writer stages a file before it moves it into place. One pass over each directory, so a large store is
+    listed at about one system call per file. A named file that is absent maps to None.
     """
-    found = []
+    found = {}
+
+    def walk(directory):
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                if entry.name.startswith('.') or entry.is_symlink():
+                    continue
+                if entry.is_dir(follow_symlinks=False):
+                    walk(entry.path)
+                elif entry.name.endswith('.json') and entry.is_file(follow_symlinks=False):
+                    status = entry.stat(follow_symlinks=False)
+                    found[Path(entry.path)] = (status.st_size, status.st_mtime_ns)
+
     for path in map(Path, paths):
-        if not path.is_dir():
-            found.append(path)
-            continue
-        found += sorted(p for p in path.rglob('*.json') if p.is_file() and not p.is_symlink()
-                        and not any(part.startswith('.') for part in p.relative_to(path).parts))
+        if path.is_dir():
+            walk(path)
+        else:
+            try:
+                status = path.stat()
+                found[path] = (status.st_size, status.st_mtime_ns)
+            except OSError:
+                found[path] = None
     return found
+
+
+def files(paths):
+    """Every JSON file under the given files and directories, sorted."""
+    return sorted(listing(paths))
 
 
 def add_file(store, file):

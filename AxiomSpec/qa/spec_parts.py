@@ -90,8 +90,9 @@ def read(manifest_path):
     base = manifest_path.parent.resolve()
 
     def load(relative):
+        require(not (base / relative).is_symlink(), 'A part is a regular file, not a link')
         path = (base / relative).resolve()
-        require(path.is_relative_to(base) and not path.is_symlink(), 'Part path escapes the manifest directory')
+        require(path.is_relative_to(base), 'Part path escapes the manifest directory')
         with path.open('rb') as source:
             return source.read(BOUNDS['max_input_bytes'] + 1)
     return join(manifest, load)

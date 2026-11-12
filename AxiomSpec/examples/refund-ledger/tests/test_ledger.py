@@ -431,14 +431,24 @@ class FlagCase(EntrypointCase):
         self.assertEqual(flag['key'], FLAG_REMAINING)
         self.assertIs(self.open().flags[FLAG_REMAINING], flag['state'] == 'enabled')  # the default follows the release
 
+    def report(self):
+        """Ask for the report as the owner and require CON-012 of the answer, the flag and the ledger read back."""
+        answer = self.send(operation='remaining')
+        state = self.ledger.snapshot(PAYMENT)
+        consumed = sum(r['amount_minor'] for r in state['refunds'] if r['status'] in ('reserved', 'committed'))
+        self.assertTrue(holds('CON-012', dict(flag_enabled=self.ledger.flags[FLAG_REMAINING], captured_minor=state['captured_minor'],
+                                              consumed_minor=consumed, reported='remaining_minor' in answer,
+                                              remaining_minor=answer.get('remaining_minor', 0))), answer)
+        return answer
+
 
 class Test019RemainingReportOn(FlagCase):
     def test_remaining_capacity_is_reported(self):
         self.ledger.flags[FLAG_REMAINING] = True
         record = self.attempt('a', 600).record_id
-        self.assertEqual(self.send(operation='remaining'), dict(outcome='reported', remaining_minor=400))
+        self.assertEqual(self.report(), dict(outcome='reported', remaining_minor=400))
         self.command('cancel', record)
-        self.assertEqual(self.send(operation='remaining'), dict(outcome='reported', remaining_minor=1000))
+        self.assertEqual(self.report(), dict(outcome='reported', remaining_minor=1000))
         self.assertEqual(self.send(STRANGER, operation='remaining'), dict(outcome='denied'))
 
 
@@ -446,7 +456,7 @@ class Test020RemainingReportOff(FlagCase):
     def test_report_is_unavailable_and_discloses_nothing(self):
         self.attempt('a', 600)
         before = self.ledger.snapshot(PAYMENT)
-        self.assertEqual(self.send(operation='remaining'), dict(outcome='unavailable'))
+        self.assertEqual(self.report(), dict(outcome='unavailable'))
         self.assertEqual(self.ledger.snapshot(PAYMENT), before)
 
 

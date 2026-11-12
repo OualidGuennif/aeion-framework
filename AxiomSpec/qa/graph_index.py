@@ -11,7 +11,11 @@ An annotation is the token `@req` followed by one or more IDs, in a comment or d
 
 A colon or an opening parenthesis may follow the token, and the IDs are separated by spaces or commas. The
 token with no ID after it is reported as malformed, never skipped: a silent miss would tell an agent that
-no requirement concerns the code.
+no requirement concerns the code. So is an ID of the release that follows other words on the same line
+(`@req REQ-004 and CON-005`), because it was meant to be part of the annotation and was not read.
+
+A repository that contains other code which mentions the token, such as a copy of this package, leaves it
+out of the scan with `--exclude`.
 
 The index is derived. It never replaces the specification, and an annotation is a declared link: it says
 where an author placed a requirement, not that the code satisfies it.
@@ -80,9 +84,14 @@ def symbol_at(spans, lines, number):
     return max(inside, key=lambda span: span[0])[2] if inside else None
 
 
-def source_files(root, include=('.',)):
-    """The source files under the scanned paths, sorted. A path that does not exist is an error, not an empty scan."""
+def source_files(root, include=('.',), exclude=()):
+    """The source files under the scanned paths, sorted. A path that does not exist is an error, not an empty scan.
+
+    Nothing at or below an excluded path is read, whatever names it.
+    """
     root = Path(root).resolve()
+    excluded = [(root / entry).resolve() for entry in exclude]
+    left_out = lambda path: any(path == other or other in path.parents for other in excluded)
     found = set()
     for entry in include:
         start = (root / entry).resolve()
@@ -90,21 +99,24 @@ def source_files(root, include=('.',)):
             raise ValueError('Scan path escapes the repository root')
         if not start.exists():
             raise ValueError(f'Scan path does not exist: {entry}')
+        if left_out(start):
+            continue
         if start.is_file():
             found.add(start)
             continue
         for directory, folders, names in os.walk(start):
-            folders[:] = sorted(folder for folder in folders if folder not in SKIPPED_DIRECTORIES)
+            here = Path(directory)
+            folders[:] = sorted(folder for folder in folders if folder not in SKIPPED_DIRECTORIES and not left_out(here / folder))
             for name in names:
-                path = Path(directory) / name
-                if path.suffix in SOURCE_SUFFIXES and path.is_file() and not path.is_symlink():
+                path = here / name
+                if path.suffix in SOURCE_SUFFIXES and path.is_file() and not path.is_symlink() and not left_out(path):
                     found.add(path)
     return root, sorted(found)
 
 
-def signature(root, include=('.',)):
+def signature(root, include=('.',), exclude=()):
     """What a scan would read, without reading it: a rescan is needed only when this changes."""
-    root, found = source_files(root, include)
+    root, found = source_files(root, include, exclude)
     state = []
     for path in found:
         status = path.stat()
@@ -112,14 +124,14 @@ def signature(root, include=('.',)):
     return tuple(state)
 
 
-def scan(root, include=('.',)):
-    """Every annotation under `root`, as (path, line, symbol, ids) records sorted by path and line.
+def scan(root, include=('.',), exclude=()):
+    """Every annotation under `root`, as (path, line, symbol, ids, rest) records sorted by path and line.
 
     Paths are relative to `root`, with forward slashes. Symbols are resolved for Python; elsewhere the
-    file and line are the location. The token with no ID after it yields a record with no IDs, which
-    `check` reports as malformed.
+    file and line are the location. The token with no ID after it yields a record with no IDs, and `rest`
+    holds what looks like an ID further along the line: `check` reports both.
     """
-    root, files = source_files(root, include)
+    root, files = source_files(root, include, exclude)
     found = []
     for path in files:
         if path.stat().st_size > MAX_SOURCE_BYTES:
@@ -133,11 +145,14 @@ def scan(root, include=('.',)):
         lines = text.splitlines()
         spans = python_symbols(text) if path.suffix in {'.py', '.pyi'} else []
         for number, line in enumerate(lines, 1):
-            for token in TOKEN.finditer(line):
+            tokens = list(TOKEN.finditer(line))
+            for position, token in enumerate(tokens):
                 match = ANNOTATION.match(line, token.start())
+                end = tokens[position + 1].start() if position + 1 < len(tokens) else len(line)
                 found.append(dict(path=path.relative_to(root).as_posix(), line=number,
                                   symbol=symbol_at(spans, lines, number),
-                                  ids=ID.findall(match.group(1)) if match else []))
+                                  ids=ID.findall(match.group(1)) if match else [],
+                                  rest=ID.findall(line[match.end():end]) if match else []))
     return found
 
 
@@ -152,6 +167,12 @@ def check(spec, annotations):
             problems.append(dict(code='MALFORMED_ANNOTATION', subject_id=None, path=annotation['path'], line=annotation['line'],
                                  message=f"{annotation['path']}:{annotation['line']} has @req with no ID after it. "
                                          'Write @req REQ-004, with IDs separated by spaces or commas.'))
+        # An ID of this release further along the line was meant to be annotated and was not read.
+        unread = [target for target in annotation.get('rest', []) if target in nodes or target in others]
+        if unread:
+            problems.append(dict(code='MALFORMED_ANNOTATION', subject_id=unread[0], path=annotation['path'], line=annotation['line'],
+                                 message=f"{annotation['path']}:{annotation['line']} names {', '.join(unread)} after other words, "
+                                         'so it was not read. Separate IDs by spaces or commas only.'))
         for target in annotation['ids']:
             status = nodes.get(target, {}).get('status')
             if status in (None, 'retired'):
@@ -217,23 +238,24 @@ def dumps(index):
 def main(arguments):
     if len(arguments) >= 2 and arguments[0] == 'build':
         spec = strict_json(Path(arguments[1]).read_bytes())
-        rest, repo, include = arguments[2:], None, []
+        rest, repo, include, exclude = arguments[2:], None, [], []
         while rest:
             if rest[0] == '--repo' and len(rest) > 1:
                 repo, rest = rest[1], rest[2:]
-            elif rest[0] == '--include' and len(rest) > 1:
-                include.append(rest[1])
+            elif rest[0] in ('--include', '--exclude') and len(rest) > 1:
+                (include if rest[0] == '--include' else exclude).append(rest[1])
                 rest = rest[2:]
             else:
                 break
         if not rest:
-            annotations = scan(repo, include or ('.',)) if repo else []
+            annotations = scan(repo, include or ('.',), exclude) if repo else []
             problems = check(spec, annotations)
             for problem in problems:
                 print(f"{problem['code']}: {problem['message']}", file=sys.stderr)
             sys.stdout.write(dumps(build(spec, annotations)))
             return 2 if problems else 0
-    print('Usage: python3 qa/graph_index.py build <spec.json> [--repo <directory> [--include <path>]...]', file=sys.stderr)
+    print('Usage: python3 qa/graph_index.py build <spec.json> [--repo <directory> [--include <path>]... [--exclude <path>]...]',
+          file=sys.stderr)
     return 4
 
 

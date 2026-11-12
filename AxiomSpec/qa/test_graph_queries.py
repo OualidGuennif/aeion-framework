@@ -379,10 +379,12 @@ class Gaps(Ledger):
         queries.contract_validator('GapsPage').validate(page)
         return [(g['gate'], g['code'], g['id']) for g in page['items']]
 
-    def test_the_ledger_has_one_design_gap(self):
-        # The flagged report requirement has tests in both flag states and no scenario: a real gap of the example.
-        self.assertEqual(self.found(self.snapshot), [('G06', 'MISSING_SCENARIO', 'REQ-010')])
-        self.assertEqual(self.found(self.snapshot, 'implementation'), [('G06', 'MISSING_SCENARIO', 'REQ-010')])
+    def test_the_ledger_has_no_gap(self):
+        # Until edition 0.7.2 the flagged report requirement had tests in both flag states and no scenario.
+        self.assertEqual(self.found(self.snapshot), [])
+        self.assertEqual(self.found(self.snapshot, 'implementation'), [])
+        without = self.edited(lambda s: s['edges'].__setitem__(slice(None), [e for e in s['edges'] if (e['relation'], e['to']) != ('illustrates', 'REQ-010')]))
+        self.assertIn(('G06', 'MISSING_SCENARIO', 'REQ-010'), self.found(without))
 
     def test_each_design_gap(self):
         def open_decision(spec):

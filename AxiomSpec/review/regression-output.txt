@@ -85,7 +85,7 @@ test_every_read_is_a_get_and_names_its_release (test_graph_queries.Contract.test
 test_the_tools_are_few_and_each_is_one_operation (test_graph_queries.Contract.test_the_tools_are_few_and_each_is_one_operation) ... ok
 test_each_design_gap (test_graph_queries.Gaps.test_each_design_gap) ... ok
 test_each_implementation_gap (test_graph_queries.Gaps.test_each_implementation_gap) ... ok
-test_the_ledger_has_one_design_gap (test_graph_queries.Gaps.test_the_ledger_has_one_design_gap) ... ok
+test_the_ledger_has_no_gap (test_graph_queries.Gaps.test_the_ledger_has_no_gap) ... ok
 test_command_line (test_graph_queries.Index.test_command_line) ... ok
 test_requirements_carry_their_weight_and_a_trace_leads_to_requirements (test_graph_queries.Index.test_requirements_carry_their_weight_and_a_trace_leads_to_requirements) ... ok
 test_the_file_is_json_with_one_record_per_line (test_graph_queries.Index.test_the_file_is_json_with_one_record_per_line) ... ok
@@ -176,6 +176,14 @@ test_invalid_future_metadata_is_rejected_without_execution (test_second_review.S
 test_noncanonical_array_indexes_are_rejected (test_second_review.SecondReview.test_noncanonical_array_indexes_are_rejected) ... ok
 test_replace_and_remove_require_existing_target (test_second_review.SecondReview.test_replace_and_remove_require_existing_target) ... ok
 test_symlink_is_rejected_before_packaging (test_second_review.SecondReview.test_symlink_is_rejected_before_packaging) ... ok
+test_every_must_requirement_has_a_witness_and_a_counterexample (test_sixth_review.Example.test_every_must_requirement_has_a_witness_and_a_counterexample) ... ok
+test_the_fictional_signing_command_takes_actor_and_key_pairs (test_sixth_review.Example.test_the_fictional_signing_command_takes_actor_and_key_pairs) ... ok
+test_the_report_predicate_holds_only_for_the_right_amount_and_only_when_enabled (test_sixth_review.Example.test_the_report_predicate_holds_only_for_the_right_amount_and_only_when_enabled) ... ok
+test_a_repository_that_contains_the_package_leaves_it_out (test_sixth_review.Scan.test_a_repository_that_contains_the_package_leaves_it_out) ... ok
+test_an_excluded_path_wins_over_whatever_names_it (test_sixth_review.Scan.test_an_excluded_path_wins_over_whatever_names_it) ... ok
+test_an_id_of_the_release_left_on_the_line_is_reported (test_sixth_review.Scan.test_an_id_of_the_release_left_on_the_line_is_reported) ... ok
+test_a_part_that_is_a_link_is_refused (test_sixth_review.Store.test_a_part_that_is_a_link_is_refused) ... ok
+test_the_listing_is_what_the_store_reads_and_nothing_else (test_sixth_review.Store.test_the_listing_is_what_the_store_reads_and_nothing_else) ... ok
 test_captured_reviewed_source_reference_is_still_only_declared (test_third_review.CroaEvidenceChecks.test_captured_reviewed_source_reference_is_still_only_declared) ... ok
 test_retired_mapping_is_rejected_on_current_snapshot (test_third_review.CroaEvidenceChecks.test_retired_mapping_is_rejected_on_current_snapshot) ... ok
 test_unrelated_method_binding_is_rejected (test_third_review.CroaEvidenceChecks.test_unrelated_method_binding_is_rejected) ... ok
@@ -202,6 +210,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 202 tests in 11.215s
+Ran 210 tests in 11.748s
 
 OK

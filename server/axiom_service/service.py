@@ -40,11 +40,11 @@ def not_found(what):
 
 
 class Service:
-    def __init__(self, store_paths, mode='sandbox', snapshot=None, repository=None, include=('.',)):
+    def __init__(self, store_paths, mode='sandbox', snapshot=None, repository=None, include=('.',), exclude=()):
         if mode not in MODES:
             raise ValueError('mode is sandbox or organization')
         self.mode, self.paths = mode, [Path(path) for path in store_paths]
-        self.repository, self.include = repository, tuple(include)
+        self.repository, self.include, self.exclude = repository, tuple(include), tuple(exclude)
         self.lock = threading.RLock()  # one operation at a time: the store is replaced as a whole when it changes
         self.store, self.seen = release_store.Store(), {}
         self.snapshots, self.report = {}, None
@@ -61,27 +61,26 @@ class Service:
             if repository is not None:
                 # Scanned now, so a path that does not exist stops the service instead of serving an empty index.
                 self.reads_code = True
-                self.scanned = graph_index.signature(repository, self.include)
-                self.annotations = graph_index.scan(repository, self.include)
+                self.scanned = graph_index.signature(repository, self.include, self.exclude)
+                self.annotations = graph_index.scan(repository, self.include, self.exclude)
 
     def refresh(self):
         """Take in the store files that appeared since the last request.
 
         A file never changes once written, so reading the new ones is all it takes to agree with another
-        process. A file that changed or went away, or a new file while one is rejected (the missing part of
-        a release, perhaps), rebuilds the store from what is there.
+        process. A new file may be what a rejected one was waiting for (the missing part of a release), so
+        the rejected files are read again with it, and only those. A file that changed or went away rebuilds
+        the store from what is there.
         """
-        present = {}
-        for file in release_store.files(self.paths):
-            try:
-                status = file.stat()
-            except OSError:
-                continue
-            present[file] = (status.st_size, status.st_mtime_ns)
+        present = {file: state for file, state in release_store.listing(self.paths).items() if state is not None}
         new = [file for file in present if file not in self.seen]
         changed = any(present.get(file) != state for file, state in self.seen.items())
-        if changed or (new and self.store.rejected):
+        if changed:
             self.store, self.seen, new = release_store.Store(), {}, list(present)
+        elif new and self.store.rejected:
+            again = [Path(rejected['path']) for rejected in self.store.rejected]
+            self.store.rejected = []
+            new += [file for file in again if file in present]
         for file in new:
             try:
                 release_store.add_file(self.store, file)
@@ -110,14 +109,15 @@ class Service:
     def release(self, name):
         return self.store.releases[self.resolve(name)]
 
-    def snapshot(self, name):
+    def snapshot(self, name, code=True):
+        """The snapshot a digest names. `code` is false for a query that reads the release alone: the code is not looked at."""
         key = self.resolve(name)
         local = self.reads_code and key == self.only
-        if local:
+        if local and code:
             try:
-                state = graph_index.signature(self.repository, self.include)
+                state = graph_index.signature(self.repository, self.include, self.exclude)
                 if state != self.scanned:  # the code changed: read its annotations again
-                    self.annotations, self.scanned = graph_index.scan(self.repository, self.include), state
+                    self.annotations, self.scanned = graph_index.scan(self.repository, self.include, self.exclude), state
                     self.snapshots.pop(key, None)
             except (ValueError, OSError):
                 pass  # a scanned path is missing for a moment: keep the last complete scan
@@ -168,7 +168,7 @@ class Service:
         return queries.lookup(self.snapshot(digest), id, detail)
 
     def _context(self, ids, digest='current', scope='direct', budget_bytes=queries.MAX_BYTES, cursor=None):
-        return queries.context(self.snapshot(digest), ids, scope, budget_bytes, cursor)
+        return queries.context(self.snapshot(digest, code=False), ids, scope, budget_bytes, cursor)
 
     def _trace(self, digest='current', path=None, symbol=None, id=None, budget_bytes=queries.MAX_BYTES, cursor=None):
         return queries.trace(self.snapshot(digest), path, symbol, id, budget_bytes, cursor)
@@ -191,8 +191,12 @@ class Service:
         return self.release(digest)
 
     def _getApprovals(self, digest):
+        """The approvals of a release that count. Without the release that governs them, all that were offered."""
         key = self.resolve(digest)
-        return self.store.approvals.get(key) or approvals.empty(self.store.releases[key])
+        spec = self.store.releases[key]
+        held = self.store.approvals.get(key) or approvals.empty(spec)
+        governing = self.governing(spec)
+        return held if governing is None else dict(held, approvals=approvals.counted(spec, held, governing))
 
     def _getVerdict(self, digest):
         return self.verdict(self.resolve(digest))
@@ -222,8 +226,7 @@ class Service:
         if result['status'] == 'pass':
             # Only a candidate that passes its own checks enters the store. A refused one is returned to its
             # author and leaves the store, its heads and its verdict as they were.
-            self.hold(result['candidate'])
-            result['held'] = True
+            result['held'] = self.hold(result['candidate']) in self.store.releases
         return result
 
     def _putRelease(self, digest, body):
@@ -308,6 +311,8 @@ class Service:
             except ValueError as exc:
                 raise QueryError('INVALID_DOCUMENT', f'The store cannot hold this document: {exc}', 422)
         self.refresh()
+        if key not in self.store.releases:  # the write did not land, or the store rejected what was written
+            raise QueryError('INTERNAL_ERROR', 'The store did not keep the release', 500)
         return key
 
     @staticmethod

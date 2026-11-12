@@ -13,7 +13,7 @@ Put `@req` and the IDs in a comment above the function, class or file that imple
 def command(self, kind, principal, tenant_id, payment_id, record_id):
 ```
 
-`@req: REQ-005` and `@req(REQ-005, REQ-006)` are read the same. The token with no valid ID after it fails the scan, so a typing mistake is reported instead of skipped.
+`@req: REQ-005` and `@req(REQ-005, REQ-006)` are read the same. The token with no valid ID after it fails the scan, so a typing mistake is reported instead of skipped. So does an ID of the release written after other words, as in `@req REQ-005 and REQ-006`: separate IDs by spaces or commas only.
 
 Use the ID of a requirement, or of a constraint the code enforces. Annotate where the behavior is decided, not every helper. The comment form does not matter: `//`, `#`, `--` or a docstring all work, in any language. Tests do not need annotations when each test case is already bound in the specification.
 
@@ -25,7 +25,7 @@ From the `AxiomSpec` directory, with its QA dependencies installed:
 python3 qa/graph_index.py build examples/refund-ledger/spec.json --repo . --include examples/refund-ledger > axiom-graph.json
 ```
 
-The command fails when an annotation names an ID the release does not hold or has retired, when `@req` has no ID after it, and when a path given to `--include` does not exist. The file lists every object, link and trace of the release, one record per line, and names the release by `spec_sha256`. Rebuild it whenever the specification or the annotations change; never edit it.
+The command fails when an annotation names an ID the release does not hold or has retired, when `@req` has no ID after it, and when a path given to `--include` does not exist. If the repository holds other code that mentions `@req`, such as a copy of the AxiomSpec package, leave it out with `--exclude <path>`; the service takes the same option. The file lists every object, link and trace of the release, one record per line, and names the release by `spec_sha256`. Rebuild it whenever the specification or the annotations change; never edit it.
 
 Place `axiom-graph.json` at the root of the repository the agent receives.
 
@@ -86,14 +86,14 @@ that part of the work.
 
 ## 6. What a session costs
 
-Measured on the ledger, for a change to the cancel and commit command. The specification file is 209 KB; the index is 29 KB.
+Measured on the ledger, for a change to the cancel and commit command. The specification file is 220 KB; the index is 31 KB.
 
 | Step | Request | Size of the answer |
 |---|---|---|
 | Which requirements does `Ledger.command` carry? | Search the index for the symbol | 0.5 KB: REQ-005, REQ-006, REQ-009 |
 | What does REQ-005 demand? | `nodes/REQ-005` | 3.8 KB |
 | What binds REQ-005 and REQ-009? | `context?ids=REQ-005,REQ-009` | 24 KB, 22 objects, one page |
-| What must a change to them take into view? | The same with `scope=change` | 98 objects in four pages of at most 32 KB |
+| What must a change to them take into view? | The same with `scope=change` | 99 objects in three pages of at most 32 KB |
 
 The first three steps answer most doubts with under 30 KB. The last step is large on purpose: it is the conservative context of a change, and on a specification as small and connected as the ledger it is most of it. On a larger specification it stays the neighborhood of the change plus the project-wide rules.
 

@@ -280,15 +280,18 @@ class Queries(unittest.TestCase):
         self.assertIn(binding['id'], [g['id'] for g in answer['items'] if g['code'] == 'UNRESOLVED_BINDING'])
 
     def test_a_cursor_does_not_continue_across_a_rescan_of_the_code(self):
-        first = queries.context(self.snapshot, ['REQ-004'], 'change')
+        first = queries.trace(self.snapshot, object_id='REQ-004', budget_bytes=4096)
         self.assertIsNotNone(first['next_cursor'])
         rescanned = queries.Snapshot(self.spec, self.annotations[:-1], ROOT)
         self.assertEqual(rescanned.digest, self.snapshot.digest)
         with self.assertRaises(queries.QueryError) as refused:
-            queries.context(rescanned, ['REQ-004'], 'change', cursor=first['next_cursor'])
+            queries.trace(rescanned, object_id='REQ-004', budget_bytes=4096, cursor=first['next_cursor'])
         self.assertEqual(refused.exception.code, 'INVALID_CURSOR')
         same = queries.Snapshot(self.spec, list(self.annotations), ROOT)
-        self.assertTrue(queries.context(same, ['REQ-004'], 'change', cursor=first['next_cursor'])['items'])
+        self.assertTrue(queries.trace(same, object_id='REQ-004', budget_bytes=4096, cursor=first['next_cursor'])['items'])
+        # A context reads the release alone: its pages continue whatever happened to the code.
+        context = queries.context(self.snapshot, ['REQ-004'], 'change')
+        self.assertTrue(queries.context(rescanned, ['REQ-004'], 'change', cursor=context['next_cursor'])['items'])
 
     def test_a_candidate_says_whether_it_is_held_and_refuses_a_version_that_is_not_text(self):
         node = copy.deepcopy(next(n for n in self.spec['nodes'] if n['id'] == 'REQ-010'))

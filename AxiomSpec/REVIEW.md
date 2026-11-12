@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.7.1 · 11 November 2026. The fourth review describes edition 0.3.1 and the five sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0 and 0.7.1; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.7.2 · 12 November 2026. The fourth review describes edition 0.3.1 and the six sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1 and 0.7.2; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -323,6 +323,43 @@ Eighteen regression tests in the package and nine in the server, 27 in all. Run 
 - **The relying party of a passkey.** The assertion check compares the challenge, the user-verification flags and the signature. It does not compare the relying party or the origin; the declared key is the only binding.
 - **Forks below the head.** Two different releases under one version that is not the highest are not reported as a fork.
 - This is a review by the assistant that wrote the code, and its earlier reviews missed these defects.
+
+## Edition 0.7.2
+
+12 November 2026. A sixth review, of the code as edition 0.7.1 left it. Ten findings, none as serious as those of the fifth; eight were reproduced or measured before any fix. Nine are corrected and one is left as it is. The specification format stays `axiomspec/0.3`.
+
+### Defects and corrections
+
+| Finding on edition 0.7.1 | Correction |
+|---|---|
+| The scan could not leave a folder out. A repository that contains this package failed on the package's own mentions of `@req`: 13 problems in three files of `qa/`. | The scan, the index command and the service take `--exclude`. |
+| `@req REQ-004 and CON-005` read REQ-004 and dropped CON-005 without a word. | An ID of the release that follows other words on the line fails the scan. Other words, such as `SHA-256`, are ignored. |
+| With one rejected file in the store, every new file made the service read the whole store again: 36 files for three uploads instead of 3. | Only the rejected files are read again, since a new file may be the part one of them was missing. |
+| A candidate was announced as held without looking: when the write did not land, `held` was still true. | `held` is what the store holds, and a write that does not land is an error. |
+| The service listed the store with several system calls per file before each organization request: 165 ms at 5,000 files. | One pass per directory, about one call per file: 47 ms on the same store. |
+| Every read of a sandbox service walked the code, also for a context, which does not read it: 95 ms for 1,300 source files. | The code is looked at only by the queries that read it. A context cursor now survives a change of the code. |
+| A read of the approvals returned every approval offered, forged ones included. | It returns those that count, or all that were offered while the governing release is absent. |
+| A part that is a symbolic link passed a check that tested the path after following the link. | The link is refused before it is followed. |
+| The ledger shipped with a gap its own query reported: REQ-010 had no scenario, and REQ-004 no counterexample. | The ledger gains ENV-005, CON-012 and three scenarios for the report, and a counterexample for a denial. The tests evaluate CON-012 on each answer. Package QA now requires that the ledger's own gaps query reports nothing. |
+
+Left as it is: a sandbox service given a whole store validates every release in it to serve one. Given the single file of the task, as the playbook does, it costs nothing.
+
+Found while fixing: `qa/fictional_keys.py` refused every valid call from the command line, because it counted its arguments wrongly. The examples had been signed by calling its functions.
+
+### What changed in the example
+
+Release 1.1.0 of the ledger has a new digest, so its approvals were signed again with the fictional keys and its index rebuilt. It now holds 35 observations with 89 expectations, and the comparison with release 1.0.0 reports 136 changes with the same score, 194.25 points.
+
+### Tests
+
+Eight regression tests in the package and six in the server. Run against the code of edition 0.7.1, 13 of the 14 fail; the last guards the new rule on rejected files.
+
+### What this edition does not establish
+
+- The listing still grows with the store: 47 ms per organization request at 5,000 files, on one machine. The code signature still costs about 80 ms at 1,300 source files for each query that reads the code.
+- CON-012 covers a request by a verified principal of the ledger tenant. A request by anyone else is covered by the tenant predicates, not by this one.
+- The open points of edition 0.7.1 stand: parallel writers under load, growth of approval files, the relying party of a passkey, forks below the head.
+- This is again a review by the assistant that wrote the code.
 
 ## Confirmed findings and corrections
 

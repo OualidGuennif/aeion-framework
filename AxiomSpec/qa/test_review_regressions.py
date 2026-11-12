@@ -32,7 +32,7 @@ class ReviewRegressions(unittest.TestCase):
 
     def test_reference_corpus_still_exercises_its_expectations(self):
         # 9 snapshots x 5 constraints, 8 reservation attempts x 2, 9 cancel/commit commands x 2.
-        self.assertEqual(qa.check_observation_corpus(self.baseline, self.observations), (31, 84))
+        self.assertEqual(qa.check_observation_corpus(self.baseline, self.observations), (35, 89))
         self.assertEqual(qa.check_vector_corpus(self.baseline, self.vectors, self.validator), (23, 30))
 
     def test_missing_or_empty_observations_are_rejected(self):

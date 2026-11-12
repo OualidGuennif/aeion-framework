@@ -28,7 +28,7 @@ class TransitionObservations(unittest.TestCase):
 
     def test_every_transition_scenario_states_both_assertions(self):
         scenarios = [n for n in self.spec['nodes'] if n['kind'] == 'Scenario' and n['data']['environment_id'] == 'ENV-002']
-        self.assertEqual(len(scenarios), 8)
+        self.assertEqual(len(scenarios), 9)
         for scenario in scenarios:
             declared = {e['constraint_id'] for e in scenario['data']['constraint_expectations']}
             self.assertEqual(declared, {'CON-007', 'CON-008'}, scenario['id'])

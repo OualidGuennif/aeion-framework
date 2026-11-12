@@ -2,13 +2,13 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-11T19:15:23.764638+00:00",
+  "evaluated_at": "2026-11-12T04:23:47.802088+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 202,
+  "test_count": 210,
   "tested_inputs": [
     {
       "path": "api/mcp-tools.json",
@@ -16,7 +16,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "48e6163732d254f14e2c831b7eb777f28eafed460aecf3577514531cdc0cb184"
+      "sha256": "5115d5956d72c35814759d6190ce72820aafc7826b8d6cdbf127f219140a6d6c"
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -32,15 +32,15 @@
     },
     {
       "path": "examples/refund-ledger/approvals.json",
-      "sha256": "725978250a19d483f02b81728d1e9bd295a1f8a0830f494ecf565c39e8be73a8"
+      "sha256": "2e63d15802299d67606175e1f113cd729640ad503f79156d8ce0b9e3daaccd84"
     },
     {
       "path": "examples/refund-ledger/axiom-graph.json",
-      "sha256": "07757dad0e3fe849d08375bcb80523aa922522891dc06d94434fb9a030fce039"
+      "sha256": "b8f0bbc46687d15e2066828ce291b6656c1ba70e653eae2b9b7a172b1c6e9d59"
     },
     {
       "path": "examples/refund-ledger/croa-readiness.json",
-      "sha256": "3184f6ddecff9ddfde4b90f2306788d111d382a61b71f5f0c30b247165d27d50"
+      "sha256": "7e8cd08fab1889cbcbaf3f03e334b22d6dadf8d6c983040780675e778bc1e1e0"
     },
     {
       "path": "examples/refund-ledger/execution.json",
@@ -48,7 +48,7 @@
     },
     {
       "path": "examples/refund-ledger/observations.json",
-      "sha256": "49295cc11ab9a6ed3b890f0babdb0572bf08b44e661f321a642b157654d1b2b1"
+      "sha256": "8b02321314601a92e677ef7182011894f57821f5c17320f25a561c6a3450dd7a"
     },
     {
       "path": "examples/refund-ledger/releases/1.0.0.approvals.json",
@@ -60,11 +60,11 @@
     },
     {
       "path": "examples/refund-ledger/spec.json",
-      "sha256": "fae8c91fad899ddf7ee6564edb410daba84d4008d48a66b62bcfc8746af9fa9c"
+      "sha256": "07bd38b9cece16420f3c77c8b9d565db7fdd2f7ae911c5b03fb112bbca17dcef"
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "cecb4c86c89de95fef38cbc78fb5feccb66d7e192d2f659581b5566425f384d3"
+      "sha256": "1dde999c3b479e9588b18a6663582bf72e1167398cdbf60da467a31d35d496b6"
     },
     {
       "path": "fixtures/conformance.json",
@@ -76,7 +76,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "71b92334947402065e9d4cad05c120f9954365b729960075331288212034e487"
+      "sha256": "9a3926de8194f2b6d3b18116c7820923c8d2c481cb5cf393d4af3e7ad731be09"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -84,11 +84,11 @@
     },
     {
       "path": "qa/fictional_keys.py",
-      "sha256": "bdbb27d18e9229d39675260c2e3f48beef7e103198063a27affa085cf0224964"
+      "sha256": "9092b4c58b90de04b973ff297978f41a89c81e4b794f372593b1a46ba676136d"
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "094503b4c397e035bb255f6e03317386de2207c6a5711bdd5395b0b9fba70948"
+      "sha256": "c271ade7e26e829091c124e5077fa6d51d7ea46478eb2303353847439d6c5c35"
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -100,7 +100,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "bffeaf206e5c79db5cb4b7a9c99eaf756be321c16d2752d27929168fd07a30da"
+      "sha256": "3b21183961b2cb777889c5cffd4126d3393017defb825610aa9e52aeb65a39e5"
     },
     {
       "path": "qa/release_diff.py",
@@ -108,7 +108,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "9557b4dd288b99f9b780cd3ee9d384f7db3c9a52a42ff77d1ef853812f7c4bc6"
+      "sha256": "3b6f039d36d1ea79a380812e6ec42fc508bd4a0e02090ac4a52d7fd658b8a6c2"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -116,11 +116,11 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "2ac1e8700379ad4180ab265aa6465e248549c6b70b64326d1bba33b956425e63"
+      "sha256": "c3d3986d9fed83494ccd343ddcb6274f7de0b9c51c6ccefda3f66ee525e59109"
     },
     {
       "path": "qa/spec_parts.py",
-      "sha256": "44a80bcd032d665c8c567d79786cd751a42c8d85284f9f565fb90d378deeaab4"
+      "sha256": "be0d624eaeb6a61dd3a27e0bb4d4dd71f48c31f24152f44b0a4b6a52a4931a60"
     },
     {
       "path": "qa/test_approvals_store_parts.py",
@@ -128,7 +128,7 @@
     },
     {
       "path": "qa/test_fifth_review.py",
-      "sha256": "73044a33ac167526e3bdba405ccd66d06f02f54f25126a0c0b3c0c9097028e79"
+      "sha256": "007cc256112b8ddfdc6abf32ef6f640cab7f622fb0884f7b3360bc47b7eeec54"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -136,7 +136,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "ba6c2ee64d7292705f01486eeef0432c362d3bc182793104f4ed4b2eccc35934"
+      "sha256": "256d6e2b97f0d25e3dafb6b012bcc3149c561287a98200e0704f08dbe7ffd431"
     },
     {
       "path": "qa/test_releases_weights_flags.py",
@@ -144,19 +144,23 @@
     },
     {
       "path": "qa/test_review_regressions.py",
-      "sha256": "f591be59cf36a86d63df80f4a2902bc0d3b93377034b6eac6f075cdc0aa2fd1d"
+      "sha256": "d0ad13c940c5736fe60add18239532937587b73c26afc0aea5ca7a4bfc499a79"
     },
     {
       "path": "qa/test_second_review.py",
       "sha256": "31413d96d7453fc08b3f780a2dc28afc854316c04bab873615621ae077a8a320"
     },
     {
+      "path": "qa/test_sixth_review.py",
+      "sha256": "fe885498c906f770683c257088a6fd85c22003a3078d489526b258731dddf012"
+    },
+    {
       "path": "qa/test_third_review.py",
-      "sha256": "ce1f25eff588b11424044b26133f9ee2adaf2be07d84084c31fd379b867cdee3"
+      "sha256": "1df389ed0292d99b153b9ff5b84dd82a4e2e5ce4557d754b0b25297b8ce57403"
     },
     {
       "path": "qa/test_transition_scenarios.py",
-      "sha256": "2e4ec4945388d0b15ba1a26488644603e7269b19aea902d43fbd96a7c52463a2"
+      "sha256": "51dd7424ff9f8c61a502b717df1cc47c1419a3b291807e02e4d7000a44fa82de"
     },
     {
       "path": "schemas/approvals.schema.json",

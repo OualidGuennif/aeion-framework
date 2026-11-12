@@ -67,7 +67,7 @@ def approvals_for(spec, governing, signers):
 
 
 def main(arguments):
-    if len(arguments) < 4 or len(arguments) % 2:
+    if len(arguments) < 5 or len(arguments) % 2 == 0:  # three files, then one or more ACTOR KEY pairs
         print('Usage: python3 qa/fictional_keys.py <spec.json> <governing.json> <new-approvals.json> <ACTOR-ID> <KEY-ID> [...]\n'
               'Signs with fictional keys derived from public labels. Never use for a real approval.', file=sys.stderr)
         return 4

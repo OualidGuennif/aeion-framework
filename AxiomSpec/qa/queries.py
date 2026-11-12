@@ -124,13 +124,15 @@ def page(snapshot, name, parameters, items, budget_bytes=MAX_BYTES, cursor=None,
     if type(budget_bytes) is not int or not MIN_BYTES <= budget_bytes <= MAX_BYTES:
         raise QueryError('INVALID_PARAMETER', f'budget_bytes is an integer from {MIN_BYTES} to {MAX_BYTES}')
     identity = query_digest(name, parameters)
+    # A context reads the release alone, so its pages survive a rescan of the code; the other queries read the code too.
+    bound_to = snapshot.digest if name == 'context' else snapshot.state
     position = 0
     if cursor is not None:
         try:
             padded = cursor + '=' * (-len(cursor) % 4)
             bound = json.loads(base64.urlsafe_b64decode(padded.encode('ascii')))
             position = bound['position']
-            valid = (bound['snapshot'], bound['query']) == (snapshot.state, identity) and type(position) is int
+            valid = (bound['snapshot'], bound['query']) == (bound_to, identity) and type(position) is int
         except (ValueError, KeyError, TypeError):
             valid = False
         if not valid or not 0 < position <= len(items):
@@ -155,7 +157,7 @@ def page(snapshot, name, parameters, items, budget_bytes=MAX_BYTES, cursor=None,
         position += 1
     envelope['returned_count'] = len(envelope['items'])
     if position < len(items):
-        bound = canonical(dict(snapshot=snapshot.state, query=identity, position=position))
+        bound = canonical(dict(snapshot=bound_to, query=identity, position=position))
         envelope['next_cursor'] = base64.urlsafe_b64encode(bound).rstrip(b'=').decode('ascii')
     # Complete means the whole answer was deliverable at this budget, not only this page.
     oversized = any(len(canonical(item)) + 1 > budget_bytes - reserve for item in items)

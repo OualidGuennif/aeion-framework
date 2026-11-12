@@ -31,7 +31,7 @@ Weights are in tenths of a point (`weight_minor_units` is 10), so 950 reads 95.0
 | REQ-007 | 37.5 | medium | Bounded audit without secrets/raw payload | CON-011 on the rows of seven attempts; stored rows searched for the credential, body, key and amount |
 | REQ-008 | 65.0 | high | Admit a fitting request as exactly one reserved record | New key beside an existing record |
 | REQ-009 | 60.0 | high | Leave the ledger unchanged when a command does not apply | Five inapplicable commands, ledger read back identical |
-| REQ-010 | 20.0 | low | Where the report is enabled, report remaining capacity | With FLAG-001 on and with it off |
+| REQ-010 | 20.0 | low | Where the report is enabled, report remaining capacity | CON-012 on each answer, with FLAG-001 on and with it off |
 
 REQ-008 was added in edition 0.4.0. Until then every requirement was a refusal, a retry or a later transition: a ledger that refused everything satisfied them all. REQ-009 was added in release 1.1.0: nothing said what a cancel or commit does to a record that is committed, released or missing, and a gate cannot detect a requirement nobody wrote. REQ-010 exists to exercise a feature flag.
 
@@ -50,6 +50,7 @@ REQ-008 was added in edition 0.4.0. Until then every requirement was a refusal, 
 | CON-009 | observation_assertion | After a repeated, refused, unknown-record or denied command, the ledger is unchanged |
 | CON-010 | observation_assertion | After an applied command, exactly the targeted record moved, from reserved to released for a cancel or to committed for a commit |
 | CON-011 | observation_assertion | An audited attempt added exactly one audit row, equal to its operation identifier, operation kind and outcome |
+| CON-012 | observation_assertion | With the report enabled, the answer is the captured capacity minus the consumed capacity; with it disabled, no amount is given |
 
 Snapshot uniqueness does not establish temporal idempotence. A false guard can represent a correct refusal, while a false invariant identifies an invalid state.
 
@@ -71,7 +72,7 @@ The model references effects but does not define executable transition transform
 
 ## Reference observations
 
-[observations.json](../examples/refund-ledger/observations.json) contains 31 synthetic observations with 84 expectations. Nine are single ledger snapshots in ENV-001, each with five Boolean expectations.
+[observations.json](../examples/refund-ledger/observations.json) contains 35 synthetic observations with 89 expectations. Nine are single ledger snapshots in ENV-001, each with five Boolean expectations.
 
 | Scenario | Case | Expected distinction |
 |---|---|---|
@@ -85,7 +86,7 @@ The model references effects but does not define executable transition transform
 | SCN-008 | Unverified principal | Authorization guard false |
 | SCN-009 | Principal/request agree but resource tenant differs | Resource ownership must also be checked |
 
-Eight are before/after observations of one reservation attempt in ENV-002, each with two expectations (CON-007, CON-008).
+Nine are before/after observations of one reservation attempt in ENV-002, each with two expectations (CON-007, CON-008).
 
 | Scenario | Before -> after, outcome | Expected distinction |
 |---|---|---|
@@ -97,6 +98,7 @@ Eight are before/after observations of one reservation attempt in ENV-002, each 
 | SCN-015 | New key beside an existing record; one record added; reserved | Admission added exactly the requested record |
 | SCN-016 | Same, but the added record holds another amount | CON-008 false: wrong amount recorded |
 | SCN-017 | Denied caller; ledger identical; denied | Denial changed nothing |
+| SCN-035 | Denied caller, but a reserved record appeared | CON-007 false: a denial changed the ledger |
 
 Nine are before/after observations of one cancel or commit command in ENV-003, each with two expectations (CON-009, CON-010).
 
@@ -122,6 +124,14 @@ Five observe one attempt and the audit rows it added, in ENV-004, each with one 
 | SCN-030 | Reservation `op-9`; the row's outcome also holds the key and amount | CON-011 false: the request body was copied |
 | SCN-031 | Denied reservation `op-7`; no row | CON-011 false: the attempt was not recorded |
 
+Three observe one report request by a verified principal of the ledger tenant and its answer, in ENV-005, each with one expectation (CON-012).
+
+| Scenario | Flag, ledger -> answer | Expected distinction |
+|---|---|---|
+| SCN-032 | Enabled; 1,000 captured, 600 consumed; 400 reported | The report is what remains |
+| SCN-033 | Enabled; same ledger; 1,000 reported | CON-012 false: the consumed capacity was ignored |
+| SCN-034 | Disabled; same ledger; nothing reported | No amount is disclosed while the report is off |
+
 CON-011 fixes what each field equals, which leaves no room for a credential or a body. An attempt that reaches no operation (a malformed request, or a store that is busy) is not an authorization attempt, writes no row and is outside ENV-004.
 
 Each before/after predicate is an implication, so it is vacuously true for outcomes it does not concern; the counterexamples show that each can fail. CON-007 and CON-008 are compared with direct calculations on 200 seeded transitions in package QA.
@@ -132,7 +142,7 @@ All 20 TestCases are implemented, bound to a test class and executed by package 
 
 Three things make these more than green ticks.
 
-- **The specification's formulas are the oracle.** Every reservation, cancellation and commitment in the tests is wrapped in a before/after observation read back from the store, and CON-007 to CON-010 are evaluated on it. CON-011 is evaluated on the audit rows each attempt added. The admission guard and the principal guard in the code are compared with CON-002 and CON-005 at their boundaries. A property test checks CON-001, CON-003 and CON-004 after each of 600 seeded operations and requires that every outcome of every operation occurred.
+- **The specification's formulas are the oracle.** Every reservation, cancellation and commitment in the tests is wrapped in a before/after observation read back from the store, and CON-007 to CON-010 are evaluated on it. CON-011 is evaluated on the audit rows each attempt added, and CON-012 on each report answer with the ledger read back. The admission guard and the principal guard in the code are compared with CON-002 and CON-005 at their boundaries. A property test checks CON-001, CON-003 and CON-004 after each of 600 seeded operations and requires that every outcome of every operation occurred.
 - **The dangerous interleaving is forced, not hoped for.** A second reservation is started inside the first one's critical section, after its capacity check. The ledger turns it away and admits one. The same interleaving run against a variant without the transaction admits both and reaches 1,200 against 1,000: the test fails on the defect it exists to catch. A third case runs two real threads.
 - **Failure points are named.** A response lost after commit, a restart after a write and a stop between check and commit each have a test that states what is durable and what a retry returns.
 
@@ -140,7 +150,7 @@ Implementing the tests settled one detail the prose had left open: a retry of a 
 
 ## Release 1.1.0
 
-Release 1.0.0 is the ledger of edition 0.4.0 migrated to format 0.2 with reviewed weights. Release 1.1.0 adds the cancel/commit and audit environments, REQ-009, REQ-010 behind FLAG-001, CON-009 to CON-011, fourteen scenarios, four tests, the real bindings and the import of the identity adapter. The comparison (gate G14, `python3 qa/release_diff.py`) reports 122 changed objects.
+Release 1.0.0 is the ledger of edition 0.4.0 migrated to format 0.2 with reviewed weights. Release 1.1.0 adds the cancel/commit, audit and report environments, REQ-009, REQ-010 behind FLAG-001, CON-009 to CON-012, eighteen scenarios, four tests, the real bindings and the import of the identity adapter. The comparison (gate G14, `python3 qa/release_diff.py`) reports 136 changed objects. CON-012 is a new rule on REQ-010, which is itself new, so it is not a breaking candidate.
 
 | Output | Result |
 |---|---|
@@ -175,13 +185,13 @@ The keys are fictional. Each private key is derived from a public label so that 
 
 ## What an agent is given
 
-The ledger code carries seven annotations naming thirteen IDs, such as `# @req REQ-004 CON-005` above `authorize`. With the 30 bindings they yield the 43 traces of the [graph index](../examples/refund-ledger/axiom-graph.json), a 29 KB file beside a 209 KB specification.
+The ledger code carries seven annotations naming thirteen IDs, such as `# @req REQ-004 CON-005` above `authorize`. With the 31 bindings they yield the 44 traces of the [graph index](../examples/refund-ledger/axiom-graph.json), a 31 KB file beside a 220 KB specification.
 
-A search of the index for `Ledger.command` returns three lines: REQ-005, REQ-006 and REQ-009. The brief of REQ-005 is 3.8 KB. What binds REQ-005 and REQ-009 together is 22 objects in one 24 KB page. The context of a change to them is 98 objects in four pages, because the two hard project rules bring the capacity and tenant requirements with their scenarios and tests.
+A search of the index for `Ledger.command` returns three lines: REQ-005, REQ-006 and REQ-009. The brief of REQ-005 is 3.8 KB. What binds REQ-005 and REQ-009 together is 22 objects in one 24 KB page. The context of a change to them is 99 objects in three pages, because the two hard project rules bring the capacity and tenant requirements with their scenarios and tests.
 
 ## Remaining gaps
 
-- REQ-010 has a test in each flag state and no scenario. The `gaps` query reports it.
+- The `gaps` query reports nothing on the ledger, and package QA requires that. Until edition 0.7.2 REQ-010 had no scenario and REQ-004 no counterexample; every must requirement now has a witness and a counterexample.
 - BCIR has no substring operator. CON-011 states what each audit field equals; "no stored column contains the credential" is still asserted in test code on the raw rows.
 - After DEC-002 nothing writes a `rejected` record, yet the status and TRN-002 remain. Removing them is a breaking change to the model and the environments; it is left for a major release.
 - A before/after pair describes one completed attempt. Interleaving is covered by the executed concurrency test on SQLite, not by a predicate, and no other store is qualified.

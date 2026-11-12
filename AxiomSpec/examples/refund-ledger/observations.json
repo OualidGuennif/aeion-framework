@@ -1217,6 +1217,103 @@
       "expected": {
         "CON-011": false
       }
+    },
+    {
+      "scenario_id": "SCN-032",
+      "environment_id": "ENV-005",
+      "environment": {
+        "flag_enabled": true,
+        "captured_minor": 1000,
+        "consumed_minor": 600,
+        "reported": true,
+        "remaining_minor": 400
+      },
+      "expected": {
+        "CON-012": true
+      }
+    },
+    {
+      "scenario_id": "SCN-033",
+      "environment_id": "ENV-005",
+      "environment": {
+        "flag_enabled": true,
+        "captured_minor": 1000,
+        "consumed_minor": 600,
+        "reported": true,
+        "remaining_minor": 1000
+      },
+      "expected": {
+        "CON-012": false
+      }
+    },
+    {
+      "scenario_id": "SCN-034",
+      "environment_id": "ENV-005",
+      "environment": {
+        "flag_enabled": false,
+        "captured_minor": 1000,
+        "consumed_minor": 600,
+        "reported": false,
+        "remaining_minor": 0
+      },
+      "expected": {
+        "CON-012": true
+      }
+    },
+    {
+      "scenario_id": "SCN-035",
+      "environment_id": "ENV-002",
+      "environment": {
+        "before": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            }
+          ]
+        },
+        "after": {
+          "captured_minor": 1000,
+          "refunds": [
+            {
+              "id": "r-a",
+              "key": "a",
+              "amount_minor": 600,
+              "status": "reserved"
+            },
+            {
+              "id": "r-b",
+              "key": "b",
+              "amount_minor": 400,
+              "status": "committed"
+            },
+            {
+              "id": "r-c",
+              "key": "c",
+              "amount_minor": 100,
+              "status": "reserved"
+            }
+          ]
+        },
+        "request": {
+          "key": "c",
+          "amount_minor": 100,
+          "outcome": "denied"
+        }
+      },
+      "expected": {
+        "CON-007": false,
+        "CON-008": true
+      }
     }
   ]
 }

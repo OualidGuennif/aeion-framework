@@ -26,7 +26,8 @@ def authorize(principal, request_tenant, resource_tenant):
 - A colon or an opening parenthesis may follow the token, and the IDs are separated by spaces or commas: `@req: REQ-004` and `@req(REQ-004, CON-005)` are read the same.
 - It belongs to the definition a comment block directly precedes, otherwise to the innermost definition that contains it, otherwise to the file. Symbols are resolved for Python; elsewhere the location is the file and line.
 - It names an object the release holds and has not retired. Anything else fails the scan, and so does the token with no ID after it: an annotation that is skipped would tell an agent that no requirement concerns the code.
-- A scanned path that does not exist is an error, not an empty scan. Below a scanned path, version-control, dependency, cache and output folders (`.git`, `node_modules`, `build`, `dist`, `target` and the like) are not entered; a source folder with such a name is scanned by naming it.
+- An ID of the release that follows other words on the line, as in `@req REQ-004 and CON-005`, also fails the scan: it was meant to be annotated and was not read. Other words on the line are ignored.
+- A scanned path that does not exist is an error, not an empty scan. Below a scanned path, version-control, dependency, cache and output folders (`.git`, `node_modules`, `build`, `dist`, `target` and the like) are not entered; a source folder with such a name is scanned by naming it. A path can be left out of the scan; a repository that contains a copy of this package, which mentions the token in its own code, leaves that copy out.
 - It yields a trace of kind `test` in a test file and `code` elsewhere. A trace on a constraint, component or test leads to the requirements that object concerns.
 - An active must requirement with no binding and no annotation in code is reported as a gap of the implementation phase.
 
@@ -40,7 +41,7 @@ Every read is a GET on a release named by its canonical digest. An answer that i
 
 The digest covers the release, not the code beside it. When a service reads annotations and bindings from a repository, the index, a lookup, a trace and the gaps also depend on that code. Those answers carry an ETag and are revalidated on each use; they are never marked immutable. The context of a requirement reads the release only and stays immutable.
 
-Reads are bounded as AX-K-006 states: at most 100 items and 32,768 bytes, with a cursor bound to the snapshot, the state of the scanned code and the query. A cursor holds no state on the service and grants nothing, and a page begun before the code changed is not continued afterwards. An object that cannot fit the budget is named in `omissions` and never cut, and `complete` is true only when the whole answer was deliverable. A place in the code is listed once, however many declared links lead to it.
+Reads are bounded as AX-K-006 states: at most 100 items and 32,768 bytes, with a cursor bound to the snapshot, the query and, for an answer that reads the code, the state of the scanned code. A cursor holds no state on the service and grants nothing. A page of an index, a trace or the gaps begun before the code changed is not continued afterwards; the pages of a context, which reads the release alone, continue. An object that cannot fit the budget is named in `omissions` and never cut, and `complete` is true only when the whole answer was deliverable. A place in the code is listed once, however many declared links lead to it.
 
 An unknown ID is `not_found`. Errors are problem documents (RFC 9457) with a stable `code`, including `INTERNAL_ERROR` for a defect of the service. A bound file that does not parse, as happens while it is being edited, is a gap in the answer and not a failed request.
 
@@ -57,8 +58,8 @@ A question about a requirement has three depths. An agent takes the first that a
 | Depth | Operation | Returns | On the ledger |
 |---|---|---|---|
 | Brief | `lookup` | The requirement as a sentence, its weight and risk, the IDs and titles linked to it, and where it is implemented and tested | 2 to 6 KB |
-| Direct | `context`, scope `direct` | The requirement with its goals, terms, assumptions and governing decisions, the constraints that formalize it with their environments, and every hard project rule | 9 to 22 KB, one page |
-| Change | `context`, scope `change` | The conservative closure of AX-K-010: also the requirements under project rules, with scenarios, tests and components | 79 to 90 KB, three pages |
+| Direct | `context`, scope `direct` | The requirement with its goals, terms, assumptions and governing decisions, the constraints that formalize it with their environments, and every hard project rule | 11 to 22 KB, one page |
+| Change | `context`, scope `change` | The conservative closure of AX-K-010: also the requirements under project rules, with scenarios, tests and components | 80 to 91 KB, three pages |
 
 The direct scope answers "what does this demand and what binds it". It is not the mandatory context of a change, and its answer says so. Before changing behavior, the change scope is required (AX-K-007) and stays incomplete until every page is delivered.
 
@@ -82,8 +83,8 @@ In organization mode the service also accepts releases and approvals. A release 
 
 - **A file is named by its content and never rewritten.** Each accepted upload is its own file: a release under its digest, approvals under the release digest and the digest of the approvals themselves. Two processes that receive different approvals write different files, and neither can undo the other.
 - **What is accepted is what the store reads back.** A body is strict JSON of at most one megabyte, the size of one store file, and a release is written in its canonical form. A number, a duplicate key or a size the store would refuse on reading is refused on writing. A release larger than one file is held as parts (AX-M-022).
-- **Approvals are checked when they can be.** With the governing release at hand, only the approvals that verify are kept, and a body in which none verifies is refused. Without it they are kept as offered and the verdict sets aside what does not verify.
-- **Every request sees the store as it is.** Before answering, the service takes in the files that appeared since its last request. It reads each file once; a digest it does not hold costs a listing of the directory, not a reload.
+- **Approvals are checked when they can be.** With the governing release at hand, only the approvals that verify are kept, and a body in which none verifies is refused. Without it they are kept as offered and the verdict sets aside what does not verify. A read of the approvals follows the same rule: it returns those that count, or all that were offered while the governing release is absent.
+- **Every request sees the store as it is.** Before answering, the service takes in the files that appeared since its last request. It reads each file once; a digest it does not hold costs a listing of the directory, not a reload. A rejected file is read again when a new file arrives, since that file may be the part it was missing.
 
 An upload grants nothing. What makes a release usable is its verdict: its link to its baseline, the comparison, its approvals and its imports, computed from the files held. An uploaded release is kept whatever its verdict, and it becomes the accepted head of its project only when that verdict is pass (AX-L-010).
 

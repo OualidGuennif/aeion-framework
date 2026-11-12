@@ -681,7 +681,7 @@
     "/v1/releases/{digest}/approvals": {
       "get": {
         "operationId": "getApprovals",
-        "summary": "The approvals held for a release.",
+        "summary": "The approvals of a release that count: those that verify under the release that governs it.",
         "tags": [
           "organization"
         ],
@@ -702,7 +702,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The approvals.",
+            "description": "The approvals that verify. While the governing release is not held, all that were offered.",
             "content": {
               "application/json": {
                 "schema": {

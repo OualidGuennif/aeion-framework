@@ -14,7 +14,7 @@ python3 -m pip install -r AxiomSpec/qa/requirements-qa.txt -r server/requirement
 
 Run the service from the `server` directory, with the interpreter those dependencies were installed for. From another directory, add `PYTHONPATH=server` in front of the command.
 
-For one coding task, read-only. The digest is the `spec_sha256` of the graph index; it may be left out when the store holds one release. A path given to `--include` must exist, or the service does not start.
+For one coding task, read-only. The digest is the `spec_sha256` of the graph index; it may be left out when the store holds one release. A path given to `--include` must exist, or the service does not start. `--exclude` leaves a path out of the scan, for a repository that holds other code mentioning `@req`, such as a copy of the AxiomSpec package.
 
 ```bash
 python3 -m axiom_service --store ../AxiomSpec/examples/refund-ledger/spec.json --repo ../AxiomSpec --include examples/refund-ledger
@@ -48,7 +48,7 @@ The service keeps nothing between requests but files, and it never rewrites one.
 - **Writes.** In organization mode each accepted upload becomes its own file in the first store directory: a release as `<digest>.json` in canonical form, or as `<digest>.parts/` when it exceeds one megabyte, and approvals as `<release digest>.approvals.<digest of the approvals>.json`. A file is staged under a name that starts with `.incoming-` and moved into place whole.
 - **Reads.** Before each organization request the service lists the store and reads the files that appeared, each once. Several processes on one directory therefore answer the same, and a digest that is not held costs a listing, not a reload.
 - **Bodies.** A request body is strict JSON of at most one megabyte. A release the store could not read back is refused, not written.
-- **Code.** In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.
+- **Code.** In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. A context reads the release alone and does not look at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.
 
 ## What it is not
 

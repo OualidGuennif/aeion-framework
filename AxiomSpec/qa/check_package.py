@@ -1031,6 +1031,10 @@ def main():
         require(graph_index.dumps(index) == (ROOT / 'examples/refund-ledger/axiom-graph.json').read_text(),
                 'The committed graph index is not the one the example yields; rebuild it')
         snapshot = queries.Snapshot(baseline, annotations, ROOT)
+        # The worked example is copied by readers: it carries no gap that its own query reports.
+        for phase in ('design', 'implementation'):
+            missing = [f"{gap['code']} {gap['id']}" for gap in queries.gaps(snapshot, phase)['items']]
+            require(not missing, f"The worked example has {phase} gaps: {', '.join(missing)}")
         validators = {name: queries.contract_validator(name) for name in ('NodeView', 'ContextPage', 'TracePage', 'GapsPage', 'GraphIndex')}
         validators['GraphIndex'].validate(index)
         answers = 0

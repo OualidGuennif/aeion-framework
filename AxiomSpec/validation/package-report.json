@@ -42,15 +42,15 @@
     "sha256": "97de9a3eac06cfab5719fbf6589bb875bf7d4b169a77e30d206b22b27b5effe8"
   },
   "subject": {
-    "spec_sha256": "4f4ea90e269e48a5062acfa2eac6f9fd178efda2459d8b811735d7cc28df1ee3",
-    "source_tree_sha256": "4ded1f58251510dd3eadb439ea6f306286930945856193a540c15245540ec224",
+    "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
+    "source_tree_sha256": "96647e9ca52ee226b485c11b1bcc1503669025d1988f5883643907b2a1557cd2",
     "policy_sha256": null,
     "toolchain_sha256": "652b2794105b67e77f41eb358bc7ae4d032a41f4954a8670a4880bd98abe12b8",
-    "observations_sha256": "21462aeeccb4a7771974117c50d74b0652fe9740d2f0b90587cab7079d7b4d9f"
+    "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -94,7 +94,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "33 example application tests executed on current inputs cover all 20 active TestCases; 30 required bindings resolve. Local SQLite reference implementation, untrusted producer.",
+      "message": "33 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.",
       "evidence": [],
       "limitations": []
     },
@@ -116,7 +116,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "84 reference expectations checked across all 31 synthetic observations. Fixtures, not application runs.",
+      "message": "89 reference expectations checked across all 35 synthetic observations. Fixtures, not application runs.",
       "evidence": [],
       "limitations": []
     },
@@ -149,7 +149,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "Selected reference checks passed: 92 nodes, 182 edges. No completeness claim.",
+      "message": "Selected reference checks passed: 97 nodes, 189 edges. No completeness claim.",
       "evidence": [],
       "limitations": []
     },
@@ -160,7 +160,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "202 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "message": "210 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
       "evidence": [],
       "limitations": []
     },
@@ -171,7 +171,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "Reference G14 comparison 1.0.0 -> 1.1.0: 122 changes, required step minor, change risk score 194.250 points. Classification is mechanical, not a compatibility proof.",
+      "message": "Reference G14 comparison 1.0.0 -> 1.1.0: 136 changes, required step minor, change risk score 194.250 points. Classification is mechanical, not a compatibility proof.",
       "evidence": [],
       "limitations": []
     },
@@ -217,7 +217,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-11T19:15:39.560849+00:00",
+    "evaluated_at": "2026-11-12T04:24:04.262124+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [
