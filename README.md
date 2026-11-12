@@ -15,15 +15,21 @@ test proves. AxiomSpec replaces the prose with a single `spec.json` in which eve
 constraint, scenario and test has an ID, a link and a status a program can check.
 
 ```mermaid
-flowchart LR
-  idea["Idea, examples<br/>and decisions"] --> spec[("spec.json<br/>AxiomSpec 0.3")]
-  spec --> checks{{"Deterministic checks<br/>pass · fail · unknown"}}
-  checks --> release["Signed release<br/>version · digest · approvals"]
-  release --> agent["Coding agent<br/>index · @req · MCP"]
-  agent --> code["Code and tests"]
-  code --> evidence["Executed tests<br/>as evidence"]
-  evidence --> next["Next release<br/>diff · risk score"]
-  next --> spec
+flowchart TB
+  subgraph specify ["1 · Specify and approve"]
+    direction LR
+    idea["Idea, examples<br/>and decisions"] --> spec[("spec.json<br/>AxiomSpec 0.3")]
+    spec --> checks{{"Deterministic checks<br/>pass · fail · unknown"}}
+    checks --> release["Signed release<br/>version · digest · approvals"]
+  end
+  subgraph build ["2 · Build and prove"]
+    direction LR
+    agent["Coding agent<br/>index · @req · MCP"] --> code["Code and tests"]
+    code --> evidence["Executed tests<br/>as evidence"]
+    evidence --> next["Next release<br/>diff · risk score"]
+  end
+  release --> agent
+  next -.-> spec
 
   classDef source fill:#ede9fe,stroke:#6f42c1,color:#1e1b4b
   classDef gate fill:#fef3c7,stroke:#b45309,color:#451a03
@@ -66,7 +72,7 @@ curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.0.0: contracts, JSON schemas, reference checks, the service contract and a worked example, a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases with executed tests |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.0.1: contracts, JSON schemas, reference checks, the service contract and a worked example, a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases with executed tests |
 | [`server/`](server/README.md) | The reference service: the package's queries over HTTP and MCP, for one task in a sandbox or for a whole organization |
 | [`playbooks/`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | Three procedures: [a new project](playbooks/01_NEW_PROJECT_AXIOMSPEC.md), [an existing one](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md), and [an agent in a sandbox](playbooks/03_AGENT_IN_A_SANDBOX.md) |
 

@@ -33,6 +33,6 @@ test_flag_is_the_one_the_specification_declares (test_ledger.Test020RemainingRep
 test_report_is_unavailable_and_discloses_nothing (test_ledger.Test020RemainingReportOff.test_report_is_unavailable_and_discloses_nothing) ... ok
 
 ----------------------------------------------------------------------
-Ran 33 tests in 2.017s
+Ran 33 tests in 2.220s
 
 OK

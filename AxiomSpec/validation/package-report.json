@@ -43,14 +43,14 @@
   },
   "subject": {
     "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
-    "source_tree_sha256": "b961953911ad5081f48bcbfd782ede28380fe1176d4c8d6747f3dd01f72e89ed",
+    "source_tree_sha256": "07d41949d6c2eda7d026531a0353a2d590a34802dd2ff17a67ed96e6ec0b6c84",
     "policy_sha256": null,
     "toolchain_sha256": "a44a9cae10a4db36b947444cd58263c76fda321b52899aff18382571fb86e3d1",
     "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -217,7 +217,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-12T04:54:19.166144+00:00",
+    "evaluated_at": "2026-11-12T04:57:05.460664+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

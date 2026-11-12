@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.0.0 · 12 November 2026. The fourth review describes edition 0.3.1 and the seven sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1, 0.7.2 and 1.0.0; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code, and the section on edition 1.0.0 a seventh. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 1.0.1 · 12 November 2026. The fourth review describes edition 0.3.1 and the seven sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1, 0.7.2 and 1.0.0; editions 0.5.1 and 1.0.1 are notes at the end of the second and of the last. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code, and the section on edition 1.0.0 a seventh. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -386,6 +386,10 @@ Three regression tests in the package and four in the server. Run against the co
 - The open points of editions 0.7.1 and 0.7.2 stand: the listing grows with the store, parallel writers under load, growth of approval files, the relying party of a passkey, forks below the head.
 - **Benefit to an agent.** Still not measured. The next useful step is an agent on a real task with the sandbox playbook, with and without the service, not a further review.
 - This is again a review by the assistant that wrote the code.
+
+### Edition 1.0.1
+
+12 November 2026. Python 3.14 or later is required: the package QA and the reference service refuse an older interpreter, and the automated checks run on 3.14. The receipts were replayed on Python 3.15.2. The root README of the repository was rewritten as a shorter overview. Nothing else changed: the format, the checks, the service and the examples are those of edition 1.0.0.
 
 ## Confirmed findings and corrections
 
