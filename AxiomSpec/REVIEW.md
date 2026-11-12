@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.3 · 12 November 2026. The [1.1.3 change record](#edition-113) describes the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.4 · 12 November 2026. The [1.1.4](#edition-114) and [1.1.3](#edition-113) change records describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,29 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.4
+
+12 November 2026. Another review pass over the file commands, the service, the store and the annotation
+scan. The format stays `axiomspec/0.3`.
+
+- The annotation scan read each source file as strict UTF-8 and skipped any file that did not decode. A
+  cp1252 file with one accented letter in a comment, common in code written on Windows, lost every `@req`
+  annotation in it without notice, and `gaps` then reported its requirements as untraced. Bytes that are
+  not UTF-8 are now replaced with U+FFFD, which neither the token nor an ID can contain, so the
+  annotations are read with their lines and, for Python, their symbols.
+- The service compared `If-None-Match` with the ETag of every answer, including the answers to `PUT` and
+  `POST`. A write sent with a matching ETag was applied and then answered 304 with no body, a status the
+  contract declares for no operation. Only a GET can answer 304 now; a write always returns its status
+  and its body.
+- The edition is written by hand in the Dockerfile label, the Compose image and the default image of
+  `tools/check_container.py`, and only the README was compared with it. `tools/check_repo.py` now checks
+  all three.
+
+A source file over one megabyte is still left out of the scan without a report; such files are generated
+code in practice. One regression test covers the encoding defect and fails on 1.1.3, and the candidate
+test now sends `If-None-Match` with a POST and a PUT. The package suite has 243 tests and the service
+suite 60.
 
 ## Edition 1.1.3
 

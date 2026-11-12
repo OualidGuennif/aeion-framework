@@ -86,6 +86,11 @@ def main():
     stated = set(re.findall(r'edition (\d+\.\d+\.\d+)', (REPO / 'README.md').read_text(encoding='utf-8')))
     if EDITION not in stated:
         problems.append(f'README.md: does not name the package edition {EDITION}')
+    # The image carries the edition in three places that are edited by hand at each release.
+    for name, expected in (('Dockerfile', f'image.version="{EDITION}"'), ('compose.yaml', f'aeion-framework:{EDITION}'),
+                           ('tools/check_container.py', f"default='aeion-framework:{EDITION}'")):
+        if expected not in (REPO / name).read_text(encoding='utf-8'):
+            problems.append(f'{name}: does not name the package edition {EDITION}')
     for problem in problems:
         print(problem, file=sys.stderr)
     print(f'{len(documents)} documents checked around the package, edition {EDITION}: '

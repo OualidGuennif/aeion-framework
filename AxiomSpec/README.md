@@ -2,7 +2,7 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.1.3 · 12 November 2026**
+**Edition 1.1.4 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
@@ -80,6 +80,8 @@ Edition 1.1.1 gives the FastAPI service a Docker image on Python 3.15, with work
 Edition 1.1.2 fixes four defects found in 1.1.1. Enum changes that hold objects or arrays are compared correctly, the store and the candidates use the same environment checks as the checker, MCP accepts HTTPS origins you list explicitly, and a malformed part gives a clean error. It also adds the `compare` and `verify-store` commands. The [change record](REVIEW.md#edition-112) has the details.
 
 Edition 1.1.3 fixes two defects in the annotation scan: a form feed or a line separator in a source file no longer hides the `@req` annotations after it, and a Python file that starts with a byte-order mark keeps its docstring annotations and symbols. `POST /v1/candidates` now answers 201 with a `Location` only when the candidate is held, and 200 when it is refused. The [change record](REVIEW.md#edition-113) has the details.
+
+Edition 1.1.4 fixes two defects. The annotation scan reads a source file that is not valid UTF-8, such as a cp1252 file with an accent in a comment, instead of skipping it with all its `@req` annotations. A `PUT` or `POST` sent with `If-None-Match` now always gets its status and body; 304 is kept for reads. The repository check also compares the edition named by the Dockerfile, the Compose file and the container check. The [change record](REVIEW.md#edition-114) has the details.
 
 ## Commands
 

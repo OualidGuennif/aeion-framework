@@ -73,7 +73,8 @@ def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15, allo
         body = json.dumps(result, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
         etag = '"' + hashlib.sha256(body).hexdigest() + '"'
         headers = {'ETag': etag, 'Cache-Control': IMMUTABLE if immutable else 'no-cache'}
-        if request.headers.get('if-none-match') == etag:
+        # Only a read may answer 304. A write has already been applied, and its client needs the body.
+        if request.method == 'GET' and request.headers.get('if-none-match') == etag:
             return Response(status_code=304, headers=headers)
         return Response(body, status_code=status, media_type='application/json', headers=headers)
 

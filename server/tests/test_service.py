@@ -307,6 +307,12 @@ class Organization(Case):
         self.assertEqual(result, dict(queries.propose(self.spec, '1.1.1', request['operations']), held=True))
         self.assertEqual((result['status'], result['comparison']['required_step']), ('pass', 'patch'))
         self.assertEqual(self.http.post('/v1/candidates', json=request).json()['spec_sha256'], result['spec_sha256'])
+        # A write always answers with its body; only a read may answer 304.
+        repeated = self.http.post('/v1/candidates', json=request, headers={'If-None-Match': created.headers['ETag']})
+        self.assertEqual((repeated.status_code, repeated.json()), (201, created.json()))
+        stored = self.http.put(f"/v1/releases/{result['spec_sha256']}", json=result['candidate'])
+        self.assertEqual(self.http.put(f"/v1/releases/{result['spec_sha256']}", json=result['candidate'],
+                                       headers={'If-None-Match': stored.headers['ETag']}).status_code, 200)
         self.assertEqual(self.get(f"/v1/releases/{result['spec_sha256']}"), result['candidate'])
         self.assertEqual(self.get(f"/v1/releases/{result['spec_sha256']}/verdict")['approvals'], 'pass')  # low band: no approver
         for body, status, code in [(dict(request, operations=[dict(op='delete', id='REQ-001')]), 400, 'INVALID_PARAMETER'),

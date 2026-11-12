@@ -103,6 +103,16 @@ class Annotations(unittest.TestCase):
                          [('a.py', 3, 'f', ['REQ-001']), ('a.py', 5, 'f', ['REQ-002']), ('b.ts', 2, None, ['REQ-003']),
                           ('c.py', 1, 'g', ['REQ-004']), ('c.py', 3, 'g', ['REQ-005'])])
 
+    def test_a_file_that_is_not_utf8_keeps_its_annotations(self):
+        # A cp1252 accent in a comment made the whole file unreadable, and its annotations were dropped silently.
+        with tempfile.TemporaryDirectory(prefix='axiomspec-scan-') as directory:
+            Path(directory, 'ledger.py').write_bytes(b'# V\xe9rifie le solde\n# @req REQ-001\ndef reserve():\n    """@req REQ-002"""\n')
+            Path(directory, 'ledger.ts').write_bytes(b'// r\xe9serve\n// @req REQ-003\n')
+            found = graph_index.scan(directory)
+        self.assertEqual([(a['path'], a['line'], a['symbol'], a['ids']) for a in found],
+                         [('ledger.py', 2, 'reserve', ['REQ-001']), ('ledger.py', 4, 'reserve', ['REQ-002']),
+                          ('ledger.ts', 2, None, ['REQ-003'])])
+
     def test_a_test_file_is_recognized_by_name_or_folder(self):
         for path, expected in [('tests/test_ledger.py', True), ('pkg/ledger_test.go', True), ('src/__tests__/a.ts', True),
                                ('src/ledger.spec.ts', True), ('app/ledger.py', False), ('src/contest.py', False), ('test.py', False)]:

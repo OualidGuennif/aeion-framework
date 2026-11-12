@@ -175,10 +175,9 @@ def scan(root, include=('.',), exclude=()):
     for path in files:
         if path.stat().st_size > MAX_SOURCE_BYTES:
             continue
-        try:
-            text = path.read_text(encoding='utf-8-sig')  # a BOM would make ast reject the file
-        except UnicodeDecodeError:
-            continue
+        # A BOM would make ast reject the file. A byte that is not UTF-8, such as an accent in a cp1252
+        # comment, becomes U+FFFD: skipping the file would lose every annotation in it without a word.
+        text = path.read_text(encoding='utf-8-sig', errors='replace')
         if '@req' not in text:
             continue
         lines = text.split('\n')  # read_text already turned \r\n and \r into \n
