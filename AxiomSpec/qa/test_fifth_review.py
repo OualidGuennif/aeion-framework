@@ -107,7 +107,7 @@ class ApprovalsAreASet(Examples):
         junk = copy.deepcopy(self.spec_approvals)
         junk['approvals'] = [dict(junk['approvals'][0], signature=f'{number:04d}') for number in range(1024)]
         store = store_of(*self.everything(), junk, self.forged())
-        self.assertGreater(len(store.approvals[digest(self.spec)]['approvals']), 1024)
+        self.assertGreater(len(store.approvals_of(digest(self.spec))['approvals']), 1024)
         report = release_store.verify(store)
         self.assertEqual({r['status'] for r in report['releases']}, {'pass'})
         self.assertEqual(next(r for r in report['releases'] if r['version'] == '1.1.0')['approvals_set_aside'], 1026)

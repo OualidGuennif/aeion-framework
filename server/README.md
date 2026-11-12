@@ -20,10 +20,11 @@ For one coding task, read-only. The digest is the `spec_sha256` of the graph ind
 python3 -m axiom_service --store ../AxiomSpec/examples/refund-ledger/spec.json --repo ../AxiomSpec --include examples/refund-ledger
 ```
 
-For an organization, over a whole release store, with uploads, approvals and candidates:
+For an organization, over a whole release store, with uploads, approvals and candidates. The service writes into the first store directory, so give it a working copy, never the examples of the package:
 
 ```bash
-python3 -m axiom_service --store ../AxiomSpec/examples --mode organization
+cp -R ../AxiomSpec/examples /tmp/axiom-store
+python3 -m axiom_service --store /tmp/axiom-store --mode organization
 ```
 
 Then, from another terminal:
@@ -45,7 +46,7 @@ The MCP endpoint is `http://127.0.0.1:8787/mcp/` (Streamable HTTP, stateless). I
 
 The service keeps nothing between requests but files, and it never rewrites one.
 
-- **Writes.** In organization mode each accepted upload becomes its own file in the first store directory: a release as `<digest>.json` in canonical form, or as `<digest>.parts/` when it exceeds one megabyte, and approvals as `<release digest>.approvals.<digest of the approvals>.json`. A file is staged under a name that starts with `.incoming-` and moved into place whole.
+- **Writes.** In organization mode each accepted upload becomes its own file in the first store directory: a release as `<digest>.json` in canonical form with `format` first, or as `<digest>.parts/` when it exceeds one megabyte, and approvals as `<release digest>.approvals.<digest of the approvals>.json`. A file is staged under a name that starts with `.incoming-` and moved into place whole; a file that already holds the same bytes is left alone, so a repeated upload changes nothing.
 - **Reads.** Before each organization request the service lists the store and reads the files that appeared, each once. Several processes on one directory therefore answer the same, and a digest that is not held costs a listing, not a reload.
 - **Bodies.** A request body is strict JSON of at most one megabyte. A release the store could not read back is refused, not written.
 - **Code.** In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. A context reads the release alone and does not look at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.

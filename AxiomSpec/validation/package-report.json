@@ -43,14 +43,14 @@
   },
   "subject": {
     "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
-    "source_tree_sha256": "96647e9ca52ee226b485c11b1bcc1503669025d1988f5883643907b2a1557cd2",
+    "source_tree_sha256": "49c30830444a4d17dde9478861aaa2e906ea199a1ec7ec443c1d50b418a47261",
     "policy_sha256": null,
     "toolchain_sha256": "652b2794105b67e77f41eb358bc7ae4d032a41f4954a8670a4880bd98abe12b8",
     "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "0.7.2",
+    "version": "1.0.0",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -72,7 +72,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "201 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "202 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -160,7 +160,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "210 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
+      "message": "213 test IDs in a current, successful local receipt; inputs/toolchain/output match. Producer remains untrusted.",
       "evidence": [],
       "limitations": []
     },
@@ -217,7 +217,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-12T04:24:04.262124+00:00",
+    "evaluated_at": "2026-11-12T04:45:54.703013+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

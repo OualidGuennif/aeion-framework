@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.7.2 · 12 November 2026. The fourth review describes edition 0.3.1 and the six sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1 and 0.7.2; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 1.0.0 · 12 November 2026. The fourth review describes edition 0.3.1 and the seven sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1, 0.7.2 and 1.0.0; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code, and the section on edition 1.0.0 a seventh. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -359,6 +359,32 @@ Eight regression tests in the package and six in the server. Run against the cod
 - The listing still grows with the store: 47 ms per organization request at 5,000 files, on one machine. The code signature still costs about 80 ms at 1,300 source files for each query that reads the code.
 - CON-012 covers a request by a verified principal of the ledger tenant. A request by anyone else is covered by the tenant predicates, not by this one.
 - The open points of edition 0.7.1 stand: parallel writers under load, growth of approval files, the relying party of a passkey, forks below the head.
+- This is again a review by the assistant that wrote the code.
+
+## Edition 1.0.0
+
+12 November 2026. The first tagged release, after a seventh review of the code as edition 0.7.2 left it. Seven findings, six reproduced before any fix; all seven are corrected. The specification format stays `axiomspec/0.3`. The number says that this release is published and will not change. It does not change the verdict above: this is a reference package, not a qualified engine.
+
+### Defects and corrections
+
+| Finding on edition 0.7.2 | Correction |
+|---|---|
+| The store merged approval files by release digest alone. A file with the digest of release 1.1.0 and another version, read first, made the valid file fail to merge: the release failed. Read last, it was dropped and the release passed. The verdict depended on the order of reading, and one hostile file could block a release. | Approvals are kept by digest, project and version. A file that names a held release under another project or version is never counted and is reported in `rejected_files`; the verdict is the same in any order. |
+| The service wrote store files in canonical form, where `format` comes in the middle of a release and near the end of an approvals file. A copy cut at 30 % lost that field: the store ignored the file as one of another format, passed, and the release was gone without a word. | `format` is written first. A cut copy is reported as a broken store file. |
+| The same approvals sent again rewrote their file with the same bytes. The new modification time made every process that shares the store read all of it again: 22 files for a store of 11. A client that retries after a timeout does exactly that. | A file that already holds the same bytes is not written again. |
+| The organization command of the server README pointed the service at the examples of the package. After one candidate, package QA failed on a file it did not expect. | The README copies the examples to a working directory first. |
+| A context over HTTP took any number of IDs, although the contract allows 100. Two thousand unknown IDs gave an error message of 24,019 characters. | A context names from 1 to 100 IDs, and the message names at most ten missing ones. |
+| `--include` with no path started a service that scanned nothing and reported no gap. | `--include` takes at least one path. |
+| IDs continued on the next comment line were not read, without a word. | Documented in AX-V-002 and the sandbox playbook: all IDs of an annotation are on the line of the token. Detecting the continuation would also flag ordinary comments. |
+
+### Tests
+
+Three regression tests in the package and four in the server. Run against the code of edition 0.7.2, all seven fail.
+
+### What this edition does not establish
+
+- The open points of editions 0.7.1 and 0.7.2 stand: the listing grows with the store, parallel writers under load, growth of approval files, the relying party of a passkey, forks below the head.
+- **Benefit to an agent.** Still not measured. The next useful step is an agent on a real task with the sandbox playbook, with and without the service, not a further review.
 - This is again a review by the assistant that wrote the code.
 
 ## Confirmed findings and corrections

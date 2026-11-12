@@ -13,7 +13,7 @@ Put `@req` and the IDs in a comment above the function, class or file that imple
 def command(self, kind, principal, tenant_id, payment_id, record_id):
 ```
 
-`@req: REQ-005` and `@req(REQ-005, REQ-006)` are read the same. The token with no valid ID after it fails the scan, so a typing mistake is reported instead of skipped. So does an ID of the release written after other words, as in `@req REQ-005 and REQ-006`: separate IDs by spaces or commas only.
+`@req: REQ-005` and `@req(REQ-005, REQ-006)` are read the same. The token with no valid ID after it fails the scan, so a typing mistake is reported instead of skipped. So does an ID of the release written after other words, as in `@req REQ-005 and REQ-006`: separate IDs by spaces or commas only. Keep every ID on the line of `@req`: IDs continued on the next comment line are not read, so write a second `@req` line instead.
 
 Use the ID of a requirement, or of a constraint the code enforces. Annotate where the behavior is decided, not every helper. The comment form does not matter: `//`, `#`, `--` or a docstring all work, in any language. Tests do not need annotations when each test case is already bound in the specification.
 

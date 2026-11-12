@@ -82,6 +82,8 @@ Edition 0.7.1 tests are the regressions of the fifth review, and each failed on 
 
 Edition 0.7.2 tests are the regressions of the sixth review. They scan this package as a repository that contains it and require the scan to pass once the package is left out; write an ID after other words and require a report; upload three releases beside a broken file and count the files read; deliver a manifest before its parts; make a write fail and require an error instead of a candidate announced as held; and require of the ledger a witness and a counterexample for every must requirement and no gap from its own query.
 
+Edition 1.0.0 tests are the regressions of the seventh review. They read approvals that name release 1.1.0 under another version before and after the true ones and require the same verdict; cut the files the service wrote and require them reported; send the same approvals twice and require that nothing is read or written again; and send a context of more than 100 IDs and require a refusal.
+
 ## Example application evidence
 
 `run_checks.py` also runs the ledger's 32 application tests and writes `validation/example-test-run.json` with the executed IDs, the digest of every executed input, the toolchain, the environment and the hashed raw output. The checker accepts that receipt only if it is successful, complete and current, then requires that every binding marked `must_resolve` names a symbol that exists in the file (found by parsing, not by importing), that every active TestCase is implemented and has at least one executed test under its bound class, and that no executed test is outside a binding.

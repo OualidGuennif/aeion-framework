@@ -20,7 +20,7 @@ def main():
     parser.add_argument('--mode', choices=('sandbox', 'organization'), default='sandbox')
     parser.add_argument('--snapshot', help='digest of the one release a sandbox service serves')
     parser.add_argument('--repo', help='repository whose @req annotations are read (sandbox)')
-    parser.add_argument('--include', nargs='*', default=['.'], help='paths under --repo to scan')
+    parser.add_argument('--include', nargs='+', default=['.'], help='paths under --repo to scan')
     parser.add_argument('--exclude', nargs='*', default=[], help='paths under --repo left out of the scan')
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=8787)

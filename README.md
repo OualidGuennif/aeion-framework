@@ -71,7 +71,7 @@ flowchart LR
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 0.7.2: twenty contract documents, six JSON schemas, the service contract for HTTP and MCP, the rule index, two worked examples (a fictional refund ledger in two signed releases, with a reference implementation and executed tests, and the small identity adapter it pins), a conformance corpus, reference checks of releases, approvals and a release store, migrations from formats 0.1 and 0.2, package QA and its review records |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The AxiomSpec package, edition 1.0.0: twenty contract documents, six JSON schemas, the service contract for HTTP and MCP, the rule index, two worked examples (a fictional refund ledger in two signed releases, with a reference implementation and executed tests, and the small identity adapter it pins), a conformance corpus, reference checks of releases, approvals and a release store, migrations from formats 0.1 and 0.2, package QA and its review records |
 | [`playbooks/01_NEW_PROJECT_AXIOMSPEC.md`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | The new-project playbook: from a new product idea to a specification, a human documentation cockpit and a small tested implementation |
 | [`playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md`](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md) | The existing-project playbook: recovering the meaning of a product that already has difficult relational data, then moving it to an AxiomSpec specification |
 | [`server/`](server/README.md) | The reference service: the package's queries over HTTP (FastAPI) and MCP, read-only for one release in a sandbox, or over a whole release store for an organization |
@@ -82,7 +82,7 @@ The two playbooks are the source material Æion Factory 3.0.0 and Æion Core wer
 existing-project playbook is a verbatim copy; the specification draft in the new-project playbook was
 moved to format 0.3 in edition 0.6.0.
 
-The package is edition 0.7.2, with specification format `axiomspec/0.3`. Release, weights, flags,
+The package is edition 1.0.0, with specification format `axiomspec/0.3`. Release, weights, flags,
 the approval policy, imports and exports are required fields, so an older specification is not valid
 0.3: `AxiomSpec/qa/migrate_0_1.py` and `AxiomSpec/qa/migrate_0_2.py` each write a candidate and list
 what a person must still decide. Æion Factory and Æion Core vendor edition 0.3.0
@@ -141,6 +141,27 @@ that is not published; that one link does not resolve.
   ```bash
   cd AxiomSpec && ../.venv/bin/python qa/release_diff.py examples/refund-ledger/releases/1.0.0.json examples/refund-ledger/spec.json
   ```
+
+## Releases
+
+A release is a tag `vX.Y.Z` of this repository, published on the
+[releases page](https://github.com/OualidGuennif/aeion-framework/releases) with three files built from the tag:
+
+| File | Content |
+|---|---|
+| `axiomspec-X.Y.Z.tar.gz` | The AxiomSpec package alone: what a project takes to write and check specifications |
+| `aeion-framework-X.Y.Z.tar.gz` | The package with the reference service and the playbooks |
+| `SHA256SUMS` | The SHA-256 digest of each archive |
+
+Both archives are `git archive` of the tag, so their content is exactly the tagged tree. They were made with:
+
+```bash
+git archive --format=tar.gz --prefix=axiomspec-1.0.0/ v1.0.0:AxiomSpec > axiomspec-1.0.0.tar.gz
+git archive --format=tar.gz --prefix=aeion-framework-1.0.0/ v1.0.0 > aeion-framework-1.0.0.tar.gz
+```
+
+To check the package archive, extract it and replay its QA from the extracted directory, with the
+dependencies of `qa/requirements-qa.txt` installed: `python3 qa/run_checks.py`.
 
 ## License
 

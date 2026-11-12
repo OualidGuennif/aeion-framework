@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.7.2",
+  "edition": "1.0.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T04:23:59.840980+00:00",
+  "evaluated_at": "2026-11-12T04:45:49.729825+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -190,6 +190,9 @@
       "test_second_review.SecondReview.test_noncanonical_array_indexes_are_rejected",
       "test_second_review.SecondReview.test_replace_and_remove_require_existing_target",
       "test_second_review.SecondReview.test_symlink_is_rejected_before_packaging",
+      "test_seventh_review.Context.test_a_context_names_at_most_one_hundred_ids",
+      "test_seventh_review.Context.test_a_long_list_of_unknown_ids_gives_a_short_message",
+      "test_seventh_review.Store.test_approvals_under_another_version_neither_block_nor_depend_on_order",
       "test_sixth_review.Example.test_every_must_requirement_has_a_witness_and_a_counterexample",
       "test_sixth_review.Example.test_the_fictional_signing_command_takes_actor_and_key_pairs",
       "test_sixth_review.Example.test_the_report_predicate_holds_only_for_the_right_amount_and_only_when_enabled",
@@ -223,7 +226,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 210,
+    "tests_run": 213,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -321,7 +324,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "3b21183961b2cb777889c5cffd4126d3393017defb825610aa9e52aeb65a39e5"
+      "sha256": "4264ce8537b90853f5cc6302cd74d1fb13b560461a3573f5898cd6da846c3e5f"
     },
     {
       "path": "qa/release_diff.py",
@@ -329,7 +332,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "3b6f039d36d1ea79a380812e6ec42fc508bd4a0e02090ac4a52d7fd658b8a6c2"
+      "sha256": "15599b3fdbae48713a0d2b2601a6fb732e11affa6b5e38b9b9529a0e1b6043ea"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -337,7 +340,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "c3d3986d9fed83494ccd343ddcb6274f7de0b9c51c6ccefda3f66ee525e59109"
+      "sha256": "b804d19b6bb9dc6e612724bd264edbdb25cf4c5fa65b84f06066aaec039b7d19"
     },
     {
       "path": "qa/spec_parts.py",
@@ -349,7 +352,7 @@
     },
     {
       "path": "qa/test_fifth_review.py",
-      "sha256": "007cc256112b8ddfdc6abf32ef6f640cab7f622fb0884f7b3360bc47b7eeec54"
+      "sha256": "c5c14645cd683e5038796de95036a5054870c3132a20d915d6ebc7c0b8df33d1"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -370,6 +373,10 @@
     {
       "path": "qa/test_second_review.py",
       "sha256": "31413d96d7453fc08b3f780a2dc28afc854316c04bab873615621ae077a8a320"
+    },
+    {
+      "path": "qa/test_seventh_review.py",
+      "sha256": "cd2d9b75d109dbd9cd5c6ebbc0094370fc97b6e56614fd67e8e6a8427f9d4ecc"
     },
     {
       "path": "qa/test_sixth_review.py",
@@ -427,7 +434,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "ecfc9d857f5ab8b38b54ce061930493547b7dfd5dee00b49c8a1cf09a2a66d28"
+    "sha256": "dbba8a3de6b0ffbf1ba24c6fd651e9432d952bec8d26cc8a7736cba8ce0599de"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

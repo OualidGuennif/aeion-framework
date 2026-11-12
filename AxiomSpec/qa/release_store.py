@@ -33,7 +33,8 @@ class Store:
     def __init__(self):
         self.releases = {}   # canonical digest -> specification
         self.paths = {}      # canonical digest -> sorted list of file names that held it
-        self.approvals = {}  # release digest -> merged approvals document
+        self.approvals = {}  # (release digest, project id, version) -> merged approvals document
+        self.approval_paths = {}  # the same key -> names of the files that held approvals under it
         self.rejected = []   # files that claim a store format and are not valid
 
     def add_release(self, spec, name):
@@ -41,9 +42,28 @@ class Store:
         self.releases[key] = spec
         self.paths.setdefault(key, []).append(name)
 
-    def add_approvals(self, document):
-        held = self.approvals.get(document['spec_sha256'])
-        self.approvals[document['spec_sha256']] = approval_check.merge(held, document) if held else approval_check.merge(document, document)
+    def add_approvals(self, document, name=None):
+        # Keyed by the whole header: a file that names a release under another project or version is kept
+        # apart, so it can neither block the true approvals nor depend on the order in which files are read.
+        key = (document['spec_sha256'], document['project_id'], document['version'])
+        held = self.approvals.get(key)
+        self.approvals[key] = approval_check.merge(held, document) if held else approval_check.merge(document, document)
+        self.approval_paths.setdefault(key, []).append(name)
+
+    def approvals_of(self, key):
+        """The merged approvals of the release held under `key`, or None."""
+        spec = self.releases[key]
+        return self.approvals.get((key, spec['project']['id'], spec['release']['version']))
+
+    def misnamed_approvals(self):
+        """Approval files that name a held release under another project or version: reported, never counted."""
+        found = []
+        for (key, project_id, version), names in self.approval_paths.items():
+            spec = self.releases.get(key)
+            if spec is not None and (project_id, version) != (spec['project']['id'], spec['release']['version']):
+                found += [dict(path=name, reason=f'Approvals of {key} name {project_id} {version}, which that release is not')
+                          for name in names]
+        return found
 
 
 @lru_cache(maxsize=1)
@@ -113,7 +133,7 @@ def add_file(store, file):
             store.add_release(spec, name)
         elif kind == approval_check.FORMAT:
             approvals_validator.validate(document)
-            store.add_approvals(document)
+            store.add_approvals(document, name)
     except Exception as exc:
         store.rejected.append(dict(path=name, reason=f'{type(exc).__name__}: {str(exc)[:200]}'))
 
@@ -162,7 +182,7 @@ def verify(store):
             for problem in comparison['errors']:
                 error(problem['code'], key, problem['message'])
         if previous is None or baseline is not None:
-            document = store.approvals.get(key) or approval_check.empty(spec)
+            document = store.approvals_of(key) or approval_check.empty(spec)
             check = approval_check.verify(spec, document, baseline, comparison, validated=True)
             entry['approvals'] = check['status']
             entry['approvals_set_aside'] = len(check['rejected'])
@@ -205,10 +225,11 @@ def verify(store):
                              accepted_head=dict(version=accepted[0][1]['release']['version'], spec_sha256=accepted[0][0]) if accepted else None,
                              tied_heads=tied if len(tied) > 1 else [],
                              orphaned_heads=[key for key, spec in heads if spec['release']['version'] != top]))
-    open_ends = bool(store.rejected) or any(r['status'] == 'unknown' for r in releases)
+    rejected = store.rejected + store.misnamed_approvals()
+    open_ends = bool(rejected) or any(r['status'] == 'unknown' for r in releases)
     return dict(format='axiomspec-store-check/0.2', status='fail' if errors else 'incomplete' if open_ends else 'pass',
                 releases=releases, projects=projects, errors=sorted(errors, key=lambda e: (e['code'], e['subject'], e['message'])),
-                rejected_files=sorted(store.rejected, key=lambda r: r['path']),
+                rejected_files=sorted(rejected, key=lambda r: r['path']),
                 limitations=['The verdict covers the files supplied. A release whose baseline or provider is absent is unknown, not accepted.',
                              'A fork is reported when two releases hold the highest version of a project. Settling it is a decision; the store never deletes a file.',
                              'The head of a project is its highest version, whatever its status. The accepted head is its highest release that passes; it is null when none does.',

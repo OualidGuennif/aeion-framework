@@ -29,6 +29,7 @@ import release_diff
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_ITEMS, MAX_BYTES, MIN_BYTES = 100, 32768, 4096
+MAX_IDS = 100  # the IDs one context names, as the contract bounds them
 KIND_ORDER = ['Requirement', 'Goal', 'Term', 'Constraint', 'StateModel', 'Decision', 'Assumption', 'Risk', 'Control',
               'Scenario', 'TestCase', 'Component', 'Environment', 'Flag', 'Import', 'Binding', 'Actor', 'Source',
               'ContextAsset', 'ApprovalKey']
@@ -309,12 +310,13 @@ def context(snapshot, ids, scope='direct', budget_bytes=MAX_BYTES, cursor=None):
     """
     if scope not in ('direct', 'change'):
         raise QueryError('INVALID_PARAMETER', 'scope is direct or change')
+    if not ids or len(ids) > MAX_IDS:
+        raise QueryError('INVALID_PARAMETER', f'ids names from 1 to {MAX_IDS} objects')
     ids = sorted(set(ids))
-    if not ids:
-        raise QueryError('INVALID_PARAMETER', 'ids names at least one object')
     missing = [i for i in ids if not snapshot.holds(i)]
     if missing:
-        raise QueryError('NOT_FOUND', f"{', '.join(missing)} not in this snapshot", 404)
+        named = ', '.join(missing[:10]) + (f' and {len(missing) - 10} more' if len(missing) > 10 else '')
+        raise QueryError('NOT_FOUND', f'{named[:1000]} not in this snapshot', 404)
     selected, seeded, unmapped = (closure if scope == 'change' else direct)(snapshot, ids)
     order = lambda object_id: (KIND_ORDER.index(snapshot.kind(object_id)), object_id)
     items = []

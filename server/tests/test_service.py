@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import shutil
 import socket
+import subprocess
 import sys
 import tempfile
 import threading
@@ -367,7 +368,7 @@ class FifthReview(Case):
         (self.store / 'dropped.json').write_text(json.dumps(self.forged(good)))
         verdict = http.get(f'/v1/releases/{key}/verdict').json()
         self.assertEqual((verdict['status'], verdict['approvals']), ('pass', 'pass'))
-        self.assertEqual(len(service.store.approvals[key]['approvals']), 4)  # the store holds what was dropped
+        self.assertEqual(len(service.store.approvals_of(key)['approvals']), 4)  # the store holds what was dropped
         self.assertEqual(http.get(f'/v1/releases/{key}/approvals').json(), good)  # the answer is what counts
 
     def test_two_replicas_keep_every_approval_and_answer_the_same(self):
@@ -608,6 +609,60 @@ class SixthReview(Case):
         service = Service([LEDGER / 'spec.json'], repository=PACKAGE, exclude=['qa'])
         self.assertEqual(service.call('gaps', phase='implementation')['items'], [])
         self.assertEqual(service.call('getIndex'), load(LEDGER / 'axiom-graph.json'))
+
+
+class SeventhReview(Case):
+    """Defects of edition 0.7.2, each reproduced through the service. Every case failed before its fix."""
+
+    def organization(self):
+        service = Service([self.store], 'organization')
+        return service, self.client(service)
+
+    def test_a_written_file_cut_short_is_reported_not_ignored(self):
+        service, http = self.organization()
+        candidate = self.successor(self.spec, '1.1.1', 'REQ-004')
+        key = digest(canonical(candidate))
+        http.put(f'/v1/releases/{key}', json=candidate)
+        http.put(f'/v1/releases/{key}/approvals', json=fk.approvals_for(candidate, self.spec, PASSKEYS[:1]))
+        written = [self.store / f'{key}.json', *self.store.glob(f'{key}.approvals.*.json')]
+        for file in written:
+            raw = file.read_bytes()
+            self.assertTrue(raw.startswith(b'{"format":"axiomspec'))
+            self.assertEqual(json.loads(raw), load(file))
+            (Path(self.directory.name) / 'cut').mkdir(exist_ok=True)
+            (Path(self.directory.name) / 'cut' / file.name).write_bytes(raw[:len(raw) * 3 // 10])
+        report = release_store.verify(release_store.load([Path(self.directory.name) / 'cut']))
+        self.assertEqual((report['status'], len(report['rejected_files'])), ('incomplete', 2))
+
+    def test_the_same_approvals_sent_again_change_nothing(self):
+        service, http = self.organization()
+        candidate = self.successor(self.spec, '1.1.1', 'REQ-004')
+        key = digest(canonical(candidate))
+        http.put(f'/v1/releases/{key}', json=candidate)
+        body = fk.approvals_for(candidate, self.spec, PASSKEYS[:1])
+        first = http.put(f'/v1/releases/{key}/approvals', json=body).json()
+        file = next(self.store.glob(f'{key}.approvals.*.json'))
+        written = file.stat().st_mtime_ns
+        time.sleep(0.01)
+        with mock.patch.object(release_store, 'add_file', wraps=release_store.add_file) as read:
+            self.assertEqual(http.put(f'/v1/releases/{key}/approvals', json=body).json(), first)
+            self.assertEqual(http.put(f'/v1/releases/{key}', json=candidate).status_code, 200)
+            self.assertEqual(read.call_count, 0)  # a retried request reads nothing again
+        self.assertEqual(file.stat().st_mtime_ns, written)
+
+    def test_a_context_over_http_names_at_most_one_hundred_ids(self):
+        http = self.client(self.sandbox())
+        many = http.get('/v1/snapshots/current/context?ids=' + ','.join(f'REQ-{n:03d}' for n in range(500, 2500)))
+        self.assertEqual((many.status_code, valid('Problem', many.json())['code']), (400, 'INVALID_PARAMETER'))
+        unknown = http.get('/v1/snapshots/current/context?ids=' + ','.join(f'REQ-{n:03d}' for n in range(500, 600)))
+        self.assertEqual(unknown.status_code, 404)
+        self.assertLess(len(unknown.json()['detail']), 200)
+
+    def test_include_without_a_path_is_refused(self):
+        command = [sys.executable, '-m', 'axiom_service', '--store', str(LEDGER / 'spec.json'), '--repo', str(PACKAGE), '--include']
+        run = subprocess.run(command, cwd=SERVER, capture_output=True, text=True, timeout=60)
+        self.assertEqual(run.returncode, 2)
+        self.assertIn('--include', run.stderr)
 
 
 class Tools(Case):

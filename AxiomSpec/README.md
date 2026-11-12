@@ -2,7 +2,7 @@
 
 Augmented specifications with explicit models, bounded constraints and traceable verification.
 
-**Edition 0.7.2 · 12 November 2026**  
+**Edition 1.0.0 · 12 November 2026**  
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example with a reference implementation and executed tests, reference observations, reference checks of releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2 and package QA. It contains no product CLI or runner adapter, and its queries are references, not a qualified engine. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); it reads format 0.1 and this package's QA does not qualify it.
@@ -67,7 +67,7 @@ Edition 0.5.0 changes the core format to `axiomspec/0.2`: release, weights and f
 
 Edition 0.6.0 changes the core format to `axiomspec/0.3`: the approval policy, the imports and the exports are required fields. `python3 qa/migrate_0_2.py` writes a candidate with a policy of no approver, for the organization to replace. The [review](REVIEW.md#edition-060) lists each change.
 
-Edition 0.7.0 adds the service interface and keeps format 0.3: a graph index, `@req` annotations, bounded queries, and a contract for HTTP and MCP. The [review](REVIEW.md#edition-070) gives the reasons and the measurements. Edition 0.7.1 corrects ten defects a review of that code found, four of them in the claim that a store holds under hostile or concurrent input; the [review](REVIEW.md#edition-071) lists each one with its regression test. Edition 0.7.2 corrects what a second pass found and closes the two gaps of the ledger: a predicate and scenarios for the report (REQ-010) and a counterexample for tenant isolation (REQ-004).
+Edition 0.7.0 adds the service interface and keeps format 0.3: a graph index, `@req` annotations, bounded queries, and a contract for HTTP and MCP. The [review](REVIEW.md#edition-070) gives the reasons and the measurements. Edition 0.7.1 corrects ten defects a review of that code found, four of them in the claim that a store holds under hostile or concurrent input; the [review](REVIEW.md#edition-071) lists each one with its regression test. Edition 0.7.2 corrects what a second pass found and closes the two gaps of the ledger: a predicate and scenarios for the report (REQ-010) and a counterexample for tenant isolation (REQ-004). Edition 1.0.0 is the first tagged release: it corrects what a third pass found, one of them an approvals file that could block a release depending on the order the store read it, and keeps format 0.3. The number marks a release that is published and stays as it is, not a qualified engine; the [review](REVIEW.md#edition-100) says what it covers.
 
 Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. Check approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]` and a whole store with `python3 qa/release_store.py verify <directory>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
 

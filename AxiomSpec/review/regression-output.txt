@@ -176,6 +176,9 @@ test_invalid_future_metadata_is_rejected_without_execution (test_second_review.S
 test_noncanonical_array_indexes_are_rejected (test_second_review.SecondReview.test_noncanonical_array_indexes_are_rejected) ... ok
 test_replace_and_remove_require_existing_target (test_second_review.SecondReview.test_replace_and_remove_require_existing_target) ... ok
 test_symlink_is_rejected_before_packaging (test_second_review.SecondReview.test_symlink_is_rejected_before_packaging) ... ok
+test_a_context_names_at_most_one_hundred_ids (test_seventh_review.Context.test_a_context_names_at_most_one_hundred_ids) ... ok
+test_a_long_list_of_unknown_ids_gives_a_short_message (test_seventh_review.Context.test_a_long_list_of_unknown_ids_gives_a_short_message) ... ok
+test_approvals_under_another_version_neither_block_nor_depend_on_order (test_seventh_review.Store.test_approvals_under_another_version_neither_block_nor_depend_on_order) ... ok
 test_every_must_requirement_has_a_witness_and_a_counterexample (test_sixth_review.Example.test_every_must_requirement_has_a_witness_and_a_counterexample) ... ok
 test_the_fictional_signing_command_takes_actor_and_key_pairs (test_sixth_review.Example.test_the_fictional_signing_command_takes_actor_and_key_pairs) ... ok
 test_the_report_predicate_holds_only_for_the_right_amount_and_only_when_enabled (test_sixth_review.Example.test_the_report_predicate_holds_only_for_the_right_amount_and_only_when_enabled) ... ok
@@ -210,6 +213,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 210 tests in 11.748s
+Ran 213 tests in 12.729s
 
 OK

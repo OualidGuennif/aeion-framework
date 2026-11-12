@@ -194,7 +194,7 @@ class Service:
         """The approvals of a release that count. Without the release that governs them, all that were offered."""
         key = self.resolve(digest)
         spec = self.store.releases[key]
-        held = self.store.approvals.get(key) or approvals.empty(spec)
+        held = self.store.approvals_of(key) or approvals.empty(spec)
         governing = self.governing(spec)
         return held if governing is None else dict(held, approvals=approvals.counted(spec, held, governing))
 
@@ -279,9 +279,14 @@ class Service:
 
     @staticmethod
     def readable(document):
-        """The canonical bytes of a document, refused unless the store reads exactly them back."""
+        """The bytes the store holds for a document, refused unless the store reads exactly them back.
+
+        Canonical form with `format` moved first: a copy cut short still says what it was, so the store
+        reports it as a broken file instead of ignoring it as a file of another format.
+        """
         try:
-            raw = canonical(document)
+            rest = {name: value for name, value in document.items() if name != 'format'}
+            raw = canonical({'format': document['format']})[:-1] + b',' + canonical(rest)[1:]
             strict_json(raw)
         except ValueError as exc:
             raise QueryError('INVALID_DOCUMENT', f'The store cannot hold this document: {exc}', 422)
@@ -317,7 +322,16 @@ class Service:
 
     @staticmethod
     def place(path, raw):
-        """Write one content-named file atomically. A reader sees the whole file or none of it."""
+        """Write one content-named file atomically. A reader sees the whole file or none of it.
+
+        A file that already holds these bytes is left alone: rewriting it would change its modification time
+        and make every process that shares the store read the whole store again.
+        """
+        try:
+            if path.read_bytes() == raw:
+                return
+        except OSError:
+            pass
         with tempfile.NamedTemporaryFile('wb', dir=path.parent, prefix='.incoming-', suffix='.tmp', delete=False) as stream:
             stream.write(raw)
             temporary = stream.name
