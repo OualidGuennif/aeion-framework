@@ -13,6 +13,8 @@ Put `@req` and the IDs in a comment above the function, class or file that imple
 def command(self, kind, principal, tenant_id, payment_id, record_id):
 ```
 
+`@req: REQ-005` and `@req(REQ-005, REQ-006)` are read the same. The token with no valid ID after it fails the scan, so a typing mistake is reported instead of skipped.
+
 Use the ID of a requirement, or of a constraint the code enforces. Annotate where the behavior is decided, not every helper. The comment form does not matter: `//`, `#`, `--` or a docstring all work, in any language. Tests do not need annotations when each test case is already bound in the specification.
 
 ## 2. Build the index
@@ -23,7 +25,7 @@ From the `AxiomSpec` directory, with its QA dependencies installed:
 python3 qa/graph_index.py build examples/refund-ledger/spec.json --repo . --include examples/refund-ledger > axiom-graph.json
 ```
 
-The command fails when an annotation names an ID the release does not hold or has retired. The file lists every object, link and trace of the release, one record per line, and names the release by `spec_sha256`. Rebuild it whenever the specification or the annotations change; never edit it.
+The command fails when an annotation names an ID the release does not hold or has retired, when `@req` has no ID after it, and when a path given to `--include` does not exist. The file lists every object, link and trace of the release, one record per line, and names the release by `spec_sha256`. Rebuild it whenever the specification or the annotations change; never edit it.
 
 Place `axiom-graph.json` at the root of the repository the agent receives.
 
@@ -36,6 +38,8 @@ python3 -m axiom_service --store ../AxiomSpec/examples/refund-ledger/spec.json -
 ```
 
 It serves that one release and nothing else, by GET only. The agent cannot change it and cannot reach another version through it.
+
+`--repo` is the copy of the code the service reads annotations from. The release never changes during a task, but when a file of that copy changes the next answer reflects it, with no restart.
 
 ## 4. Let the sandbox reach it, read-only
 

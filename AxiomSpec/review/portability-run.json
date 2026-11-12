@@ -2,21 +2,21 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-11T14:08:00.081306+00:00",
+  "evaluated_at": "2026-11-11T19:15:23.764638+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 184,
+  "test_count": 202,
   "tested_inputs": [
     {
       "path": "api/mcp-tools.json",
-      "sha256": "525005f903322710921bf2511290075a53e66161f5bf00508dd47e0e09b0e165"
+      "sha256": "2b099304641bde0ff911d4ca8d9e10fd54314991ed6c75990756fad8b8582bde"
     },
     {
       "path": "api/openapi.json",
-      "sha256": "f3a40e9dcb73f73734826f13c88e037ee6d0eb613e13a7c1f308ca8bf31980cc"
+      "sha256": "48e6163732d254f14e2c831b7eb777f28eafed460aecf3577514531cdc0cb184"
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -72,7 +72,7 @@
     },
     {
       "path": "qa/approvals.py",
-      "sha256": "ad276750980a3baa3f6bb908b3fe2c2a3307f162e1cd5479c8a486041f9f7d30"
+      "sha256": "450f4b1bbf996f6f174a9f39533d7be6b1a7f26e507c9024101d3574a9c7db04"
     },
     {
       "path": "qa/check_package.py",
@@ -88,7 +88,7 @@
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "93ff997baa2904a6478922610b641098fd0948220c0af6f8d296679479fcb116"
+      "sha256": "094503b4c397e035bb255f6e03317386de2207c6a5711bdd5395b0b9fba70948"
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -100,7 +100,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "8b95487b1b174b9b1bab2469a65e173381cd171fb11156c4700d0996f3d0135a"
+      "sha256": "bffeaf206e5c79db5cb4b7a9c99eaf756be321c16d2752d27929168fd07a30da"
     },
     {
       "path": "qa/release_diff.py",
@@ -108,7 +108,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "028cb7ba88eba22d579b76da44efa8b8746ae71eb39452fb1ffcd3cdc2f85a54"
+      "sha256": "9557b4dd288b99f9b780cd3ee9d384f7db3c9a52a42ff77d1ef853812f7c4bc6"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -116,7 +116,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "44b08535903393ba0618ef8dca6c4e1681ff83f8ade853b95a6d0f6f27e5682d"
+      "sha256": "2ac1e8700379ad4180ab265aa6465e248549c6b70b64326d1bba33b956425e63"
     },
     {
       "path": "qa/spec_parts.py",
@@ -124,7 +124,11 @@
     },
     {
       "path": "qa/test_approvals_store_parts.py",
-      "sha256": "d88fcac6e20636bfaa05cd9c8c5835baefe72798146f518e15a0efbfdadc2589"
+      "sha256": "f1119067061d061f3d72cf297b57558a90b0eb2f3243e3f48bccef3c48633d8e"
+    },
+    {
+      "path": "qa/test_fifth_review.py",
+      "sha256": "73044a33ac167526e3bdba405ccd66d06f02f54f25126a0c0b3c0c9097028e79"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -132,7 +136,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "248695974554ee8308dad9ee7f436809cf285526b77f3f344d33b9db9dba1499"
+      "sha256": "ba6c2ee64d7292705f01486eeef0432c362d3bc182793104f4ed4b2eccc35934"
     },
     {
       "path": "qa/test_releases_weights_flags.py",

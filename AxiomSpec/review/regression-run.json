@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "0.7.0",
+  "edition": "0.7.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-11T14:08:10.066880+00:00",
+  "evaluated_at": "2026-11-11T19:15:35.263711+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -54,6 +54,24 @@
       "test_approvals_store_parts.ReleaseStore.test_files_on_disk_unreadable_or_foreign_files_withhold_nothing",
       "test_approvals_store_parts.ReleaseStore.test_the_example_directory_is_a_complete_store",
       "test_approvals_store_parts.ReleaseStore.test_two_replicas_merge_by_union",
+      "test_fifth_review.AnnotationScan.test_a_named_folder_is_always_read_and_output_folders_below_it_are_not",
+      "test_fifth_review.AnnotationScan.test_a_path_that_does_not_exist_is_an_error_not_an_empty_scan",
+      "test_fifth_review.AnnotationScan.test_common_spellings_are_read_and_the_token_without_an_id_is_reported",
+      "test_fifth_review.AnnotationScan.test_the_signature_changes_exactly_when_a_scanned_file_does",
+      "test_fifth_review.ApprovalsAreASet.test_a_forged_approval_of_the_same_key_never_takes_the_place_of_a_valid_one",
+      "test_fifth_review.ApprovalsAreASet.test_a_merged_set_larger_than_one_file_is_still_verified_by_the_store",
+      "test_fifth_review.ApprovalsAreASet.test_counted_keeps_the_approvals_that_verify_and_nothing_else",
+      "test_fifth_review.ApprovalsAreASet.test_merge_is_still_a_union_with_several_approvals_of_one_key",
+      "test_fifth_review.ApprovalsAreASet.test_the_store_compares_a_release_with_its_baseline_once",
+      "test_fifth_review.Queries.test_a_binding_is_never_resolved_outside_the_repository",
+      "test_fifth_review.Queries.test_a_bound_file_that_does_not_parse_is_a_gap_not_a_failure",
+      "test_fifth_review.Queries.test_a_candidate_says_whether_it_is_held_and_refuses_a_version_that_is_not_text",
+      "test_fifth_review.Queries.test_a_cursor_does_not_continue_across_a_rescan_of_the_code",
+      "test_fifth_review.Queries.test_a_place_in_the_code_is_listed_once",
+      "test_fifth_review.StoreFiles.test_a_refused_release_is_the_head_and_never_the_accepted_head",
+      "test_fifth_review.StoreFiles.test_a_store_file_that_cannot_be_read_is_named_not_dropped",
+      "test_fifth_review.StoreFiles.test_impact_measures_a_consumer_at_its_accepted_head",
+      "test_fifth_review.StoreFiles.test_nothing_is_read_below_a_name_that_starts_with_a_dot",
       "test_fourth_review.CheckerDefects.test_add_creates_a_member_and_never_overwrites",
       "test_fourth_review.CheckerDefects.test_local_link_must_match_file_name_case",
       "test_fourth_review.StatedRulesAreChecked.test_asset_binding_locator_is_declared_and_agrees",
@@ -197,7 +215,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 184,
+    "tests_run": 202,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -207,11 +225,11 @@
   "inputs": [
     {
       "path": "api/mcp-tools.json",
-      "sha256": "525005f903322710921bf2511290075a53e66161f5bf00508dd47e0e09b0e165"
+      "sha256": "2b099304641bde0ff911d4ca8d9e10fd54314991ed6c75990756fad8b8582bde"
     },
     {
       "path": "api/openapi.json",
-      "sha256": "f3a40e9dcb73f73734826f13c88e037ee6d0eb613e13a7c1f308ca8bf31980cc"
+      "sha256": "48e6163732d254f14e2c831b7eb777f28eafed460aecf3577514531cdc0cb184"
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -267,7 +285,7 @@
     },
     {
       "path": "qa/approvals.py",
-      "sha256": "ad276750980a3baa3f6bb908b3fe2c2a3307f162e1cd5479c8a486041f9f7d30"
+      "sha256": "450f4b1bbf996f6f174a9f39533d7be6b1a7f26e507c9024101d3574a9c7db04"
     },
     {
       "path": "qa/check_package.py",
@@ -283,7 +301,7 @@
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "93ff997baa2904a6478922610b641098fd0948220c0af6f8d296679479fcb116"
+      "sha256": "094503b4c397e035bb255f6e03317386de2207c6a5711bdd5395b0b9fba70948"
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -295,7 +313,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "8b95487b1b174b9b1bab2469a65e173381cd171fb11156c4700d0996f3d0135a"
+      "sha256": "bffeaf206e5c79db5cb4b7a9c99eaf756be321c16d2752d27929168fd07a30da"
     },
     {
       "path": "qa/release_diff.py",
@@ -303,7 +321,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "028cb7ba88eba22d579b76da44efa8b8746ae71eb39452fb1ffcd3cdc2f85a54"
+      "sha256": "9557b4dd288b99f9b780cd3ee9d384f7db3c9a52a42ff77d1ef853812f7c4bc6"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -311,7 +329,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "44b08535903393ba0618ef8dca6c4e1681ff83f8ade853b95a6d0f6f27e5682d"
+      "sha256": "2ac1e8700379ad4180ab265aa6465e248549c6b70b64326d1bba33b956425e63"
     },
     {
       "path": "qa/spec_parts.py",
@@ -319,7 +337,11 @@
     },
     {
       "path": "qa/test_approvals_store_parts.py",
-      "sha256": "d88fcac6e20636bfaa05cd9c8c5835baefe72798146f518e15a0efbfdadc2589"
+      "sha256": "f1119067061d061f3d72cf297b57558a90b0eb2f3243e3f48bccef3c48633d8e"
+    },
+    {
+      "path": "qa/test_fifth_review.py",
+      "sha256": "73044a33ac167526e3bdba405ccd66d06f02f54f25126a0c0b3c0c9097028e79"
     },
     {
       "path": "qa/test_fourth_review.py",
@@ -327,7 +349,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "248695974554ee8308dad9ee7f436809cf285526b77f3f344d33b9db9dba1499"
+      "sha256": "ba6c2ee64d7292705f01486eeef0432c362d3bc182793104f4ed4b2eccc35934"
     },
     {
       "path": "qa/test_releases_weights_flags.py",
@@ -393,7 +415,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "7d6f33e1359f6edce61e49d5dc6625c8a65657acde317d548e14e098cbd68c1c"
+    "sha256": "089128f99e9e9c6e5167fea5b9a7495101eac5ecbc0f82dd3f8d0b917da80166"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

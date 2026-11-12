@@ -170,7 +170,7 @@
       "modes": [
         "organization"
       ],
-      "description": "Build a candidate release from a baseline and edits by ID (put, retire, remove, set). Returns its digest and checks.",
+      "description": "Build a candidate release from a baseline and edits by ID (put, retire, remove, set). Returns its digest and checks; it is held only when they pass.",
       "output": "CandidateResult",
       "input_schema": {
         "type": "object",

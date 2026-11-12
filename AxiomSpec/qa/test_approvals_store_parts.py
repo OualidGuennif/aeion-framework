@@ -294,7 +294,10 @@ class ApprovalVerification(Examples):
         self.assertEqual(approvals.verify(self.spec, first, self.base)['status'], 'fail')
         resigned = fk.approvals_for(self.spec, self.base, PASSKEYS)  # ECDSA signatures differ on every signing
         self.assertEqual(approvals.merge(merged, resigned), approvals.merge(resigned, merged))
-        self.assertEqual(len(approvals.merge(merged, resigned)['approvals']), 2)
+        # Both signings of each approver are kept: a merge never chooses between two approvals of one key.
+        both = approvals.merge(merged, resigned)
+        self.assertEqual(len(both['approvals']), 4)
+        self.assertEqual([r['valid_approvers'] for r in approvals.verify(self.spec, both, self.base)['required']][0], ['ACTOR-001', 'ACTOR-003'])
         reversed_order = dict(merged, approvals=merged['approvals'][::-1])
         self.assertEqual(approvals.verify(self.spec, reversed_order, self.base), approvals.verify(self.spec, merged, self.base))
         with self.assertRaisesRegex(ValueError, 'different releases'):
@@ -489,8 +492,8 @@ class ReleaseStore(Examples):
             for position, document in enumerate(self.everything()):
                 (root / f'{position}.json').write_text(json.dumps(document))
             (root / 'notes.json').write_text('{"format": "something-else/1.0"}')
-            (root / 'broken.json').write_text('{"format": "axiomspec/0.3", ')
             (root / 'float.json').write_text('{"x": 1.5}')
+            (root / 'not-json.json').write_text('{"x": ')
             self.assertEqual(release_store.verify(release_store.load([directory]))['status'], 'pass')
             damaged = copy.deepcopy(self.spec)
             del damaged['nodes']

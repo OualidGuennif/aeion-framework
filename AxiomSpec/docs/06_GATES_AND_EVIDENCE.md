@@ -121,7 +121,7 @@ G12 takes a release, the approvals offered for it and the baseline it names. It 
 
 The result is pass when every required band has its number, fail when one has not, and unknown when the governing baseline was not supplied. An approval that does not verify is set aside and reported. It never invalidates the approvals that do, so a damaged or hostile file cannot block a release that has its approvers.
 
-Approvals are a set. They can be made in any order, on separate devices and at separate times, and files of approvals for one release merge by union.
+Approvals are a set. They can be made in any order, on separate devices and at separate times, and files of approvals for one release merge by union. The union keeps every distinct approval. It never chooses between two approvals of the same actor and key, because a merge cannot tell which of them verifies: a forged approval that replaced a valid one would block the release. An approver is counted once, however many approvals name them.
 
 A pass says the declared keys signed. It does not say who held them, and trust in a first release comes from pinning its digest, not from this gate. Design readiness still does not authenticate business approval; `coding_packet_ready` is the first output that requires G12.
 

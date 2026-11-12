@@ -10,8 +10,10 @@ What a missing file causes is an `unknown`, never a wrong answer. What two confl
 reported fork with a deterministic preferred head, never a corrupted store. Every release carries its own
 status, so one failed or unreadable file does not withhold the verdict on the others.
 """
+from functools import lru_cache
 import json
 from pathlib import Path
+import re
 import sys
 
 import approvals as approval_check
@@ -22,6 +24,8 @@ import spec_parts
 
 ROOT = Path(__file__).resolve().parents[1]
 LEVELS = release_diff.LEVELS
+# A file that cannot be read as a store file and still says it is one is reported, never dropped in silence.
+CLAIM = re.compile(rb'"format"\s*:\s*"axiomspec(?:-approvals|-parts)?/')
 
 
 class Store:
@@ -41,35 +45,62 @@ class Store:
         self.approvals[document['spec_sha256']] = approval_check.merge(held, document) if held else approval_check.merge(document, document)
 
 
+@lru_cache(maxsize=1)
+def validators():
+    """The specification and approvals validators, compiled once."""
+    return tuple(make_validator(json.loads((ROOT / f'schemas/{name}.schema.json').read_text()))
+                 for name in ('spec', 'approvals'))
+
+
+def files(paths):
+    """Every JSON file under the given files and directories, sorted.
+
+    Symbolic links are not followed, and nothing is read below a name that starts with a dot: that is where
+    a writer stages a file before it moves it into place.
+    """
+    found = []
+    for path in map(Path, paths):
+        if not path.is_dir():
+            found.append(path)
+            continue
+        found += sorted(p for p in path.rglob('*.json') if p.is_file() and not p.is_symlink()
+                        and not any(part.startswith('.') for part in p.relative_to(path).parts))
+    return found
+
+
+def add_file(store, file):
+    """Read one file into the store. A file of another format is ignored; a broken store file is rejected."""
+    spec_validator, approvals_validator = validators()
+    name = Path(file).as_posix()
+    with Path(file).open('rb') as source:
+        raw = source.read(BOUNDS['max_input_bytes'] + 1)
+    try:
+        document = strict_json(raw)
+    except ValueError as exc:
+        if CLAIM.search(raw):
+            store.rejected.append(dict(path=name, reason=f'{type(exc).__name__}: {str(exc)[:200]}'))
+        return  # otherwise not strict JSON within bounds: not a store file
+    kind = document.get('format') if isinstance(document, dict) else None
+    try:
+        if kind == release_diff.FORMAT:
+            spec_validator.validate(document)
+            store.add_release(document, name)
+        elif kind == spec_parts.MANIFEST:
+            spec = spec_parts.read(file)
+            spec_validator.validate(spec)
+            store.add_release(spec, name)
+        elif kind == approval_check.FORMAT:
+            approvals_validator.validate(document)
+            store.add_approvals(document)
+    except Exception as exc:
+        store.rejected.append(dict(path=name, reason=f'{type(exc).__name__}: {str(exc)[:200]}'))
+
+
 def load(paths):
     """Read every JSON file under the given files and directories. Files of other formats are ignored."""
-    spec_validator = make_validator(json.loads((ROOT / 'schemas/spec.schema.json').read_text()))
-    approvals_validator = make_validator(json.loads((ROOT / 'schemas/approvals.schema.json').read_text()))
     store = Store()
-    files = []
-    for path in map(Path, paths):
-        files += sorted(p for p in path.rglob('*.json') if p.is_file() and not p.is_symlink()) if path.is_dir() else [path]
-    for file in files:
-        name = file.as_posix()
-        try:
-            with file.open('rb') as source:
-                document = strict_json(source.read(BOUNDS['max_input_bytes'] + 1))
-        except ValueError:
-            continue  # not strict JSON within bounds: not a store file
-        kind = document.get('format') if isinstance(document, dict) else None
-        try:
-            if kind == release_diff.FORMAT:
-                spec_validator.validate(document)
-                store.add_release(document, name)
-            elif kind == spec_parts.MANIFEST:
-                spec = spec_parts.read(file)
-                spec_validator.validate(spec)
-                store.add_release(spec, name)
-            elif kind == approval_check.FORMAT:
-                approvals_validator.validate(document)
-                store.add_approvals(document)
-        except Exception as exc:
-            store.rejected.append(dict(path=name, reason=f'{type(exc).__name__}: {str(exc)[:200]}'))
+    for file in files(paths):
+        add_file(store, file)
     return store
 
 
@@ -102,6 +133,7 @@ def verify(store):
         if found:
             error('REFERENCE_ERRORS', key, ', '.join(found))
         baseline = store.releases.get(previous['spec_sha256']) if previous is not None else None
+        comparison = None
         if previous is not None and baseline is not None:
             comparison = release_diff.compare(baseline, spec)
             entry['link'], entry['comparison'] = 'present', comparison['status']
@@ -109,7 +141,7 @@ def verify(store):
                 error(problem['code'], key, problem['message'])
         if previous is None or baseline is not None:
             document = store.approvals.get(key) or approval_check.empty(spec)
-            check = approval_check.verify(spec, document, baseline)
+            check = approval_check.verify(spec, document, baseline, comparison, validated=True)
             entry['approvals'] = check['status']
             entry['approvals_set_aside'] = len(check['rejected'])
             for problem in check['errors']:
@@ -133,9 +165,11 @@ def verify(store):
             entry['status'] = 'unknown'
         releases.append(entry)
 
+    passed = {entry['spec_sha256'] for entry in releases if entry['status'] == 'pass'}
     projects = []
     for project_id in sorted({spec['project']['id'] for spec in store.releases.values()}):
         members = {key: spec for key, spec in store.releases.items() if spec['project']['id'] == project_id}
+        accepted = sorted(((key, spec) for key, spec in members.items() if key in passed), key=head_order)
         heads = sorted(((key, spec) for key, spec in members.items()
                         if not any(successor in members for successor in successors.get(key, []))), key=head_order)
         top = heads[0][1]['release']['version']
@@ -145,25 +179,35 @@ def verify(store):
                   f'{len(tied)} different releases claim version {top}. Each stays verifiable by its digest; '
                   'a later release that names one of them settles the fork.')
         projects.append(dict(project_id=project_id, releases=len(members),
-                             head=dict(version=top, spec_sha256=heads[0][0]), tied_heads=tied if len(tied) > 1 else [],
+                             head=dict(version=top, spec_sha256=heads[0][0]),
+                             accepted_head=dict(version=accepted[0][1]['release']['version'], spec_sha256=accepted[0][0]) if accepted else None,
+                             tied_heads=tied if len(tied) > 1 else [],
                              orphaned_heads=[key for key, spec in heads if spec['release']['version'] != top]))
     open_ends = bool(store.rejected) or any(r['status'] == 'unknown' for r in releases)
-    return dict(format='axiomspec-store-check/0.1', status='fail' if errors else 'incomplete' if open_ends else 'pass',
+    return dict(format='axiomspec-store-check/0.2', status='fail' if errors else 'incomplete' if open_ends else 'pass',
                 releases=releases, projects=projects, errors=sorted(errors, key=lambda e: (e['code'], e['subject'], e['message'])),
                 rejected_files=sorted(store.rejected, key=lambda r: r['path']),
                 limitations=['The verdict covers the files supplied. A release whose baseline or provider is absent is unknown, not accepted.',
                              'A fork is reported when two releases hold the highest version of a project. Settling it is a decision; the store never deletes a file.',
+                             'The head of a project is its highest version, whatever its status. The accepted head is its highest release that passes; it is null when none does.',
                              'Nothing here says a store is complete or current: an absent newer release cannot be detected from the files present.'])
 
 
-def heads(store):
-    """The preferred head of each project: digest -> specification."""
-    report = verify(store)
-    return {p['head']['spec_sha256']: store.releases[p['head']['spec_sha256']] for p in report['projects']}
+def consumer_heads(store, report=None):
+    """The release of each project that others are measured against: digest -> specification.
+
+    It is the accepted head, the highest release that passes. A refused or unapproved release never stands
+    for its project while an accepted one exists; the preferred head is used only when none passes.
+    """
+    report = report or verify(store)
+    chosen = [(p['accepted_head'] or p['head'])['spec_sha256'] for p in report['projects']]
+    return {key: store.releases[key] for key in chosen}
 
 
-def impact(store, baseline, candidate):
+def impact(store, baseline, candidate, report=None):
     """AX-L-011: which specifications in the store a provider's step from `baseline` to `candidate` reaches.
+
+    `report` is the verdict on the store when the caller already holds it.
 
     A use is reached at the highest level of any change whose subject it is or whose declared links lead to it.
     A reached local requirement scores as a dependent does within one specification (AX-L-009): its weight
@@ -182,7 +226,7 @@ def impact(store, baseline, candidate):
                 level[subject] = change['level']
     withdrawn = set(baseline['exports']) - set(candidate['exports'])
     consumers = []
-    for key, spec in sorted(heads(store).items()):
+    for key, spec in sorted(consumer_heads(store, report).items()):
         if spec['project']['id'] == provider:
             continue
         index = release_diff.Index(spec)
@@ -215,7 +259,7 @@ def impact(store, baseline, candidate):
     return dict(format='axiomspec-impact/0.1', provider=dict(project_id=provider, baseline=baseline['release']['version'],
                                                              candidate=candidate['release']['version']),
                 comparison=comparison['status'], required_step=comparison['required_step'], consumers=consumers,
-                limitations=['Only the preferred head of each project in the supplied store is examined.',
+                limitations=['Only one release of each project in the supplied store is examined: its accepted head, or its preferred head when no release passes.',
                              'A consumer pinned to a release other than this baseline is reached by this step and by every step before it; compare from its pin for the full effect.',
                              'Only declared uses are followed. An undeclared dependency on the provider is not found.'])
 

@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 0.7.0 · 11 November 2026. The fourth review describes edition 0.3.1 and the four sections after it editions 0.4.0, 0.5.0, 0.6.0 and 0.7.0; edition 0.5.1 is a note at the end of the second. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 0.7.1 · 11 November 2026. The fourth review describes edition 0.3.1 and the five sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0 and 0.7.1; edition 0.5.1 is a note at the end of the second. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
 
 ## Verdict
 
@@ -271,6 +271,58 @@ Thirty-four regression tests cover them in the package. The reference server has
 - **Truth of an annotation.** It says where a requirement was placed. Only an executed test says it is met.
 - **Other MCP clients.** The tools were exercised with the official Python SDK, version 2.3.0, in process and over HTTP.
 - This is still a review by the assistant that wrote the change.
+
+## Edition 0.7.1
+
+11 November 2026. A fifth review, of the code of editions 0.6.0 and 0.7.0. It ran the approvals, the store, the queries and the reference server against hostile and concurrent inputs. It found ten defects and reproduced nine of them before any fix. All ten are corrected. The specification format stays `axiomspec/0.3`.
+
+### Claims that did not hold
+
+| Claim | Where it was made | What was true |
+|---|---|---|
+| A damaged or hostile approval file cannot block a release that has its approvers | Edition 0.6.0, AX-G-014 | True for an approval of another actor or key. A forged approval of the same actor and key replaced the valid one when files were merged. |
+| Two replicas that receive different files converge | Edition 0.7.0, AX-V-007 | True for releases. Two server processes that each received an approval wrote the same file and one approval was lost. |
+| A file that cannot be read withholds nothing | Edition 0.6.0, AX-L-010 | True, and the file was dropped without a word: a release the server had just accepted could disappear at the next start. |
+
+The tests of those editions used a forged approval of another key, and one writer per directory.
+
+### Defects and corrections
+
+| Defect on edition 0.7.0 | Correction |
+|---|---|
+| The merge of approval files kept one approval per actor and key, the smaller in bytes, valid or not. Merging the ledger's valid approvals with forged ones turned its verdict from pass to fail. | The merge keeps every distinct approval. Verification sets aside what does not verify and counts each approver once. |
+| The server rewrote one approvals file per release from its memory and never read a known release again. With two processes, one of two approvals was lost and each process answered from its own stale copy. | Every accepted upload is its own file, named by its content. Before each organization request the server reads the files that appeared. |
+| The server wrote releases indented and parsed bodies loosely, while the store reads strict JSON of at most one megabyte. A release of 800 KB was accepted, written as 1.09 MB and gone after a restart; so was one holding `10.0` for an integer. | Bodies are strict JSON of at most one megabyte and releases are written in canonical form; a larger release is held as parts. The store names a broken store file in `rejected_files` instead of skipping it. |
+| Every schema-valid candidate was stored, and the head of a project was its highest version whatever its status. A refused candidate became the head and turned the verdict on the store to fail. | A candidate is held only when it passes its checks. A project also has an accepted head, its highest release that passes, and the impact report measures consumers there. |
+| Answers that depend on the code (index, lookup, trace, gaps) were marked immutable for a year. The same address returned 23 traces, then 10 after the code changed. | Those answers are revalidated. The annotations are read again when a scanned file changes, and a cursor does not continue across that change. |
+| The gaps query failed with status 500 when a bound file did not parse, which is the normal state of a file being edited. Other unexpected errors also left as bare pages. | An unparsable file is a gap in the answer. Any other failure is a problem document with code `INTERNAL_ERROR`. |
+| The annotation scan skipped `@req: REQ-004` and `@req(REQ-005)`, returned nothing for a path that does not exist, and never read a source folder named `build`. | Both spellings are read. The token with no ID after it, and a path that does not exist, fail the scan. A named folder is always read. |
+| A request for a digest that was not held reloaded and revalidated the whole store. Bodies had no size limit and requests shared the store without a lock. | New files are read once and an unknown digest costs a directory listing. Bodies are capped and the server answers one operation at a time. |
+| A lookup listed one place in the code once per declared link to it: nine traces for REQ-004, seven distinct. | A place is listed once. |
+| The store compared each release with its baseline twice and recompiled the approvals schema for every release. | The comparison is computed once and passed on; the schemas are compiled once. The gain was not timed. |
+
+Found while fixing: the output schema of each MCP tool had no `type` at its root, which the protocol requires. The Python SDK logged a validation error over HTTP and continued; a stricter client would refuse the tool list. The root type is now stated.
+
+### Decisions
+
+- **The head is unchanged; the accepted head is added.** The head still describes the chain and its forks. What a project stands on is its accepted head. The store check report is `axiomspec-store-check/0.2`.
+- **A refused candidate is not stored.** Edition 0.7.0 stored it and left its use to approvals. A candidate now enters the store only when its schema, its references and its comparison pass, and the answer says so in `held`.
+- **The server filters approvals when it can.** With the governing release at hand it keeps only the approvals that verify. The store itself still accepts any approvals file, because a file may arrive before the baseline that judges it.
+- **Nothing is read below a name that starts with a dot.** That is where a writer stages a file.
+
+### Tests
+
+Eighteen regression tests in the package and nine in the server, 27 in all. Run against the code of edition 0.7.0, 26 fail; the other one guards the new rule on names that start with a dot.
+
+### What this edition does not establish
+
+- **Concurrency under load.** Two and three service objects on one directory were exercised in one process, in sequence. Parallel writers and a real shared file system were not.
+- **The cost of listing.** The server lists the store before each organization request. That was not timed on a large store.
+- **Growth of approval files.** Each distinct upload is a file, and nothing compacts them.
+- **Every broken file.** A broken store file is recognized by its `format` field in its first megabyte. A larger file whose field comes later is still ignored.
+- **The relying party of a passkey.** The assertion check compares the challenge, the user-verification flags and the signature. It does not compare the relying party or the origin; the declared key is the only binding.
+- **Forks below the head.** Two different releases under one version that is not the highest are not reported as a fork.
+- This is a review by the assistant that wrote the code, and its earlier reviews missed these defects.
 
 ## Confirmed findings and corrections
 

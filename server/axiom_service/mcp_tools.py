@@ -8,6 +8,7 @@ import json
 from jsonschema import Draft202012Validator
 import mcp.types as types
 from mcp.server.lowlevel import Server
+from starlette.concurrency import run_in_threadpool
 
 from .service import PACKAGE, QueryError
 
@@ -28,7 +29,8 @@ def definitions(mode):
                 text = json.dumps(contract[current])
                 pending += [part.split('"')[0] for part in text.split('#/components/schemas/')[1:]]
         local = json.loads(json.dumps(needed).replace('#/components/schemas/', '#/$defs/'))
-        return {'$ref': f'#/$defs/{name}', '$defs': local}
+        # MCP requires an output schema to be an object schema at its root, so the type is stated beside the reference.
+        return {'type': 'object', '$ref': f'#/$defs/{name}', '$defs': local}
 
     return [dict(tool, output_schema=output(tool['output'])) for tool in listed if mode in tool['modes']]
 
@@ -53,10 +55,13 @@ def build(service):
         problems = sorted(error.message[:200] for error in Draft202012Validator(tool['input_schema']).iter_errors(arguments))
         if problems:
             return failed('INVALID_PARAMETER', '; '.join(problems[:3]))
+        named = {RENAMED.get(name, name): value for name, value in arguments.items()}
         try:
-            result = service.call(tool['operation_id'], **{RENAMED.get(name, name): value for name, value in arguments.items()})
+            result = await run_in_threadpool(service.call, tool['operation_id'], **named)
         except QueryError as error:
             return failed(error.code, str(error))
+        except Exception:  # a defect of the service: the agent gets an error it can read, not a dropped call
+            return failed('INTERNAL_ERROR', 'The service could not answer this request')
         return types.CallToolResult(content=[types.TextContent(type='text', text=json.dumps(result, ensure_ascii=False, separators=(',', ':')))],
                                     structured_content=result)
 

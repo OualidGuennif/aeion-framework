@@ -109,6 +109,9 @@ A release is immutable and is named by the digest of its canonical form. A store
 - **The verdict is a function of the set.** The order in which files arrived and the replica that supplied them cannot change it. Two stores merge by taking the union of their files, and a file received twice changes nothing.
 - **Absence is unknown.** A release whose baseline, approvals or provider is not in the store is unknown, never passed and never failed. When the file arrives, the verdict completes.
 - **Each release has its own status.** A failed release, or a file that cannot be read, withholds nothing from the others.
+- **A broken store file is named.** A file that says it is a release, a parts manifest or an approvals file and cannot be read as one (too large, not strict JSON, not valid) is listed with its reason, and the store is incomplete until it is repaired or removed. It is never skipped in silence. A file of any other format is ignored, and nothing is read below a name that starts with a dot, where a writer stages a file before moving it into place.
+
+The head of a project is its highest version, whatever its status. Its accepted head is its highest release whose own status is pass, and is absent when none passes. A release that was refused, or that still waits for its approvals, can be the head; it is never the accepted head. A tool that needs the release a project stands on takes the accepted head.
 
 When two different releases of one project hold its highest version, the store reports a fork. Nothing is lost: both stay verifiable by digest and every pin on either still resolves. Where a tool needs a single answer it takes the one with the smaller digest, so every replica takes the same one. The fork is settled by an ordinary approved release that names one of the two. Its line then holds the highest version and the other is listed as an orphaned head. The store never deletes a file.
 
@@ -124,6 +127,6 @@ When a provider moves from one release to the next, the comparison of the two (G
 2. In the consumer, the local objects of a reached use lead to requirements as in AX-L-009.
 3. Each such requirement counts as a dependent does within one specification: its weight times the factor of the level, at most 25%.
 
-The report lists each consumer with its pin, the uses reached, the local requirements and a score in the consumer's own units. It examines the head of each project in the store and follows declared uses only.
+The report lists each consumer with its pin, the uses reached, the local requirements and a score in the consumer's own units. It examines the accepted head of each project in the store, or its head when no release of the project passes there, and follows declared uses only.
 
 Moving a pin is a change of the consumer and is classified from the provider's version number: to a later major version, backwards or to another provider is a breaking candidate; to a later minor version, or to other content under the same version, is minor; to a later patch is patch.

@@ -15,6 +15,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 
 SERVER = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVER))
@@ -26,6 +27,7 @@ import approvals  # noqa: E402
 import fictional_keys as fk  # noqa: E402
 import queries  # noqa: E402
 import release_diff  # noqa: E402
+import release_store  # noqa: E402
 from check_package import canonical, digest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 import httpx  # noqa: E402
@@ -139,12 +141,22 @@ class Sandbox(Case):
             page = valid('ContextPage', self.get(f"{path}&cursor={page['next_cursor']}").json())
         self.assertEqual((len(seen), len(set(seen)), page['complete']), (page['total_visible_count'], len(seen), True))
 
-    def test_a_named_digest_is_cacheable_forever_and_current_is_not(self):
+    def test_an_answer_is_cacheable_forever_only_when_the_digest_covers_all_it_reads(self):
+        forever = 'public, max-age=31536000, immutable'
         named = self.get(f'/v1/snapshots/{self.head}/nodes/REQ-004')
         alias = self.get('/v1/snapshots/current/nodes/REQ-004')
         self.assertEqual(named.json(), alias.json())
-        self.assertEqual((named.headers['cache-control'], alias.headers['cache-control']), ('public, max-age=31536000, immutable', 'no-cache'))
+        # This service reads the code beside the release, which the digest does not cover: lookup is revalidated.
+        self.assertEqual((named.headers['cache-control'], alias.headers['cache-control']), ('no-cache', 'no-cache'))
         self.assertEqual(named.headers['etag'], alias.headers['etag'])
+        for path in ('/index', '/trace?id=REQ-004', '/gaps?phase=implementation'):
+            self.assertEqual(self.get(f'/v1/snapshots/{self.head}{path}').headers['cache-control'], 'no-cache', path)
+        # The context of a requirement is a function of the release alone.
+        self.assertEqual(self.get(f'/v1/snapshots/{self.head}/context?ids=REQ-004').headers['cache-control'], forever)
+        self.assertEqual(self.get('/v1/snapshots/current/context?ids=REQ-004').headers['cache-control'], 'no-cache')
+        without_code = self.client(Service([self.store], snapshot=self.head))
+        for path in ('/nodes/REQ-004', '/index', '/trace?id=REQ-004', '/gaps'):
+            self.assertEqual(without_code.get(f'/v1/snapshots/{self.head}{path}').headers['cache-control'], forever, path)
         again = self.get(f'/v1/snapshots/{self.head}/nodes/REQ-004', 304, **{'If-None-Match': named.headers['etag']})
         self.assertEqual(again.content, b'')
         self.get(f'/v1/snapshots/{self.head}/nodes/REQ-004', 200, **{'If-None-Match': '"something-else"'})
@@ -198,7 +210,8 @@ class Organization(Case):
         self.assertEqual([(s['project_id'], s['version']) for s in listed['snapshots']],
                          [('PROJECT-001', '1.0.0'), ('PROJECT-001', '1.1.0'), ('PROJECT-002', '1.0.0')])
         project = valid('Project', self.get('/v1/projects/PROJECT-001'))
-        self.assertEqual(project, dict(project_id='PROJECT-001', head=dict(version='1.1.0', spec_sha256=self.head), tied_heads=[], orphaned_heads=[],
+        self.assertEqual(project, dict(project_id='PROJECT-001', head=dict(version='1.1.0', spec_sha256=self.head),
+                                       accepted_head=dict(version='1.1.0', spec_sha256=self.head), tied_heads=[], orphaned_heads=[],
                                        releases=[dict(version='1.0.0', spec_sha256=self.first, status='pass'),
                                                  dict(version='1.1.0', spec_sha256=self.head, status='pass')]))
         self.assertEqual(valid('Release', self.get(f'/v1/releases/{self.head}')), self.spec)
@@ -268,7 +281,10 @@ class Organization(Case):
         self.assertEqual(self.http.put(f'/v1/releases/{key}/approvals', json=halves[0]).json(), after_two)
         held = self.get(f'/v1/releases/{key}/approvals')
         self.assertEqual(held, approvals.merge(halves[0], halves[1]))
-        self.assertEqual(load(self.store / f'{key}.approvals.json'), held)
+        # Each upload is its own file, named by its content: nothing is rewritten, and the store reads the union.
+        written = sorted(self.store.glob(f'{key}.approvals.*.json'))
+        self.assertEqual(sorted(len(load(file)['approvals']) for file in written), [1, 1])
+        self.assertEqual(approvals.merge(load(written[0]), load(written[1])), held)
         wrong = self.http.put(f'/v1/releases/{self.head}/approvals', json=halves[0])
         self.assertEqual((wrong.status_code, wrong.json()['code']), (409, 'DIGEST_MISMATCH'))
         unknown = self.http.put(f"/v1/releases/{'2' * 64}/approvals", json=halves[0])
@@ -283,7 +299,7 @@ class Organization(Case):
         created = self.http.post('/v1/candidates', json=request)
         self.assertEqual(created.status_code, 201)
         result = valid('CandidateResult', created.json())
-        self.assertEqual(result, queries.propose(self.spec, '1.1.1', request['operations']))
+        self.assertEqual(result, dict(queries.propose(self.spec, '1.1.1', request['operations']), held=True))
         self.assertEqual((result['status'], result['comparison']['required_step']), ('pass', 'patch'))
         self.assertEqual(self.http.post('/v1/candidates', json=request).json()['spec_sha256'], result['spec_sha256'])
         self.assertEqual(self.get(f"/v1/releases/{result['spec_sha256']}"), result['candidate'])
@@ -296,6 +312,7 @@ class Organization(Case):
         shapeless = self.http.post('/v1/candidates', json=dict(request, operations=[dict(op='put', section='nodes', item=dict(id='REQ-050'))])).json()
         self.assertEqual(shapeless['status'], 'fail')
         self.assertEqual(self.get(f"/v1/releases/{shapeless['spec_sha256']}", 404)['code'], 'NOT_FOUND')  # a shapeless candidate is not held
+        self.assertFalse(shapeless['held'])
 
     def test_two_processes_on_one_directory_answer_the_same(self):
         other = self.client(Service([self.store], 'organization'))
@@ -303,10 +320,203 @@ class Organization(Case):
         key = digest(canonical(candidate))
         self.assertEqual(other.get(f'/v1/releases/{key}').status_code, 404)
         self.assertEqual(self.http.put(f'/v1/releases/{key}', json=candidate).status_code, 200)
-        # The second process kept no state: it finds the new file when asked for a digest it has not seen.
+        # The second process kept no state: before each request it takes in the files that appeared.
         self.assertEqual(other.get(f'/v1/releases/{key}').json(), candidate)
         self.assertEqual(other.get(f'/v1/releases/{key}/verdict').json(), self.get(f'/v1/releases/{key}/verdict'))
         self.assertEqual(other.get('/v1/projects/PROJECT-001').json(), self.get('/v1/projects/PROJECT-001'))
+
+
+class FifthReview(Case):
+    """Defects of edition 0.7.0, each reproduced through the service. Every case failed before its fix."""
+
+    def organization(self):
+        service = Service([self.store], 'organization')
+        return service, self.client(service)
+
+    def grown(self, baseline, version, size):
+        """A successor of `baseline` padded with goals until its canonical form reaches `size` bytes."""
+        spec = self.successor(baseline, version)
+        goal = next(n for n in spec['nodes'] if n['kind'] == 'Goal')
+        number = 1000
+        while len(canonical(spec)) < size:
+            spec['nodes'] += [dict(copy.deepcopy(goal), id=f'GOAL-{number + i:05d}') for i in range(100)]
+            number += 100
+        return spec
+
+    def forged(self, document):
+        hostile = copy.deepcopy(document)
+        for approval in hostile['approvals']:
+            approval['signature'] = approval['authenticator_data'] = '++++'
+        return hostile
+
+    def test_a_forged_approval_cannot_displace_a_valid_one(self):
+        service, http = self.organization()
+        candidate = self.successor(self.spec, '1.1.1', 'REQ-004')  # critical: two approvers by passkey
+        key = digest(canonical(candidate))
+        http.put(f'/v1/releases/{key}', json=candidate)
+        good = fk.approvals_for(candidate, self.spec, PASSKEYS)
+        self.assertEqual(http.put(f'/v1/releases/{key}/approvals', json=good).json()['status'], 'pass')
+        refused = http.put(f'/v1/releases/{key}/approvals', json=self.forged(good))
+        self.assertEqual((refused.status_code, valid('Problem', refused.json())['code']), (422, 'NO_VALID_APPROVAL'))
+        mixed = dict(good, approvals=self.forged(good)['approvals'] + good['approvals'])
+        self.assertEqual(http.put(f'/v1/releases/{key}/approvals', json=mixed).json()['status'], 'pass')
+        self.assertEqual(http.get(f'/v1/releases/{key}/approvals').json(), good)  # only what verifies was kept
+        # A forged file dropped into the store by other means is set aside by the verdict and blocks nothing.
+        (self.store / 'dropped.json').write_text(json.dumps(self.forged(good)))
+        verdict = http.get(f'/v1/releases/{key}/verdict').json()
+        self.assertEqual((verdict['status'], verdict['approvals']), ('pass', 'pass'))
+        self.assertEqual(len(http.get(f'/v1/releases/{key}/approvals').json()['approvals']), 4)
+
+    def test_two_replicas_keep_every_approval_and_answer_the_same(self):
+        (_, first), (_, second) = self.organization(), self.organization()
+        candidate = self.successor(self.spec, '1.1.1', 'REQ-004')
+        key = digest(canonical(candidate))
+        first.put(f'/v1/releases/{key}', json=candidate)
+        halves = [fk.approvals_for(candidate, self.spec, [signer]) for signer in PASSKEYS]
+        self.assertEqual(first.put(f'/v1/releases/{key}/approvals', json=halves[0]).json()['status'], 'fail')
+        # The second replica never saw the first approval in memory: it reads it from the store.
+        self.assertEqual(second.put(f'/v1/releases/{key}/approvals', json=halves[1]).json()['status'], 'pass')
+        _, third = self.organization()
+        answers = [client.get(f'/v1/releases/{key}/verdict').json() for client in (first, second, third)]
+        self.assertEqual(([a['status'] for a in answers], answers[0]), (['pass'] * 3, answers[2]))
+        held = [client.get(f'/v1/releases/{key}/approvals').json() for client in (first, second, third)]
+        self.assertEqual((held[0], held[1], len(held[2]['approvals'])), (held[2], held[2], 2))
+        self.assertEqual([client.get('/v1/projects/PROJECT-001').json()['accepted_head']['version'] for client in (first, second, third)],
+                         ['1.1.1'] * 3)
+
+    def test_a_release_the_service_accepts_is_one_the_store_reads_back(self):
+        service, http = self.organization()
+        large = self.grown(self.spec, '1.1.1', 800_000)
+        key = digest(canonical(large))
+        self.assertGreater(len(json.dumps(large, indent=2)), 1048576)  # the indented form would not be read back
+        self.assertEqual(http.put(f'/v1/releases/{key}', content=canonical(large)).status_code, 200)
+        self.assertLessEqual((self.store / f'{key}.json').stat().st_size, 1048576)
+        self.assertEqual(Service([self.store], 'organization').call('getRelease', digest=key), large)
+        # A number the store would refuse on reading is refused on writing, over HTTP and at the service.
+        floated = json.loads(json.dumps(self.successor(self.spec, '1.1.1')).replace('"weight_minor_units": 10', '"weight_minor_units": 10.0'))
+        name = digest(canonical(floated))
+        over_http = http.put(f'/v1/releases/{name}', content=json.dumps(floated))
+        self.assertEqual((over_http.status_code, valid('Problem', over_http.json())['code']), (422, 'INVALID_DOCUMENT'))
+        with self.assertRaises(queries.QueryError) as refused:
+            service.call('putRelease', digest=name, body=floated)
+        self.assertEqual((refused.exception.code, refused.exception.status), ('INVALID_DOCUMENT', 422))
+        self.assertFalse((self.store / f'{name}.json').exists())
+        twice = http.put(f'/v1/releases/{name}', content=b'{"format": "axiomspec/0.3", "format": "axiomspec/0.3"}')
+        self.assertEqual((twice.status_code, twice.json()['code']), (422, 'INVALID_DOCUMENT'))
+        for path in (f'/v1/releases/{key}', f'/v1/releases/{key}/approvals'):
+            too_large = http.put(path, content=b' ' * 1048577)
+            self.assertEqual((too_large.status_code, valid('Problem', too_large.json())['code']), (413, 'PAYLOAD_TOO_LARGE'))
+        too_large = http.post('/v1/candidates', content=b' ' * 1048577)
+        self.assertEqual((too_large.status_code, too_large.json()['code']), (413, 'PAYLOAD_TOO_LARGE'))
+        self.assertFalse(list(self.store.rglob('*.tmp')))
+
+    def test_a_release_larger_than_one_file_is_held_as_parts(self):
+        service, _ = self.organization()
+        huge = self.grown(self.spec, '1.1.1', 1_200_000)
+        key = service.hold(huge)
+        self.assertTrue((self.store / f'{key}.parts' / f'{key}.manifest.json').is_file())
+        self.assertFalse([path for path in self.store.iterdir() if path.name.startswith('.incoming')])
+        self.assertEqual(Service([self.store], 'organization').call('getRelease', digest=key), huge)
+        self.assertEqual(service.hold(huge), key)  # held already: nothing is written twice
+        self.assertEqual(service.verify()['rejected_files'], [])
+
+    def test_a_refused_candidate_changes_nothing_and_a_refused_release_is_not_the_accepted_head(self):
+        service, http = self.organization()
+        before = http.get('/v1/projects/PROJECT-001').json()
+        files = sorted(path.name for path in self.store.rglob('*'))
+        node = copy.deepcopy(next(n for n in self.spec['nodes'] if n['id'] == 'REQ-004'))
+        node['data']['response'] = 'allow every request'
+        created = http.post('/v1/candidates', json=dict(baseline=self.head, version='1.1.1',
+                                                        operations=[dict(op='put', section='nodes', item=node)]))
+        result = valid('CandidateResult', created.json())
+        self.assertEqual((created.status_code, result['status'], result['held']), (201, 'fail', False))
+        self.assertEqual(sorted(e['code'] for e in result['comparison']['errors']), ['UNACKNOWLEDGED_BREAKING', 'VERSION_BUMP_TOO_SMALL'])
+        self.assertEqual(http.get(f"/v1/releases/{result['spec_sha256']}").status_code, 404)
+        self.assertEqual((http.get('/v1/projects/PROJECT-001').json(), sorted(path.name for path in self.store.rglob('*'))), (before, files))
+        self.assertEqual(service.verify()['status'], 'pass')
+        # An uploaded release is kept whatever its verdict. Without its approvals it is the head, not the accepted head.
+        unapproved = self.successor(self.spec, '1.1.1', 'REQ-004')
+        key = digest(canonical(unapproved))
+        self.assertEqual(http.put(f'/v1/releases/{key}', json=unapproved).json()['status'], 'fail')
+        project = valid('Project', http.get('/v1/projects/PROJECT-001').json())
+        self.assertEqual((project['head']['version'], project['accepted_head']), ('1.1.1', dict(version='1.1.0', spec_sha256=self.head)))
+        http.put(f'/v1/releases/{key}/approvals', json=fk.approvals_for(unapproved, self.spec, PASSKEYS))
+        self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['accepted_head'], dict(version='1.1.1', spec_sha256=key))
+
+    def copy_of_the_code(self):
+        repository = Path(self.directory.name) / 'repository'
+        shutil.copytree(LEDGER, repository / 'examples/refund-ledger', ignore=shutil.ignore_patterns('__pycache__'))
+        return repository, repository / APP
+
+    def test_reads_of_the_code_follow_the_code(self):
+        repository, code = self.copy_of_the_code()
+        service = Service([LEDGER / 'spec.json'], repository=repository, include=['examples/refund-ledger'])
+        http = self.client(service)
+        path = f'/v1/snapshots/{self.head}/trace?path={APP}'
+        before = http.get(path)
+        page = http.get(f'/v1/snapshots/{self.head}/trace?id=REQ-004&budget_bytes=4096').json()
+        self.assertIsNotNone(page['next_cursor'])
+        code.write_text(code.read_text() + '\n\n# @req REQ-010\ndef added():\n    pass\n')
+        after = http.get(path, headers={'If-None-Match': before.headers['etag']})
+        self.assertEqual((after.status_code, before.headers['cache-control']), (200, 'no-cache'))
+        self.assertEqual([row['symbol'] for row in after.json()['items'] if row['symbol'] == 'added'], ['added'])
+        self.assertEqual(after.json()['total_visible_count'], before.json()['total_visible_count'] + 1)
+        # A page begun before the code changed is not continued on the new answer.
+        stale = http.get(f"/v1/snapshots/{self.head}/trace?id=REQ-004&budget_bytes=4096&cursor={page['next_cursor']}")
+        self.assertEqual((stale.status_code, stale.json()['code']), (400, 'INVALID_CURSOR'))
+        # A file that does not parse while it is edited is a gap in the answer, not a failed request.
+        code.write_text(code.read_text() + '\ndef broken(:\n')
+        gaps = http.get('/v1/snapshots/current/gaps?phase=implementation')
+        self.assertEqual(gaps.status_code, 200)
+        self.assertTrue([g for g in valid('GapsPage', gaps.json())['items'] if 'cannot be parsed' in g['message']])
+        # The scanned folder disappears for a moment: the last complete scan still answers.
+        shutil.move(repository / 'examples', repository / 'moved')
+        self.assertEqual(http.get(path).json()['total_visible_count'], after.json()['total_visible_count'])
+
+    def test_a_scan_path_that_does_not_exist_stops_the_service_at_start(self):
+        repository, _ = self.copy_of_the_code()
+        with self.assertRaisesRegex(ValueError, 'does not exist: exmaples'):
+            Service([LEDGER / 'spec.json'], repository=repository, include=['exmaples/refund-ledger'])
+
+    def test_every_error_is_a_problem_document(self):
+        service = self.sandbox()
+        http = TestClient(create_app(service), raise_server_exceptions=False)
+        for query in ('budget_bytes=%C2%B2', 'budget_bytes=99999999999', 'budget_bytes=-1', 'budget_bytes=1e4'):
+            answer = http.get(f'/v1/snapshots/current/gaps?{query}')
+            self.assertEqual((answer.status_code, valid('Problem', answer.json())['code']), (400, 'INVALID_PARAMETER'), query)
+        with mock.patch.object(service, '_lookup', side_effect=RuntimeError('a defect')):
+            answer = http.get('/v1/snapshots/current/nodes/REQ-004')
+            self.assertEqual((answer.status_code, answer.headers['content-type']), (500, 'application/problem+json'))
+            self.assertEqual((valid('Problem', answer.json())['code'], 'defect' in answer.text), ('INTERNAL_ERROR', False))
+
+            async def ask():
+                async with Client(mcp_tools.build(service)) as client:
+                    return await client.call_tool('axiom_lookup', dict(id='REQ-004'))
+            result = asyncio.run(ask())
+            self.assertTrue(result.is_error and result.content[0].text.startswith('INTERNAL_ERROR:'))
+        _, organization = self.organization()
+        for body in (dict(baseline=['x'], version='1.1.1', operations=[]), dict(baseline=self.head, version=5, operations=[])):
+            answer = organization.post('/v1/candidates', json=body)
+            self.assertEqual((answer.status_code, valid('Problem', answer.json())['code']), (400, 'INVALID_PARAMETER'))
+        absent = organization.get(f'/v1/releases/{self.head}/statement?actor=ACTOR-999&key=KEY-001')
+        self.assertEqual((absent.status_code, absent.json()['code']), (404, 'NOT_FOUND'))
+
+    def test_an_unknown_digest_costs_a_listing_and_a_new_file_is_read_once(self):
+        service, http = self.organization()
+        with mock.patch.object(release_store, 'add_file', wraps=release_store.add_file) as read:
+            for number in range(5):
+                self.assertEqual(http.get(f'/v1/releases/{number:064x}').status_code, 404)
+            self.assertEqual(read.call_count, 0)
+            arrived = self.successor(self.spec, '1.1.1')
+            key = digest(canonical(arrived))
+            (self.store / 'arrived.json').write_text(json.dumps(arrived))
+            self.assertEqual(http.get(f'/v1/releases/{key}').json(), arrived)
+            self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['head']['version'], '1.1.1')
+            self.assertEqual(read.call_count, 1)
+            # A file that changes or goes away rebuilds the store from what is there.
+            (self.store / 'arrived.json').unlink()
+            self.assertEqual(http.get(f'/v1/releases/{key}').status_code, 404)
+            self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['head']['version'], '1.1.0')
 
 
 class Tools(Case):
@@ -325,6 +535,7 @@ class Tools(Case):
             Draft202012Validator.check_schema(tool.input_schema)
             Draft202012Validator.check_schema(tool.output_schema)
             self.assertNotIn('#/components/', json.dumps(tool.output_schema))  # self-contained: a client resolves nothing
+            self.assertEqual(tool.output_schema['type'], 'object')  # a strict MCP client refuses the list otherwise
         size = len(json.dumps([dict(name=t.name, description=t.description, inputSchema=t.input_schema) for t in listed.tools]))
         self.assertLess(size, 2600)
 
@@ -370,8 +581,18 @@ class Tools(Case):
         self.assertEqual(compared.structured_content, release_diff.compare(self.base, self.spec))
         proposed = self.session(service, lambda client: client.call_tool('axiom_propose', dict(
             baseline=self.head, version='1.1.1', operations=[dict(op='retire', id='CON-006')])))
-        self.assertEqual(proposed.structured_content['spec_sha256'], queries.propose(self.spec, '1.1.1', [dict(op='retire', id='CON-006')])['spec_sha256'])
-        self.assertTrue((self.store / f"{proposed.structured_content['spec_sha256']}.json").is_file())
+        reference = queries.propose(self.spec, '1.1.1', [dict(op='retire', id='CON-006')])
+        self.assertEqual((proposed.structured_content['spec_sha256'], proposed.structured_content['status']),
+                         (reference['spec_sha256'], reference['status']))
+        # A candidate is held exactly when it passes its own checks.
+        self.assertEqual(proposed.structured_content['held'], reference['status'] == 'pass')
+        self.assertEqual((self.store / f"{reference['spec_sha256']}.json").is_file(), reference['status'] == 'pass')
+        node = copy.deepcopy(next(n for n in self.spec['nodes'] if n['id'] == 'REQ-010'))
+        node['title'] += ' (reworded)'
+        passing = self.session(service, lambda client: client.call_tool('axiom_propose', dict(
+            baseline=self.head, version='1.1.1', operations=[dict(op='put', section='nodes', item=node)])))
+        self.assertEqual((passing.structured_content['status'], passing.structured_content['held']), ('pass', True))
+        self.assertTrue((self.store / f"{passing.structured_content['spec_sha256']}.json").is_file())
         lookup = self.session(service, lambda client: client.call_tool('axiom_lookup', dict(id='REQ-001', snapshot=self.provider)))
         self.assertEqual(lookup.structured_content['requirement']['risk'], 'critical')
         unnamed = self.session(service, lambda client: client.call_tool('axiom_lookup', dict(id='REQ-001')))

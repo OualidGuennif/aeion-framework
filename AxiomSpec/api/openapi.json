@@ -3,7 +3,7 @@
   "info": {
     "title": "AxiomSpec service interface",
     "version": "1.0.0",
-    "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest: the answer never changes, so it can be cached without limit, and a sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents. Rules: docs/19_SERVICE_INTERFACE.md."
+    "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "tags": [
@@ -515,7 +515,7 @@
     "/v1/projects/{project_id}": {
       "get": {
         "operationId": "getProject",
-        "summary": "The releases of one project, its head and any fork (AX-L-010).",
+        "summary": "The releases of one project, its head, its accepted head and any fork (AX-L-010).",
         "tags": [
           "organization"
         ],
@@ -645,6 +645,16 @@
               }
             }
           },
+          "413": {
+            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "422": {
             "description": "The document is not valid.",
             "content": {
@@ -765,8 +775,18 @@
               }
             }
           },
+          "413": {
+            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "422": {
-            "description": "The document is not valid.",
+            "description": "The document is not valid, or the governing release is held and no approval in the body verifies under it.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1058,7 +1078,7 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": "The candidate and its checks. It is held by the store whether or not it passes; approvals decide its use.",
+            "description": "The candidate and its checks. It is held by the store only when it passes them; a refused candidate is returned and changes nothing. A held candidate is still only a candidate until it has its approvals.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1079,6 +1099,26 @@
           },
           "404": {
             "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The body is not strict JSON, or the store cannot hold the candidate.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -2469,6 +2509,32 @@
             ],
             "additionalProperties": false
           },
+          "accepted_head": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+                  },
+                  "spec_sha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                },
+                "required": [
+                  "version",
+                  "spec_sha256"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The highest release of the project whose verdict is pass, or null when none passes. The head is the highest version whatever its status."
+          },
           "tied_heads": {
             "type": "array",
             "items": {
@@ -2490,6 +2556,7 @@
           "project_id",
           "releases",
           "head",
+          "accepted_head",
           "tied_heads",
           "orphaned_heads"
         ],
@@ -2864,6 +2931,10 @@
               "fail"
             ]
           },
+          "held": {
+            "type": "boolean",
+            "description": "True when the store now holds the candidate. Only a candidate whose status is pass is held."
+          },
           "schema_errors": {
             "type": "array",
             "items": {
@@ -2899,6 +2970,7 @@
           "version",
           "baseline",
           "status",
+          "held",
           "schema_errors",
           "reference_errors",
           "comparison",

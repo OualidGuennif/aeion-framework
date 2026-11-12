@@ -88,8 +88,10 @@ class Annotations(unittest.TestCase):
             'b.go': '// @requires REQ-001\n// @request REQ-002\n// req REQ-003\n// @req lowercase-001\n// @req REQ-12\n',
             'notes.md': '@req REQ-001\n', 'data.json': '{"x": "@req REQ-001"}\n',
             'node_modules/dep/x.js': '// @req REQ-001\n', 'broken.py': '# @req REQ-020\ndef (:\n'})
+        # `@requires` and `@request` are other words. The token with nothing valid after it is kept, to be reported.
         self.assertEqual([(a['path'], a['line'], a['symbol'], a['ids']) for a in found],
-                         [('a.ts', 1, None, ['REQ-010', 'REQ-011']), ('broken.py', 1, None, ['REQ-020'])])
+                         [('a.ts', 1, None, ['REQ-010', 'REQ-011']), ('b.go', 4, None, []), ('b.go', 5, None, []),
+                          ('broken.py', 1, None, ['REQ-020'])])
 
     def test_a_test_file_is_recognized_by_name_or_folder(self):
         for path, expected in [('tests/test_ledger.py', True), ('pkg/ledger_test.go', True), ('src/__tests__/a.ts', True),

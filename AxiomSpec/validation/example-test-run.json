@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-test-receipt/0.1",
   "scope": "example_application",
-  "edition": "0.7.0",
+  "edition": "0.7.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-11T14:08:12.467766+00:00",
+  "evaluated_at": "2026-11-11T19:15:37.540648+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -95,7 +95,7 @@
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "57fb244f207086b7d5f120c70640a900dd110e3ff728c7c83ff478553edf6c7e"
+    "sha256": "8778ea4b899d6e646ceefee4daf54a3ad5ef5bf99130cdda8d28e753a4ab7bfe"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

@@ -15,6 +15,7 @@ Selection follows declared links and annotations only. Nothing here is learned, 
 """
 import base64
 import copy
+from functools import lru_cache
 import json
 from pathlib import Path
 
@@ -34,6 +35,11 @@ KIND_ORDER = ['Requirement', 'Goal', 'Term', 'Constraint', 'StateModel', 'Decisi
 EDIT_SECTIONS = ('nodes', 'edges', 'bindings', 'environments', 'flags', 'actors', 'sources', 'context_assets', 'imports')
 REMOVABLE = ('edges', 'bindings', 'flags', 'context_assets', 'imports', 'environments')
 SETTABLE = ('exports', 'approval', 'compatibility')
+
+
+@lru_cache(maxsize=1)
+def spec_validator():
+    return make_validator(json.loads((ROOT / 'schemas/spec.schema.json').read_text()))
 
 
 def contract_validator(name):
@@ -63,10 +69,15 @@ def statement(node):
 
 
 class Snapshot:
-    """One release, indexed once. Immutable: every answer names its digest."""
+    """One release with the annotations of one state of its code, indexed once. Every answer names the release digest.
+
+    `state` also covers the annotations. A cursor is bound to it, so a page is never continued across a rescan
+    of the code.
+    """
 
     def __init__(self, spec, annotations=(), repository=None):
         self.spec, self.digest = spec, digest(canonical(spec))
+        self.state = digest(canonical([self.digest, list(annotations)]))
         self.index = release_diff.Index(spec)
         self.nodes = self.index.nodes
         self.annotations = list(annotations)
@@ -119,7 +130,7 @@ def page(snapshot, name, parameters, items, budget_bytes=MAX_BYTES, cursor=None,
             padded = cursor + '=' * (-len(cursor) % 4)
             bound = json.loads(base64.urlsafe_b64decode(padded.encode('ascii')))
             position = bound['position']
-            valid = (bound['snapshot'], bound['query']) == (snapshot.digest, identity) and type(position) is int
+            valid = (bound['snapshot'], bound['query']) == (snapshot.state, identity) and type(position) is int
         except (ValueError, KeyError, TypeError):
             valid = False
         if not valid or not 0 < position <= len(items):
@@ -144,7 +155,7 @@ def page(snapshot, name, parameters, items, budget_bytes=MAX_BYTES, cursor=None,
         position += 1
     envelope['returned_count'] = len(envelope['items'])
     if position < len(items):
-        bound = canonical(dict(snapshot=snapshot.digest, query=identity, position=position))
+        bound = canonical(dict(snapshot=snapshot.state, query=identity, position=position))
         envelope['next_cursor'] = base64.urlsafe_b64encode(bound).rstrip(b'=').decode('ascii')
     # Complete means the whole answer was deliverable at this budget, not only this page.
     oversized = any(len(canonical(item)) + 1 > budget_bytes - reserve for item in items)
@@ -163,12 +174,14 @@ def lookup(snapshot, object_id, detail='brief'):
     links = [dict(relation=relation, direction=direction, id=other, kind=snapshot.kind(other), title=title(other))
              for relation, direction, other in snapshot.links.get(object_id, []) if snapshot.holds(other)]
     links.sort(key=lambda link: (link['relation'], link['direction'], link['id']))
+    # Two links to one place (a constraint and its requirement on the same line) are one place to read.
+    places = list(dict.fromkeys((t['path'], t['line'], t['symbol'], t['kind'], t['origin'])
+                                for t in snapshot.traces.get(object_id, [])))
     view = dict(snapshot_id=snapshot.digest, query_digest=query_digest('lookup', dict(id=object_id, detail=detail)),
                 id=object_id, kind=kind, status=content.get('status'), title=content.get('title') or content.get('name'),
                 statement=None, requirement=None, links=links[:MAX_ITEMS], links_total=len(links),
-                traces=[{k: t[k] for k in ('path', 'line', 'symbol', 'kind', 'origin')}
-                        for t in snapshot.traces.get(object_id, [])[:MAX_ITEMS]], content=None,
-                complete=len(links) <= MAX_ITEMS and len(snapshot.traces.get(object_id, [])) <= MAX_ITEMS)
+                traces=[dict(zip(('path', 'line', 'symbol', 'kind', 'origin'), place)) for place in places[:MAX_ITEMS]],
+                content=None, complete=len(links) <= MAX_ITEMS and len(places) <= MAX_ITEMS)
     if kind == 'Requirement':
         view['statement'] = statement(content)
         view['requirement'] = dict(snapshot.summary(object_id), flag_id=content['data']['flag_id'],
@@ -373,8 +386,15 @@ def gaps(snapshot, phase='design', budget_bytes=MAX_BYTES, cursor=None):
                 gap('G09', 'PLANNED_BINDING', binding['id'], 'The binding is planned, not required to resolve.')
             elif snapshot.repository is not None and binding['language'] == 'python':
                 target = snapshot.repository / binding['path']
-                if not target.is_file() or not resolve_symbol(target, binding['symbol']):
-                    gap('G09', 'UNRESOLVED_BINDING', binding['id'], f"{binding['path']} does not define {binding['symbol']}.")
+                try:
+                    inside = target.resolve().is_relative_to(snapshot.repository.resolve())
+                    resolved = inside and target.is_file() and resolve_symbol(target, binding['symbol'])
+                    reason = f"{binding['path']} does not define {binding['symbol']}."
+                except (SyntaxError, ValueError, OSError):
+                    # A file being edited may not parse. That is a gap to report, not a failure of the query.
+                    resolved, reason = False, f"{binding['path']} cannot be parsed, so {binding['symbol']} is not resolved."
+                if not resolved:
+                    gap('G09', 'UNRESOLVED_BINDING', binding['id'], reason)
         for problem in graph_index.check(spec, snapshot.annotations):
             gap('G09', problem['code'], problem['subject_id'], problem['message'])
     found.sort(key=lambda g: (g['gate'], g['code'], g['id'] or '', g['message']))
@@ -389,7 +409,10 @@ def propose(baseline, version, operations):
 
     Edits address objects by ID, never by position. A changed node takes the next revision; a node is retired,
     never removed. The result is a function of the inputs, so the same request always yields the same digest.
+    This function writes nothing: `held` is false here, and a service sets it when it keeps the candidate.
     """
+    if not isinstance(version, str):
+        raise QueryError('INVALID_PARAMETER', 'version is a string such as 1.2.0')
     spec = copy.deepcopy(baseline)
     spec['release'] = dict(version=version, compatibility=[],
                            previous=dict(version=baseline['release']['version'], spec_sha256=digest(canonical(baseline))))
@@ -439,14 +462,13 @@ def propose(baseline, version, operations):
                 spec[field] = operation['value']
         else:
             raise fail('op is put, retire, remove or set')
-    validator = make_validator(json.loads((ROOT / 'schemas/spec.schema.json').read_text()))
-    schema_errors = sorted(f"{'/'.join(str(p) for p in e.absolute_path)}: {e.message[:200]}" for e in validator.iter_errors(spec))[:50]
+    schema_errors = sorted(f"{'/'.join(str(p) for p in e.absolute_path)}: {e.message[:200]}" for e in spec_validator().iter_errors(spec))[:50]
     references = sorted(set(reference_errors(spec))) if not schema_errors else []
     comparison = release_diff.compare(baseline, spec) if not schema_errors else None
     acceptable = not schema_errors and not references and comparison['status'] == 'pass'
     return dict(spec_sha256=digest(canonical(spec)), version=version,
                 baseline=dict(version=baseline['release']['version'], spec_sha256=digest(canonical(baseline))),
-                status='pass' if acceptable else 'fail', schema_errors=schema_errors, reference_errors=references,
+                status='pass' if acceptable else 'fail', held=False, schema_errors=schema_errors, reference_errors=references,
                 comparison=None if comparison is None else {k: comparison[k] for k in
                     ('status', 'declared_step', 'required_step', 'counts', 'errors', 'risk')},
                 candidate=spec)

@@ -14,6 +14,7 @@ This module verifies signatures. It never holds a private key and does not estab
 belongs to the person an actor record names: that binding is the organization's.
 """
 import base64
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -82,11 +83,17 @@ def signature_valid(key, message, approval):
         return False
 
 
-def required_bands(candidate, baseline):
+@lru_cache(maxsize=1)
+def validator():
+    return make_validator(json.loads(SCHEMA.read_text()))
+
+
+def required_bands(candidate, baseline, comparison=None):
     """AX-G-014: the bands whose rule this release must meet, each with what put it there.
 
     The low band is the floor of every release. A requirement the release reaches adds its band. A change to
-    the actors, the approval policy or the keys adds all four.
+    the actors, the approval policy or the keys adds all four. `comparison` is the G14 comparison of the two
+    releases when the caller already holds it.
     """
     reasons = {'low': ['every release']}
     labels = {}
@@ -98,7 +105,8 @@ def required_bands(candidate, baseline):
     if baseline is None:
         reached = sorted(n['id'] for n in candidate['nodes'] if n['kind'] == 'Requirement' and n['status'] == 'active')
     else:
-        reached = [r['id'] for r in release_diff.compare(baseline, candidate)['risk']['requirements']]
+        comparison = comparison or release_diff.compare(baseline, candidate)
+        reached = [r['id'] for r in comparison['risk']['requirements']]
         if (baseline['approval'], baseline['actors']) != (candidate['approval'], candidate['actors']):
             for band in BANDS:
                 reasons.setdefault(band, []).append('actors, approval policy or keys changed')
@@ -107,9 +115,40 @@ def required_bands(candidate, baseline):
     return {band: reasons[band] for band in BANDS if band in reasons}
 
 
-def verify(candidate, approvals, baseline=None):
-    """Return the deterministic G12 report for one release. Status is pass, fail or unknown."""
-    make_validator(json.loads(SCHEMA.read_text())).validate(approvals)
+def judge(candidate, governing, offered):
+    """Each offered approval with the key it names and why it is set aside: (approval, key, None) when it counts."""
+    keys = {key['id']: key for key in governing['approval']['keys']}
+    actors = {actor['id']: actor for actor in governing['actors']}
+    for approval in offered:
+        key = keys.get(approval['key_id'])
+        if key is None:
+            yield approval, None, ('UNKNOWN_APPROVAL_KEY', approval['key_id'], 'The governing release declares no such key.')
+            continue
+        if key['attests']:
+            vouched = actors.get(approval['actor_id'])
+            if vouched is None or vouched['type'] == 'service':
+                yield approval, key, ('APPROVER_MISMATCH', approval['actor_id'],
+                                      'An attesting key vouches for a declared actor that is not a service.')
+                continue
+        elif approval['actor_id'] != key['actor_id']:
+            yield approval, key, ('APPROVER_MISMATCH', approval['actor_id'], 'A personal key approves for its own actor only.')
+            continue
+        message = statement(candidate, approval['actor_id'], key['id'], key['method'])
+        if not signature_valid(key, message, approval):
+            yield approval, key, ('INVALID_SIGNATURE', approval['key_id'],
+                                  'The signature does not verify for this release, actor, key and method.')
+            continue
+        yield approval, key, None
+
+
+def verify(candidate, approvals, baseline=None, comparison=None, validated=False):
+    """Return the deterministic G12 report for one release. Status is pass, fail or unknown.
+
+    `comparison` is the G14 comparison of baseline and candidate when the caller already computed it.
+    `validated` says every file merged into `approvals` was checked against the schema when it was read.
+    """
+    if not validated:
+        validator().validate(approvals)
     errors = []
 
     def error(code, subject_id, message):
@@ -120,10 +159,6 @@ def verify(candidate, approvals, baseline=None):
     rejected = []
     report = dict(format='axiomspec-approval-check/0.1', gate='G12', status='unknown', release=release,
                   governed_by=None, required=[], approvals=[], rejected=rejected, errors=errors, limitations=LIMITATIONS)
-
-    def reject(code, subject_id, message):
-        rejected.append(dict(code=code, subject_id=subject_id, message=message))
-
     previous = candidate['release']['previous']
     if previous is None:
         governing, baseline = candidate, None
@@ -135,35 +170,20 @@ def verify(candidate, approvals, baseline=None):
     report['governed_by'] = dict(version=governing['release']['version'], spec_sha256=digest(canonical(governing)))
     offered = approvals['approvals']
     if {name: approvals[name] for name in release} != release:
-        reject('APPROVALS_FOR_OTHER_RELEASE', None, 'The approvals name another project, version or digest; none was counted.')
+        rejected.append(dict(code='APPROVALS_FOR_OTHER_RELEASE', subject_id=None,
+                             message='The approvals name another project, version or digest; none was counted.'))
         offered = []
-    keys = {key['id']: key for key in governing['approval']['keys']}
-    actors = {actor['id']: actor for actor in governing['actors']}
     valid = {}  # actor -> methods that actor validly approved with
-    for approval in offered:
-        key = keys.get(approval['key_id'])
-        entry = dict(actor_id=approval['actor_id'], key_id=approval['key_id'], method=key['method'] if key else None, valid=False)
-        report['approvals'].append(entry)
-        if key is None:
-            reject('UNKNOWN_APPROVAL_KEY', approval['key_id'], 'The governing release declares no such key.')
-            continue
-        if key['attests']:
-            vouched = actors.get(approval['actor_id'])
-            if vouched is None or vouched['type'] == 'service':
-                reject('APPROVER_MISMATCH', approval['actor_id'], 'An attesting key vouches for a declared actor that is not a service.')
-                continue
-        elif approval['actor_id'] != key['actor_id']:
-            reject('APPROVER_MISMATCH', approval['actor_id'], 'A personal key approves for its own actor only.')
-            continue
-        message = statement(candidate, approval['actor_id'], key['id'], key['method'])
-        if not signature_valid(key, message, approval):
-            reject('INVALID_SIGNATURE', approval['key_id'], 'The signature does not verify for this release, actor, key and method.')
-            continue
-        entry['valid'] = True
-        valid.setdefault(approval['actor_id'], set()).add(key['method'])
-    report['approvals'].sort(key=lambda a: (a['actor_id'], a['key_id'], a['valid']))
+    for approval, key, problem in judge(candidate, governing, offered):
+        report['approvals'].append(dict(actor_id=approval['actor_id'], key_id=approval['key_id'],
+                                        method=key['method'] if key else None, valid=problem is None))
+        if problem is None:
+            valid.setdefault(approval['actor_id'], set()).add(key['method'])
+        else:
+            rejected.append(dict(code=problem[0], subject_id=problem[1], message=problem[2]))
+    report['approvals'].sort(key=lambda a: (a['actor_id'], a['key_id'], not a['valid']))
     rejected.sort(key=lambda r: (r['code'], r['subject_id'] or ''))
-    for band, because in required_bands(candidate, baseline).items():
+    for band, because in required_bands(candidate, baseline, comparison).items():
         rule = governing['approval']['policy'][band]
         allowed = set(rule['methods'])
         approvers = sorted(actor for actor, methods in valid.items() if not allowed or methods & allowed)
@@ -176,17 +196,27 @@ def verify(candidate, approvals, baseline=None):
     return report
 
 
+def counted(candidate, approvals, governing):
+    """The approvals of a document that verify under `governing`, in their original order."""
+    release = dict(project_id=candidate['project']['id'], version=candidate['release']['version'],
+                   spec_sha256=digest(canonical(candidate)))
+    if {name: approvals[name] for name in release} != release:
+        return []
+    return [approval for approval, _, problem in judge(candidate, governing, approvals['approvals']) if problem is None]
+
+
 def merge(first, second):
-    """Union of two approval files of one release. Commutative, associative and idempotent."""
+    """Union of two approval files of one release. Commutative, associative and idempotent.
+
+    Every distinct approval of either file is kept. Nothing is chosen between two approvals of one actor and
+    key, because a merge cannot tell which of them verifies: an approval that does not is set aside by
+    `verify`, and it must never take the place of one that does.
+    """
     header = lambda doc: {name: doc[name] for name in ('format', 'project_id', 'version', 'spec_sha256')}
     if header(first) != header(second):
         raise ValueError('Approvals of different releases cannot be merged')
-    chosen = {}
-    for approval in first['approvals'] + second['approvals']:
-        slot = (approval['actor_id'], approval['key_id'])
-        if slot not in chosen or canonical(approval) < canonical(chosen[slot]):
-            chosen[slot] = approval
-    return dict(header(first), approvals=[chosen[slot] for slot in sorted(chosen)])
+    distinct = {canonical(approval): approval for approval in first['approvals'] + second['approvals']}
+    return dict(header(first), approvals=[distinct[raw] for raw in sorted(distinct)])
 
 
 def empty(spec):

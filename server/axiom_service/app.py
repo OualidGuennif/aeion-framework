@@ -1,22 +1,28 @@
 """HTTP transport: the routes of AxiomSpec/api/openapi.json over the service.
 
-The contract file is the interface; this module conforms to it and serves it at /v1/openapi.json. A read is
-a GET on a release named by digest, so its answer is immutable: it carries an ETag and may be cached forever.
-In sandbox mode no other method and no organization route exists.
+The contract file is the interface; this module conforms to it and serves it at /v1/openapi.json. An answer
+that is a function of a release named by digest is immutable: it carries an ETag and may be cached forever.
+An answer that also reads the code beside the release (its annotations and bindings) carries an ETag and is
+revalidated, because the digest does not cover the code. In sandbox mode no other method and no
+organization route exists.
 """
 from contextlib import asynccontextmanager
 import hashlib
 import json
+import re
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
 from mcp.server.transport_security import TransportSecuritySettings
+from starlette.concurrency import run_in_threadpool
 
 from . import mcp_tools
-from .service import PACKAGE, QueryError, canonical
+from .service import MAX_BODY_BYTES, PACKAGE, QueryError, strict_json
 
 IMMUTABLE = 'public, max-age=31536000, immutable'
-TITLES = {400: 'Invalid request', 404: 'Not found', 409: 'Digest mismatch', 422: 'Invalid document'}
+TITLES = {400: 'Invalid request', 404: 'Not found', 409: 'Digest mismatch', 413: 'Body too large',
+          422: 'Invalid document', 500: 'Internal error'}
+INTEGER = re.compile(r'[0-9]{1,9}')
 
 
 def problem(error):
@@ -28,7 +34,7 @@ def integer(request, name, default):
     raw = request.query_params.get(name)
     if raw is None:
         return default
-    if not raw.isdigit():
+    if INTEGER.fullmatch(raw) is None:
         raise QueryError('INVALID_PARAMETER', f'{name} is an integer')
     return int(raw)
 
@@ -55,23 +61,44 @@ def create_app(service, allowed_hosts=()):
 
     app = FastAPI(title='AxiomSpec service', version='1.0.0', openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
     app.add_exception_handler(QueryError, lambda request, error: problem(error))
+    # Anything else is a defect of the service. The caller still gets a problem document, never a bare page.
+    app.add_exception_handler(Exception, lambda request, error: problem(
+        QueryError('INTERNAL_ERROR', 'The service could not answer this request', 500)))
     contract = (PACKAGE / 'api/openapi.json').read_bytes()
 
-    def answer(request, result, digest=None, status=200):
-        """JSON with caching headers: immutable when the request named the release by digest."""
+    def answer(request, result, immutable=False, status=200):
+        """JSON with an ETag. `immutable` says the answer is a function of the digests the request names."""
         body = json.dumps(result, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
         etag = '"' + hashlib.sha256(body).hexdigest() + '"'
-        headers = {'ETag': etag, 'Cache-Control': IMMUTABLE if digest not in (None, 'current') else 'no-cache'}
+        headers = {'ETag': etag, 'Cache-Control': IMMUTABLE if immutable else 'no-cache'}
         if request.headers.get('if-none-match') == etag:
             return Response(status_code=304, headers=headers)
         return Response(body, status_code=status, media_type='application/json', headers=headers)
 
+    def of_release(digest):
+        """A read of the release alone: immutable when it is named by digest."""
+        return digest != 'current'
+
+    def of_code(digest):
+        """A read that also uses annotations and bindings: immutable only when no code is read."""
+        return digest != 'current' and not service.reads_code
+
     async def body_of(request):
-        raw = await request.body()
+        """The request body as strict JSON within the size of one store file."""
+        too_large = QueryError('PAYLOAD_TOO_LARGE', f'A body is at most {MAX_BODY_BYTES} bytes; send the compact form, '
+                               'or place a larger release in the store as parts', 413)
+        declared = request.headers.get('content-length', '')
+        if INTEGER.fullmatch(declared) and int(declared) > MAX_BODY_BYTES:
+            raise too_large
+        raw = bytearray()
+        async for chunk in request.stream():
+            raw += chunk
+            if len(raw) > MAX_BODY_BYTES:
+                raise too_large
         try:
-            return json.loads(raw)
-        except ValueError:
-            raise QueryError('INVALID_DOCUMENT', 'The body is not JSON', 422)
+            return strict_json(bytes(raw))
+        except (ValueError, RecursionError) as error:
+            raise QueryError('INVALID_DOCUMENT', f'The body is not strict JSON: {str(error)[:200]}', 422)
 
     def paging(request):
         return dict(budget_bytes=integer(request, 'budget_bytes', 32768), cursor=request.query_params.get('cursor'))
@@ -86,28 +113,29 @@ def create_app(service, allowed_hosts=()):
 
     @app.get('/v1/snapshots/{digest}/index')
     def get_index(request: Request, digest: str):
-        return answer(request, service.call('getIndex', digest=digest), digest)
+        return answer(request, service.call('getIndex', digest=digest), of_code(digest))
 
     @app.get('/v1/snapshots/{digest}/nodes/{id}')
     def lookup(request: Request, digest: str, id: str):
-        return answer(request, service.call('lookup', digest=digest, id=id, detail=request.query_params.get('detail', 'brief')), digest)
+        return answer(request, service.call('lookup', digest=digest, id=id, detail=request.query_params.get('detail', 'brief')),
+                      of_code(digest))
 
     @app.get('/v1/snapshots/{digest}/context')
     def context(request: Request, digest: str):
         ids = [part for part in required(request, 'ids').split(',') if part]
         return answer(request, service.call('context', digest=digest, ids=ids, scope=request.query_params.get('scope', 'direct'),
-                                            **paging(request)), digest)
+                                            **paging(request)), of_release(digest))
 
     @app.get('/v1/snapshots/{digest}/trace')
     def trace(request: Request, digest: str):
         query = request.query_params
         return answer(request, service.call('trace', digest=digest, path=query.get('path'), symbol=query.get('symbol'),
-                                            id=query.get('id'), **paging(request)), digest)
+                                            id=query.get('id'), **paging(request)), of_code(digest))
 
     @app.get('/v1/snapshots/{digest}/gaps')
     def gaps(request: Request, digest: str):
         return answer(request, service.call('gaps', digest=digest, phase=request.query_params.get('phase', 'design'),
-                                            **paging(request)), digest)
+                                            **paging(request)), of_code(digest))
 
     if service.mode == 'organization':
         @app.get('/v1/projects/{project_id}')
@@ -116,11 +144,12 @@ def create_app(service, allowed_hosts=()):
 
         @app.get('/v1/releases/{digest}')
         def get_release(request: Request, digest: str):
-            return answer(request, service.call('getRelease', digest=digest), digest)
+            return answer(request, service.call('getRelease', digest=digest), of_release(digest))
 
         @app.put('/v1/releases/{digest}')
         async def put_release(request: Request, digest: str):
-            return answer(request, service.call('putRelease', digest=digest, body=await body_of(request)))
+            body = await body_of(request)
+            return answer(request, await run_in_threadpool(service.call, 'putRelease', digest=digest, body=body))
 
         @app.get('/v1/releases/{digest}/approvals')
         def get_approvals(request: Request, digest: str):
@@ -128,7 +157,8 @@ def create_app(service, allowed_hosts=()):
 
         @app.put('/v1/releases/{digest}/approvals')
         async def put_approvals(request: Request, digest: str):
-            return answer(request, service.call('putApprovals', digest=digest, body=await body_of(request)))
+            body = await body_of(request)
+            return answer(request, await run_in_threadpool(service.call, 'putApprovals', digest=digest, body=body))
 
         @app.get('/v1/releases/{digest}/verdict')
         def get_verdict(request: Request, digest: str):
@@ -137,11 +167,12 @@ def create_app(service, allowed_hosts=()):
         @app.get('/v1/releases/{digest}/statement')
         def get_statement(request: Request, digest: str):
             return answer(request, service.call('getStatement', digest=digest, actor=required(request, 'actor'),
-                                                key=required(request, 'key')), digest)
+                                                key=required(request, 'key')), of_release(digest))
 
         @app.get('/v1/compare')
         def compare(request: Request):
-            return answer(request, service.call('compare', baseline=required(request, 'baseline'), candidate=required(request, 'candidate')), 'immutable')
+            return answer(request, service.call('compare', baseline=required(request, 'baseline'), candidate=required(request, 'candidate')),
+                          immutable=True)
 
         @app.get('/v1/impact')
         def impact(request: Request):
@@ -150,9 +181,10 @@ def create_app(service, allowed_hosts=()):
         @app.post('/v1/candidates')
         async def propose(request: Request):
             body = await body_of(request)
-            if not isinstance(body, dict) or set(body) != {'baseline', 'version', 'operations'}:
-                raise QueryError('INVALID_PARAMETER', 'The body has baseline, version and operations')
-            return answer(request, service.call('propose', **body), status=201)
+            if (not isinstance(body, dict) or set(body) != {'baseline', 'version', 'operations'}
+                    or not isinstance(body['baseline'], str) or not isinstance(body['version'], str)):
+                raise QueryError('INVALID_PARAMETER', 'The body has baseline and version as strings, and operations')
+            return answer(request, await run_in_threadpool(service.call, 'propose', **body), status=201)
 
     app.mount('/mcp', mcp_app)
     return app

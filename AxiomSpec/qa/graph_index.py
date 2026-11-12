@@ -9,11 +9,16 @@ An annotation is the token `@req` followed by one or more IDs, in a comment or d
 
     # @req REQ-004 CON-005
 
+A colon or an opening parenthesis may follow the token, and the IDs are separated by spaces or commas. The
+token with no ID after it is reported as malformed, never skipped: a silent miss would tell an agent that
+no requirement concerns the code.
+
 The index is derived. It never replaces the specification, and an annotation is a declared link: it says
 where an author placed a requirement, not that the code satisfies it.
 """
 import ast
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import sys
@@ -22,10 +27,14 @@ from check_package import canonical, digest, strict_json
 import release_diff
 
 FORMAT = 'axiomspec-graph/0.1'
-ANNOTATION = re.compile(r'@req\b((?:[ \t,]+[A-Z][A-Z0-9_]*-[0-9]{3,6})+)')
+# The token, not part of a longer word or of an address such as name@req.example.
+TOKEN = re.compile(r'(?<![\w@])@req\b(?![.\-/])')
+ANNOTATION = re.compile(r'@req[:(]?((?:[ \t,]*\b[A-Z][A-Z0-9_]*-[0-9]{3,6}\b)+)')
 ID = re.compile(r'[A-Z][A-Z0-9_]*-[0-9]{3,6}')
 SOURCE_SUFFIXES = {'.py', '.pyi', '.js', '.jsx', '.ts', '.tsx', '.go', '.rs', '.java', '.kt', '.scala', '.cs',
                    '.c', '.cc', '.cpp', '.h', '.hpp', '.swift', '.rb', '.php', '.sql', '.sh'}
+# Folders never descended into below a scanned path. A scanned path is always read, whatever its own name:
+# a source folder called `build` is scanned by naming it.
 SKIPPED_DIRECTORIES = {'.git', '.hg', '.venv', 'venv', 'node_modules', '__pycache__', 'dist', 'build', 'target', '.tox'}
 MAX_SOURCE_BYTES = 1048576
 SECTIONS = ('nodes', 'edges', 'traces', 'flags', 'imports', 'exports')
@@ -71,28 +80,48 @@ def symbol_at(spans, lines, number):
     return max(inside, key=lambda span: span[0])[2] if inside else None
 
 
-def scan(root, include=('.',)):
-    """Every annotation under `root`, as (path, line, symbol, ids) records sorted by path and line.
-
-    Paths are relative to `root`, with forward slashes. Symbols are resolved for Python; elsewhere the
-    file and line are the location.
-    """
+def source_files(root, include=('.',)):
+    """The source files under the scanned paths, sorted. A path that does not exist is an error, not an empty scan."""
     root = Path(root).resolve()
-    files = []
+    found = set()
     for entry in include:
         start = (root / entry).resolve()
         if not start.is_relative_to(root):
             raise ValueError('Scan path escapes the repository root')
+        if not start.exists():
+            raise ValueError(f'Scan path does not exist: {entry}')
         if start.is_file():
-            files.append(start)
+            found.add(start)
             continue
-        for path in sorted(start.rglob('*')):
-            relative = path.relative_to(root)
-            if (path.is_file() and not path.is_symlink() and path.suffix in SOURCE_SUFFIXES
-                    and not SKIPPED_DIRECTORIES & set(relative.parts)):
-                files.append(path)
+        for directory, folders, names in os.walk(start):
+            folders[:] = sorted(folder for folder in folders if folder not in SKIPPED_DIRECTORIES)
+            for name in names:
+                path = Path(directory) / name
+                if path.suffix in SOURCE_SUFFIXES and path.is_file() and not path.is_symlink():
+                    found.add(path)
+    return root, sorted(found)
+
+
+def signature(root, include=('.',)):
+    """What a scan would read, without reading it: a rescan is needed only when this changes."""
+    root, found = source_files(root, include)
+    state = []
+    for path in found:
+        status = path.stat()
+        state.append((path.relative_to(root).as_posix(), status.st_size, status.st_mtime_ns))
+    return tuple(state)
+
+
+def scan(root, include=('.',)):
+    """Every annotation under `root`, as (path, line, symbol, ids) records sorted by path and line.
+
+    Paths are relative to `root`, with forward slashes. Symbols are resolved for Python; elsewhere the
+    file and line are the location. The token with no ID after it yields a record with no IDs, which
+    `check` reports as malformed.
+    """
+    root, files = source_files(root, include)
     found = []
-    for path in sorted(set(files)):
+    for path in files:
         if path.stat().st_size > MAX_SOURCE_BYTES:
             continue
         try:
@@ -104,24 +133,33 @@ def scan(root, include=('.',)):
         lines = text.splitlines()
         spans = python_symbols(text) if path.suffix in {'.py', '.pyi'} else []
         for number, line in enumerate(lines, 1):
-            for match in ANNOTATION.finditer(line):
+            for token in TOKEN.finditer(line):
+                match = ANNOTATION.match(line, token.start())
                 found.append(dict(path=path.relative_to(root).as_posix(), line=number,
-                                  symbol=symbol_at(spans, lines, number), ids=ID.findall(match.group(1))))
+                                  symbol=symbol_at(spans, lines, number),
+                                  ids=ID.findall(match.group(1)) if match else []))
     return found
 
 
 def check(spec, annotations):
-    """An annotation names an object the release holds and has not retired."""
+    """An annotation names at least one object, each held by the release and not retired."""
     nodes = {node['id']: node for node in spec['nodes']}
+    others = {item['id'] for section in ('actors', 'imports', 'sources', 'environments', 'flags', 'edges', 'bindings',
+                                         'context_assets') for item in spec[section]}
     problems = []
     for annotation in annotations:
+        if not annotation['ids']:
+            problems.append(dict(code='MALFORMED_ANNOTATION', subject_id=None, path=annotation['path'], line=annotation['line'],
+                                 message=f"{annotation['path']}:{annotation['line']} has @req with no ID after it. "
+                                         'Write @req REQ-004, with IDs separated by spaces or commas.'))
         for target in annotation['ids']:
             status = nodes.get(target, {}).get('status')
             if status in (None, 'retired'):
                 code = 'UNKNOWN_ANNOTATION_ID' if status is None else 'RETIRED_ANNOTATION_ID'
                 problems.append(dict(code=code, subject_id=target, path=annotation['path'], line=annotation['line'],
-                                     message=f"{annotation['path']}:{annotation['line']} names {target}, which this "
-                                             f"release {'does not hold' if status is None else 'has retired'}."))
+                                     message=f"{annotation['path']}:{annotation['line']} names {target}, which this release "
+                                             + ('has retired.' if status is not None else 'does not hold.' if target not in others
+                                                else 'holds, but not as a node. Annotate a requirement, a constraint or another node.')))
     return problems
 
 

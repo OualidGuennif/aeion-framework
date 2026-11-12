@@ -23,8 +23,10 @@ An annotation is the token `@req` followed by one or more IDs, in a comment or d
 def authorize(principal, request_tenant, resource_tenant):
 ```
 
+- A colon or an opening parenthesis may follow the token, and the IDs are separated by spaces or commas: `@req: REQ-004` and `@req(REQ-004, CON-005)` are read the same.
 - It belongs to the definition a comment block directly precedes, otherwise to the innermost definition that contains it, otherwise to the file. Symbols are resolved for Python; elsewhere the location is the file and line.
-- It names an object the release holds and has not retired. Anything else fails the scan.
+- It names an object the release holds and has not retired. Anything else fails the scan, and so does the token with no ID after it: an annotation that is skipped would tell an agent that no requirement concerns the code.
+- A scanned path that does not exist is an error, not an empty scan. Below a scanned path, version-control, dependency, cache and output folders (`.git`, `node_modules`, `build`, `dist`, `target` and the like) are not entered; a source folder with such a name is scanned by naming it.
 - It yields a trace of kind `test` in a test file and `code` elsewhere. A trace on a constraint, component or test leads to the requirements that object concerns.
 - An active must requirement with no binding and no annotation in code is reported as a gap of the implementation phase.
 
@@ -34,11 +36,13 @@ An annotation is a declared link, like a binding. It says where an author placed
 
 ### AX-V-003 — Immutable reads
 
-Every read is a GET on a release named by its canonical digest. The answer cannot change, so it carries an ETag and may be cached without limit. A service that serves exactly one release also accepts `current` in place of the digest; that form is not cached, and the answer still names the digest.
+Every read is a GET on a release named by its canonical digest. An answer that is a function of the release alone cannot change, so it carries an ETag and may be cached without limit. A service that serves exactly one release also accepts `current` in place of the digest; that form is not cached, and the answer still names the digest.
 
-Reads are bounded as AX-K-006 states: at most 100 items and 32,768 bytes, with a cursor bound to the snapshot and the query. A cursor holds no state on the service and grants nothing. An object that cannot fit the budget is named in `omissions` and never cut, and `complete` is true only when the whole answer was deliverable.
+The digest covers the release, not the code beside it. When a service reads annotations and bindings from a repository, the index, a lookup, a trace and the gaps also depend on that code. Those answers carry an ETag and are revalidated on each use; they are never marked immutable. The context of a requirement reads the release only and stays immutable.
 
-An unknown ID is `not_found`. Errors are problem documents (RFC 9457) with a stable `code`.
+Reads are bounded as AX-K-006 states: at most 100 items and 32,768 bytes, with a cursor bound to the snapshot, the state of the scanned code and the query. A cursor holds no state on the service and grants nothing, and a page begun before the code changed is not continued afterwards. An object that cannot fit the budget is named in `omissions` and never cut, and `complete` is true only when the whole answer was deliverable. A place in the code is listed once, however many declared links lead to it.
+
+An unknown ID is `not_found`. Errors are problem documents (RFC 9457) with a stable `code`, including `INTERNAL_ERROR` for a defect of the service. A bound file that does not parse, as happens while it is being edited, is a gap in the answer and not a failed request.
 
 ### AX-V-004 — One behavior, two transports
 
@@ -64,6 +68,8 @@ The change scope is conservative by design. On a specification as small and conn
 
 In sandbox mode the service serves one release, chosen when it starts, and only the read operations. No other method and no other route exists. It runs outside the agent's sandbox, which is allowed to reach it by host and port for GET only.
 
+The release is fixed for the task; the code is not. The service reads the annotations again when a scanned file changes, so an annotation the agent adds is in the next answer.
+
 The task names the release by digest. Every answer carries that digest, so an agent cannot mix two versions of the requirements within one task (AX-K-008).
 
 An agent that believes a requirement is wrong does not edit it. It returns a proposal with its evidence (AX-D-005).
@@ -74,7 +80,12 @@ An agent that believes a requirement is wrong does not edit it. It returns a pro
 
 In organization mode the service also accepts releases and approvals. A release is uploaded to the path of its own digest and the body must have that digest; approvals are added to the release they name and merge by union. A repeated or reordered request therefore changes nothing, and two replicas that receive different files converge when they share them (AX-L-010).
 
-An upload grants nothing. What makes a release usable is its verdict: its link to its baseline, the comparison, its approvals and its imports, computed from the files held.
+- **A file is named by its content and never rewritten.** Each accepted upload is its own file: a release under its digest, approvals under the release digest and the digest of the approvals themselves. Two processes that receive different approvals write different files, and neither can undo the other.
+- **What is accepted is what the store reads back.** A body is strict JSON of at most one megabyte, the size of one store file, and a release is written in its canonical form. A number, a duplicate key or a size the store would refuse on reading is refused on writing. A release larger than one file is held as parts (AX-M-022).
+- **Approvals are checked when they can be.** With the governing release at hand, only the approvals that verify are kept, and a body in which none verifies is refused. Without it they are kept as offered and the verdict sets aside what does not verify.
+- **Every request sees the store as it is.** Before answering, the service takes in the files that appeared since its last request. It reads each file once; a digest it does not hold costs a listing of the directory, not a reload.
+
+An upload grants nothing. What makes a release usable is its verdict: its link to its baseline, the comparison, its approvals and its imports, computed from the files held. An uploaded release is kept whatever its verdict, and it becomes the accepted head of its project only when that verdict is pass (AX-L-010).
 
 The service keeps no state between requests other than files. It authenticates nobody: it sits behind the organization's gateway, and access policy is applied there before any content is returned (AX-K-009).
 
@@ -89,7 +100,9 @@ A candidate release is built from a baseline and a list of edits addressed by ID
 | `remove` | Remove an edge, binding, flag, context asset, import or environment |
 | `set` | Replace the exports, the approval policy or the compatibility entries |
 
-The service names the baseline by digest, sets the revision of each changed node, checks the result against the schema and the reference rules and runs the comparison (G14). The same request always yields the same digest. A candidate that passes these checks is still only a candidate until it has its approvals (G12).
+The service names the baseline by digest, sets the revision of each changed node, checks the result against the schema and the reference rules and runs the comparison (G14). The same request always yields the same digest.
+
+A candidate enters the store only when it passes these checks, and the answer says so in `held`. A refused candidate is returned to its author with the reasons and changes nothing: no file, no head, no verdict. A held candidate is still only a candidate until it has its approvals (G12).
 
 ## Operations
 
@@ -114,5 +127,5 @@ The service names the baseline by digest, sets the revision of each changed node
 
 - The queries follow declared links and annotations. An undeclared dependency, a requirement nobody annotated and a call path through other code are not found, and each answer states this.
 - Symbols are resolved for Python only. No call graph is built.
-- The reference server has no authentication and no access control, and was not load-tested.
+- The reference server has no authentication and no access control, and was not load-tested. It answers one operation at a time and lists the store directory before each organization request.
 - A delivery records what was supplied. It does not show that an agent read or obeyed it.
