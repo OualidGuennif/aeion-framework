@@ -241,6 +241,12 @@ class SpecTools(unittest.TestCase):
         result = self.run_cli('verify-store', self.root / 'missing', '--json')
         self.assertEqual((result.returncode, json.loads(result.stdout)['status']), (4, 'error'))
         self.assertNotIn('Traceback', result.stderr)
+        # A folder with no release verified nothing; it used to pass with exit code 0.
+        (self.root / 'empty').mkdir()
+        (self.root / 'empty/other.json').write_text('{"x": 1}\n')
+        result = self.run_cli('verify-store', self.root / 'empty')
+        self.assertEqual(result.returncode, 3)
+        self.assertIn('No release file was found under the given paths.', result.stdout)
 
     def test_the_cli_is_covered_by_the_regression_input_receipt(self):
         self.assertIn('axiom.py', [row['path'] for row in run_checks.regression_manifest(ROOT)])

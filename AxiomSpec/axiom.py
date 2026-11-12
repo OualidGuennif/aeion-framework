@@ -201,6 +201,8 @@ def main(arguments=None):
                 print(json.dumps(report, ensure_ascii=False, indent=2))
             else:
                 print(f"AxiomSpec store: {report['status']} ({len(report['releases'])} releases, {len(report['projects'])} projects)")
+                if not report['releases']:
+                    print('No release file was found under the given paths.')
                 for release in report['releases']:
                     missing = ['baseline release'] if release['link'] == 'unknown' else []
                     missing += ['approvals'] if release['approvals'] == 'unknown' else []

@@ -45,14 +45,14 @@
   },
   "subject": {
     "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
-    "source_tree_sha256": "0b6da93ca1a9b0ea38696c2237bb375989ad60dfe9a650ecdf0dbff0dafc2783",
+    "source_tree_sha256": "661cde6ba65d9b5fe351ab7720088d44dfb06829aaa03cba088e6b2218cbcf3d",
     "policy_sha256": null,
     "toolchain_sha256": "a44a9cae10a4db36b947444cd58263c76fda321b52899aff18382571fb86e3d1",
     "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -74,7 +74,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "207 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
+      "message": "208 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.",
       "evidence": [],
       "limitations": []
     },
@@ -219,7 +219,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-12T09:20:39.468528+00:00",
+    "evaluated_at": "2026-11-12T09:32:02.895668+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

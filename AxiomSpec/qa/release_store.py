@@ -256,7 +256,8 @@ def verify(store):
                              tied_heads=tied if len(tied) > 1 else [],
                              orphaned_heads=[key for key, spec in heads if spec['release']['version'] != top]))
     rejected = store.rejected + store.misnamed_approvals()
-    open_ends = bool(rejected) or any(r['status'] == 'unknown' for r in releases)
+    # A store with no release verified nothing: a wrong folder must not read as a pass.
+    open_ends = bool(rejected) or not releases or any(r['status'] == 'unknown' for r in releases)
     return dict(format='axiomspec-store-check/0.2', status='fail' if errors else 'incomplete' if open_ends else 'pass',
                 releases=releases, projects=projects, errors=sorted(errors, key=lambda e: (e['code'], e['subject'], e['message'])),
                 rejected_files=sorted(rejected, key=lambda r: r['path']),

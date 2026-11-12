@@ -18,7 +18,7 @@ import copy
 from functools import lru_cache
 from itertools import islice
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
@@ -351,12 +351,13 @@ def trace(snapshot, path=None, symbol=None, object_id=None, budget_bytes=MAX_BYT
         raise QueryError('INVALID_PARAMETER', 'Give either path, with an optional symbol, or id')
     if object_id is not None and not snapshot.holds(object_id):
         raise QueryError('NOT_FOUND', f'{object_id} is not in this snapshot', 404)
+    wanted = PurePosixPath(path) if path is not None else None  # ./a/b and a//b name the file a/b
     rows = []
     for row in snapshot.graph['traces']:
         if object_id is not None:
             keep = object_id == row['node_id'] or object_id in row['requirement_ids']
         else:
-            keep = row['path'] == path and (symbol is None or row['symbol'] is None or row['symbol'] == symbol
+            keep = PurePosixPath(row['path']) == wanted and (symbol is None or row['symbol'] is None or row['symbol'] == symbol
                                             or symbol.startswith(row['symbol'] + '.') or row['symbol'].startswith(symbol + '.'))
         if keep:
             rows.append(dict(row, requirements=[snapshot.summary(r) for r in row['requirement_ids'] if r in snapshot.nodes]))

@@ -2,7 +2,7 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T09:19:51.731433+00:00",
+  "evaluated_at": "2026-11-12T09:31:35.755186+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
@@ -16,11 +16,11 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "d8c4c33ba155128ceeb3921d4c837053414883d6ccc29eca16d842767679459d"
+      "sha256": "1ed02dbba8e2080aeceebc8e11fc8d2f4470fe697f2a9463d903471d5b8c4ff7"
     },
     {
       "path": "axiom.py",
-      "sha256": "f2cceabd7004acba100bb12ebc9470d4075c8d0321357724e3ca957b7162682e"
+      "sha256": "79f36fcbe61d3f38196427ad191b6d1483d6d0367c77b99f49fc9ab0256f2d66"
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -104,7 +104,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "7274add044055d3f8e274098978c986733f1f65efb019f934fad67322f4fcf16"
+      "sha256": "35add6043f9753a6d166c4574b80209b6965a25494edb1d9dab3313eb4506b9a"
     },
     {
       "path": "qa/release_diff.py",
@@ -112,7 +112,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "8dfc4cc435ab35c3589081c5ef18d133a6b3dcf9d419466914e4c33ce7a83b5a"
+      "sha256": "e8e12cc82b2c30c7073ef0f14e428b92dd99c0e8dbc65ffc1a5622ceed6402f4"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -120,7 +120,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "72e5a364a966d280e68ed4f37cf1295325d834910d036cccb4e86f2cda532488"
+      "sha256": "c1b797de0f7cdd89e79431a84901051cca3ea23e9b97d07168d00a6e53167274"
     },
     {
       "path": "qa/spec_parts.py",
@@ -140,7 +140,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "6011a940cdee9badb91227acd58b8a4e6c3e70630538e9e8ee630de64b451910"
+      "sha256": "fbde94c8744791a3e8321d3bbf1b6c61d643dc62ff498bde628502b949ce7a23"
     },
     {
       "path": "qa/test_release_read_safety.py",
@@ -168,7 +168,7 @@
     },
     {
       "path": "qa/test_spec_tools.py",
-      "sha256": "8c44e787c7798fb09c83ae5b15b58522129d289243086fe559e6a0daf572ffe2"
+      "sha256": "8e9e727ac146cd796913930a1357049f3df38682de8be53750c89c5a94dd52af"
     },
     {
       "path": "qa/test_third_review.py",

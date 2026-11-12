@@ -1,6 +1,6 @@
 # Package validation: pass
 
-Run: 2026-11-12T09:20:39.468528+00:00.
+Run: 2026-11-12T09:32:02.895668+00:00.
 
 **Scope: design package. No product or example-application acceptance is asserted.**
 
@@ -9,7 +9,7 @@ Python 3.15.2; jsonschema 4.26.0; untrusted local runner.
 ## Results
 
 - `PKG.APPROVALS` : **pass** — 5 approval signatures on 3 releases verify against the keys the governing release declares, with the approvers its policy requires per band (reference G12). The keys are fictional and derived from public labels; no authenticator hardware and no identity binding was involved.
-- `PKG.EDITORIAL` : **pass** — 207 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.
+- `PKG.EDITORIAL` : **pass** — 208 local link targets, 3 JSON blocks and 126 unique normative rule headings checked. External URLs not revalidated by this script.
 - `PKG.ENVIRONMENTS` : **pass** — Restricted environment shapes and all scenario observations valid.
 - `PKG.EXAMPLE_TESTS` : **pass** — 33 example application tests executed on current inputs cover all 20 active TestCases; 31 required bindings resolve. Local SQLite reference implementation, untrusted producer.
 - `PKG.NEGATIVE_FIXTURES` : **pass** — 23 mutations verified with expected diagnostics; 30 future product obligations NOT executed.

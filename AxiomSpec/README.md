@@ -2,7 +2,7 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.1.5 · 12 November 2026**
+**Edition 1.1.6 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
@@ -85,6 +85,8 @@ Edition 1.1.4 fixes two defects. The annotation scan reads a source file that is
 
 Edition 1.1.5 fixes two defects. A Python file that starts with a byte-order mark or declares its encoding is now parsed the way Python reads it, so its bindings resolve; `gaps` used to report them as unparsable. The reference ledger answers `not_found` for any record ID it did not issue, where `r-²` or a 30-digit number used to raise an error and `r-١` reached `r-1`. The [change record](REVIEW.md#edition-115) has the details.
 
+Edition 1.1.6 fixes two answers that claimed more than was checked. `verify-store` on a folder that holds no release now reports `incomplete` with exit code 3; it used to pass. A trace by path finds the file when the path is written `./a/b` or `a//b`; it used to return nothing and call the answer complete. The [change record](REVIEW.md#edition-116) has the details.
+
 ## Commands
 
 With the QA dependencies installed, run these from the package directory:
@@ -104,7 +106,7 @@ python3 axiom.py verify-store examples --json
 
 `compare` checks both inputs, then runs the G14 comparison: changed IDs, the version step, compatibility errors and the risk score. It prints JSON by default, and `--format markdown` gives a report to read. A comparison that fails G14 is still printed, with exit code 2. If an input fails its checks, you get the check report and code 2, and in Markdown mode that report goes to stderr and no file is created.
 
-`verify-store` takes files or directories and checks release chains, signatures, approval policies and pinned imports. It prints a summary, with what is missing for each incomplete release, and `--json` gives the full report. It exits with 0 on pass, 2 on fail, 3 when something is missing (an ancestor or a provider, for instance) and 4 when a path cannot be read. A pass says nothing about product readiness or about who holds a key.
+`verify-store` takes files or directories and checks release chains, signatures, approval policies and pinned imports. It prints a summary, with what is missing for each incomplete release, and `--json` gives the full report. It exits with 0 on pass, 2 on fail, 3 when something is missing (an ancestor or a provider, for instance, or any release at all) and 4 when a path cannot be read. A pass says nothing about product readiness or about who holds a key.
 
 `check`, `markdown` and `compare` accept a specification or a parts manifest. All four commands work from any directory and write to stdout, or with `--output` to a new file. They never overwrite a file and never write into the store. When `compare` or `verify-store` fails to process its input in JSON mode, the error has the format `axiomspec-cli-error/0.1`.
 

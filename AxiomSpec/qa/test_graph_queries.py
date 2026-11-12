@@ -383,6 +383,9 @@ class Trace(Ledger):
         whole_file = queries.trace(self.snapshot, path=APP)
         self.assertGreater(whole_file['total_visible_count'], page['total_visible_count'])
         self.assertEqual(queries.trace(self.snapshot, path='no/such/file.py')['items'], [])
+        # `find .` writes ./path; that spelling found nothing and still reported a complete answer.
+        for spelling in ('./' + APP, APP.replace('/', '//', 1)):
+            self.assertEqual(queries.trace(self.snapshot, path=spelling)['items'], whole_file['items'])
         self.assertEqual({i['symbol'] for i in queries.trace(self.snapshot, path=APP, symbol='authorize')['items']}, {'authorize'})
         self.assertEqual({i['symbol'] for i in queries.trace(self.snapshot, path=APP, symbol='Ledger')['items']} >= {'Ledger', 'Ledger.reserve', 'Ledger.command'}, True)
 

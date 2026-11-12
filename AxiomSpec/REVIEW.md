@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.5 · 12 November 2026. The [1.1.5](#edition-115), [1.1.4](#edition-114) and [1.1.3](#edition-113) change records describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.6 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.6](#edition-116) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,22 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.6
+
+12 November 2026. A review pass over the answers that report a pass or a complete result, and over the
+commands the guides and playbooks cite. The format stays `axiomspec/0.3`.
+
+- `verify-store` and `qa/release_store.py verify` reported `pass` for a set of paths that held no
+  release, such as a folder of documentation, with exit code 0. A check pointed at the wrong folder
+  therefore always passed. A store with no release is now `incomplete`, exit code 3, and the summary says
+  that no release file was found.
+- `trace` compared the requested path with the stored one as text. `./examples/refund-ledger/app/ledger.py`,
+  the form `find .` prints, matched no trace and was answered as complete, while the same file written
+  without `./` has 24 traces. Paths are now compared as POSIX paths, so `./a/b` and `a//b` name `a/b`.
+
+Both cases extend existing tests, which fail on 1.1.5. The commands cited in the guides and playbooks all
+name options that exist. The package suite has 244 tests and the service suite 60.
 
 ## Edition 1.1.5
 
