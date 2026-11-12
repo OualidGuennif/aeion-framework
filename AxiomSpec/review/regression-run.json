@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "1.0.1",
+  "edition": "1.0.2",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T04:57:01.084395+00:00",
+  "evaluated_at": "2026-11-12T05:09:42.943449+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -340,7 +340,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "bc3c37f5606c454b6212c2c9eec4885226f7ec6cf5ad0d238eadae66e43f538b"
+      "sha256": "339724949bd247aa795ebc940da75083b814b78d636f3f10e270fe1ef8a7679d"
     },
     {
       "path": "qa/spec_parts.py",
@@ -434,7 +434,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "782dfc3a4ef72f55c5b387e3be0e7203c70073a91f64057ee2d42dbc80c605b5"
+    "sha256": "060fad023626e9e13b7bbef0f2cc011790c341db3b300ca00e25c4577c92b262"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

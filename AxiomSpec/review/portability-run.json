@@ -2,7 +2,7 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T04:56:45.140179+00:00",
+  "evaluated_at": "2026-11-12T05:08:59.763460+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
@@ -116,7 +116,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "bc3c37f5606c454b6212c2c9eec4885226f7ec6cf5ad0d238eadae66e43f538b"
+      "sha256": "339724949bd247aa795ebc940da75083b814b78d636f3f10e270fe1ef8a7679d"
     },
     {
       "path": "qa/spec_parts.py",

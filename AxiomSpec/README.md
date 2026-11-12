@@ -1,13 +1,13 @@
 # AxiomSpec
 
-Augmented specifications with explicit models, bounded constraints and traceable verification.
+A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.0.1 · 12 November 2026**  
+**Edition 1.0.2 · 12 November 2026**  
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
-This package defines a local requirements workflow and the contracts for an implementation. It includes schemas, a worked example with a reference implementation and executed tests, reference observations, reference checks of releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2 and package QA. It contains no product CLI or runner adapter, and its queries are references, not a qualified engine. An engine built from edition 0.3.0 of these contracts exists separately in [aeion-factory](https://github.com/OualidGuennif/aeion-factory); it reads format 0.1 and this package's QA does not qualify it.
+This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. There is no product CLI or runner adapter here, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
 
-An augmented specification connects an intended outcome to defined terms, requirements, constraints, scenarios, implementation bindings and evidence. It records uncertainty and decisions explicitly. Deterministic checks make declared properties reproducible; they do not establish that the chosen requirements are complete or correct for the business.
+A specification links an intended outcome to defined terms, requirements, constraints, scenarios, bindings to the code, and evidence. Open questions and decisions are recorded in it as items of their own. The checks make the declared properties reproducible. They cannot tell whether the requirements are complete or right for the business; that stays with the people who approve them.
 
 ## Workflow
 
@@ -27,19 +27,19 @@ flowchart LR
 
 ## Design choices
 
-- One editable `spec.json` per product. Product documentation and graphs are derived views.
-- A deterministic local core. No model API, server, graph database or agent orchestrator is required.
-- A small proposed constraint representation, BCIR. Existing qualified modeling tools may be reused instead.
-- Typed relationships and explicit provenance. A declared implementation link is not proof of behavior.
-- Bounded queries and mandatory context closure. Required rules are never silently removed to fit a response budget.
-- Evidence tied to specification, source, policy, tool and observation revisions.
-- A version on every specification and a deterministic comparison between two releases: what changed by ID, which changes are breaking candidates, and the version step they require.
-- An integer weight on every requirement, from 1 to 100 points in declared minor units, and a change risk score computed from it. The score ranks; it never turns a failed gate into a pass.
-- Feature flags declared in the specification with a state per release, a test for each state and a removal target.
-- An approval policy in the specification: approvers per risk band and accepted methods, both the organization's choice, and signatures checked against the release before.
-- One specification per product or service. A specification pins the releases it relies on by digest, and a large one is stored in parts.
-- An agent works from an index and annotations, not from the whole specification. It asks a read-only service for one requirement, for what binds it, or for the context of a change, over HTTP or MCP.
-- Verification from files alone. No log, index, quorum or clock: the verdict depends only on the set of files, in any order, from any replica.
+- Each product has one editable `spec.json`. Documentation and graphs are generated from it.
+- The core runs locally and gives the same answer every time. It needs no model API, server, graph database or agent orchestrator.
+- Constraints are written in BCIR, a small proposed representation. A qualified modeling tool can be used instead.
+- Relationships are typed and say where they come from. A declared link to code does not show that the code behaves as required.
+- Queries are bounded, and a context includes every rule it needs: a response budget never drops one.
+- Evidence records the revisions of the specification, the source, the policy, the tool and the observations it was produced from.
+- Every specification has a version. Comparing two releases lists what changed by ID, which changes may break consumers, and the version step they require.
+- Every requirement has an integer weight from 1 to 100 points, in declared minor units, and a change has a risk score computed from those weights. The score sets the order of review; a failed check stays failed whatever the score.
+- Feature flags are declared in the specification, with a state per release, a test for each state and a date by which the flag must go.
+- The specification states its approval policy: how many approvers each risk band needs and which methods count. Both are the organization's choice, and signatures are checked against the release before.
+- There is one specification per product or service. A specification pins the releases it relies on by digest, and a large one can be stored in parts.
+- An agent works from an index and from annotations in the code. It asks a read-only service, over HTTP or MCP, for one requirement, for what constrains it, or for the context of a change.
+- Verification reads files only. There is no log, index, quorum or clock, so the verdict is the same in any order and from any copy of the files.
 
 ## Reading guide
 
@@ -59,16 +59,22 @@ flowchart LR
 | Prepare CROA inputs | [Optional readiness profile](docs/18_CROA_READINESS.md) |
 | Assess the package | [Conformance corpus](docs/14_CONFORMANCE_SUITE.md), [acceptance limits](docs/16_ACCEPTANCE_AND_LIMITS.md), [review](REVIEW.md), [validation](VALIDATION.md) |
 
-The [rule index](RULE_INDEX.md) links all normative `AX-*` rules. Schemas define structure; the contracts define additional semantics. Resolve a disagreement between a schema, contract and fixture explicitly before shipping an implementation.
+The [rule index](RULE_INDEX.md) links every normative `AX-*` rule. The schemas define structure and the contracts define the rest of the meaning. If a schema, a contract and a fixture disagree, settle it explicitly before shipping an implementation.
 
-The ledger is fictional. Its formulas have reference checks, and its 20 test cases run against a reference implementation on SQLite each time the package is verified. This package's QA emits no phase status, and the [walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md) lists what is still open.
+The ledger is fictional. Its formulas have reference checks, and its 20 test cases run against a reference implementation on SQLite each time the package is verified. The package QA reports no phase status, and the [walkthrough](docs/13_REFUND_LEDGER_WALKTHROUGH.md) lists what is still open.
 
-Edition 0.5.0 changes the core format to `axiomspec/0.2`: release, weights and flags are required fields. A 0.1 specification is not valid 0.2; `python3 qa/migrate_0_1.py` writes a candidate and lists what a person must still decide. Edition 0.5.1 adds 1000 as a weight unit and audit scenarios to the ledger. Editions 0.3.1 and 0.4.0 kept format 0.1.
+## Editions
 
-Edition 0.6.0 changes the core format to `axiomspec/0.3`: the approval policy, the imports and the exports are required fields. `python3 qa/migrate_0_2.py` writes a candidate with a policy of no approver, for the organization to replace. The [review](REVIEW.md#edition-060) lists each change.
+Edition 0.5.0 moved the core format to `axiomspec/0.2`, which requires a release, weights and flags. A 0.1 specification is not valid 0.2; `python3 qa/migrate_0_1.py` writes a candidate and lists what a person still has to decide. Edition 0.5.1 added 1000 as a weight unit and audit scenarios to the ledger. Editions 0.3.1 and 0.4.0 kept format 0.1.
 
-Edition 0.7.0 adds the service interface and keeps format 0.3: a graph index, `@req` annotations, bounded queries, and a contract for HTTP and MCP. The [review](REVIEW.md#edition-070) gives the reasons and the measurements. Edition 0.7.1 corrects ten defects a review of that code found, four of them in the claim that a store holds under hostile or concurrent input; the [review](REVIEW.md#edition-071) lists each one with its regression test. Edition 0.7.2 corrects what a second pass found and closes the two gaps of the ledger: a predicate and scenarios for the report (REQ-010) and a counterexample for tenant isolation (REQ-004). Edition 1.0.0 is the first tagged release: it corrects what a third pass found, one of them an approvals file that could block a release depending on the order the store read it, and keeps format 0.3. The number marks a release that is published and stays as it is, not a qualified engine; the [review](REVIEW.md#edition-100) says what it covers. Edition 1.0.1 requires Python 3.14 or later and changes nothing else in the package.
+Edition 0.6.0 moved the core format to `axiomspec/0.3`, which requires an approval policy, imports and exports. `python3 qa/migrate_0_2.py` writes a candidate with a policy of zero approvers, for the organization to replace. The [review](REVIEW.md#edition-060) lists each change.
 
-Replay package verification with `python3 qa/run_checks.py` after installing [QA dependencies](qa/requirements-qa.txt). Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. Check approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]` and a whole store with `python3 qa/release_store.py verify <directory>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, implemented package checks and unimplemented product capabilities.
+Edition 0.7.0 added the service interface and kept format 0.3: a graph index, `@req` annotations, bounded queries, and a contract for HTTP and MCP. The [review](REVIEW.md#edition-070) gives the reasons and the measurements. Edition 0.7.1 fixed ten defects found by a review of that code, four of them in how the store behaved under hostile or concurrent input; the [review](REVIEW.md#edition-071) lists each one with its regression test. Edition 0.7.2 fixed what a second pass found and closed the two gaps of the ledger: a predicate and scenarios for the report (REQ-010), and a counterexample for tenant isolation (REQ-004).
 
-Start with the handoff and the contracts for the increment being implemented. Do not load this entire package into every coding session.
+Edition 1.0.0 was the first tagged release. It fixed what a third pass found, including an approvals file that could block a release depending on the order the store read it, and kept format 0.3. The version number means the release is published and will not change; it does not mean the engine is qualified, and the [review](REVIEW.md#edition-100) says what it covers. Edition 1.0.1 requires Python 3.14 or later. Edition 1.0.2 rewrites the READMEs and the release notes in plainer language. Neither changes the format, the checks or the service.
+
+## Commands
+
+Install the [QA dependencies](qa/requirements-qa.txt), then replay the package checks with `python3 qa/run_checks.py`. Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. Check approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]`, and a whole store with `python3 qa/release_store.py verify <directory>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, package checks that exist, and product capabilities that do not.
+
+Start with the handoff and the contracts for the increment you are building. A coding session does not need the whole package loaded.

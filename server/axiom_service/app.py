@@ -61,7 +61,7 @@ def create_app(service, allowed_hosts=()):
 
     app = FastAPI(title='AxiomSpec service', version='1.0.0', openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
     app.add_exception_handler(QueryError, lambda request, error: problem(error))
-    # Anything else is a defect of the service. The caller still gets a problem document, never a bare page.
+    # Any other exception is a defect of the service. The caller still receives a problem document.
     app.add_exception_handler(Exception, lambda request, error: problem(
         QueryError('INTERNAL_ERROR', 'The service could not answer this request', 500)))
     contract = (PACKAGE / 'api/openapi.json').read_bytes()

@@ -1,8 +1,8 @@
 # Reference service
 
-The [service interface](../AxiomSpec/docs/19_SERVICE_INTERFACE.md) of AxiomSpec over HTTP and MCP. It transports the reference queries of the package and adds no behavior: each answer is the one `AxiomSpec/qa/queries.py` gives.
+This server implements the AxiomSpec [service interface](../AxiomSpec/docs/19_SERVICE_INTERFACE.md) over HTTP and MCP. It passes requests to the package's reference queries, so every answer is exactly what `AxiomSpec/qa/queries.py` returns.
 
-The contract is [openapi.json](../AxiomSpec/api/openapi.json) and [mcp-tools.json](../AxiomSpec/api/mcp-tools.json). This server conforms to them and serves the first at `/v1/openapi.json`.
+Its contract is in [openapi.json](../AxiomSpec/api/openapi.json) and [mcp-tools.json](../AxiomSpec/api/mcp-tools.json), and it serves the first at `/v1/openapi.json`.
 
 ## Run
 
@@ -12,15 +12,15 @@ With Python 3.14 or later, install the dependencies of the package and of the se
 python3 -m pip install -r AxiomSpec/qa/requirements-qa.txt -r server/requirements.txt
 ```
 
-Run the service from the `server` directory, with the interpreter those dependencies were installed for. From another directory, add `PYTHONPATH=server` in front of the command.
+Start the service from the `server` directory with the interpreter you installed them for. From another directory, put `PYTHONPATH=server` in front of the command.
 
-For one coding task, read-only. The digest is the `spec_sha256` of the graph index; it may be left out when the store holds one release. A path given to `--include` must exist, or the service does not start. `--exclude` leaves a path out of the scan, for a repository that holds other code mentioning `@req`, such as a copy of the AxiomSpec package.
+For one coding task, the service is read-only. `--snapshot` takes the `spec_sha256` of the graph index, and you can leave it out when the store holds a single release. Each path given to `--include` must exist, or the service will not start. `--exclude` leaves a path out of the scan, which you need when the repository holds other code that mentions `@req`, such as a copy of the AxiomSpec package.
 
 ```bash
 python3 -m axiom_service --store ../AxiomSpec/examples/refund-ledger/spec.json --repo ../AxiomSpec --include examples/refund-ledger
 ```
 
-For an organization, over a whole release store, with uploads, approvals and candidates. The service writes into the first store directory, so give it a working copy, never the examples of the package:
+For an organization, the service runs over a whole release store and also accepts uploads, approvals and candidates. It writes into the first store directory, so point it at a working copy and not at the package's examples:
 
 ```bash
 cp -R ../AxiomSpec/examples /tmp/axiom-store
@@ -33,9 +33,9 @@ Then, from another terminal:
 curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 ```
 
-The MCP endpoint is `http://127.0.0.1:8787/mcp/` (Streamable HTTP, stateless). It accepts requests for `127.0.0.1` and `localhost`; name any other host it is reached by with `--allowed-host`, for example `--allowed-host host.openshell.internal:8787`.
+The MCP endpoint is `http://127.0.0.1:8787/mcp/` (Streamable HTTP, stateless). It accepts requests addressed to `127.0.0.1` and `localhost`. If clients reach it under another host name, add that name with `--allowed-host`, for example `--allowed-host host.openshell.internal:8787`.
 
-## What it is
+## How it works
 
 | File | Role |
 |---|---|
@@ -44,15 +44,18 @@ The MCP endpoint is `http://127.0.0.1:8787/mcp/` (Streamable HTTP, stateless). I
 | `axiom_service/mcp_tools.py` | The MCP tools, built from `mcp-tools.json` |
 | `tests/test_service.py` | Each operation over HTTP, MCP and a listening port, validated against the contract |
 
-The service keeps nothing between requests but files, and it never rewrites one.
+Between requests the service keeps nothing except files, and it never rewrites a file.
 
-- **Writes.** In organization mode each accepted upload becomes its own file in the first store directory: a release as `<digest>.json` in canonical form with `format` first, or as `<digest>.parts/` when it exceeds one megabyte, and approvals as `<release digest>.approvals.<digest of the approvals>.json`. A file is staged under a name that starts with `.incoming-` and moved into place whole; a file that already holds the same bytes is left alone, so a repeated upload changes nothing.
-- **Reads.** Before each organization request the service lists the store and reads the files that appeared, each once. Several processes on one directory therefore answer the same, and a digest that is not held costs a listing, not a reload.
-- **Bodies.** A request body is strict JSON of at most one megabyte. A release the store could not read back is refused, not written.
-- **Code.** In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. A context reads the release alone and does not look at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.
+In organization mode each accepted upload becomes its own file in the first store directory: a release as `<digest>.json` in canonical form with `format` first, or as `<digest>.parts/` when it exceeds one megabyte, and approvals as `<release digest>.approvals.<digest of the approvals>.json`. A file is staged under a name that starts with `.incoming-` and moved into place whole; a file that already holds the same bytes is left alone, so a repeated upload changes nothing.
 
-## What it is not
+Before each organization request the service lists the store and reads the files that appeared, each once. Several processes on one directory therefore give the same answers, and asking for a digest the store does not hold costs one listing of the directory. A request body must be strict JSON of at most one megabyte, and the service refuses a release that the store could not read back.
 
-- It authenticates nobody and applies no access policy. Put it behind your gateway, or keep it on a host only the sandbox can reach.
-- It was not load-tested, and it was not run inside a real sandbox. The [sandbox playbook](../playbooks/03_AGENT_IN_A_SANDBOX.md) gives the policy for one and says what was and was not tried.
-- It holds every release of the store in memory, answers one operation at a time, and lists the store directory before each organization request.
+In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. A context query reads only the release and never looks at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.
+
+## Limits
+
+The service has no authentication and no access policy. Put it behind your gateway, or on a host that only the sandbox can reach.
+
+It has not been load-tested or run inside a real sandbox. The [sandbox playbook](../playbooks/03_AGENT_IN_A_SANDBOX.md) gives a policy for one and says what was tried.
+
+It holds every release of the store in memory, handles one operation at a time, and lists the store directory before each organization request.

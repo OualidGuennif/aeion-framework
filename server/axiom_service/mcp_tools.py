@@ -60,7 +60,7 @@ def build(service):
             result = await run_in_threadpool(service.call, tool['operation_id'], **named)
         except QueryError as error:
             return failed(error.code, str(error))
-        except Exception:  # a defect of the service: the agent gets an error it can read, not a dropped call
+        except Exception:  # a defect of the service: the agent still receives an error it can read
             return failed('INTERNAL_ERROR', 'The service could not answer this request')
         return types.CallToolResult(content=[types.TextContent(type='text', text=json.dumps(result, ensure_ascii=False, separators=(',', ':')))],
                                     structured_content=result)
