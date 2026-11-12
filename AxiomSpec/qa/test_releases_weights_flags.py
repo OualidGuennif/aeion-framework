@@ -384,6 +384,23 @@ class ReleaseComparison(unittest.TestCase):
         self.assertEqual(diff.schema_change(dict(number, enum=[1, 2]), number), 'widened')
         self.assertEqual(diff.schema_change(number, dict(number, enum=[1, 2])), 'breaking')
 
+    def test_environment_enums_compare_json_values_including_objects_and_arrays(self):
+        shapes = [
+            (dict(type='object', properties={}, required=[], additionalProperties=False), {}, {'x': 1}),
+            (dict(type='array', items=dict(type='integer', minimum=0, maximum=10), maxItems=2), [1], [2]),
+        ]
+        for shape, first, second in shapes:
+            with self.subTest(type=shape['type']):
+                before = dict(shape, enum=[first])
+                after = dict(shape, enum=[first, second])
+                self.assertEqual(diff.schema_change(before, after), 'widened')
+                self.assertEqual(diff.schema_change(after, before), 'breaking')
+        shape = dict(type='boolean', enum=[True])
+        self.assertEqual(diff.schema_change(shape, dict(shape, enum=[1])), 'breaking')
+        shape = dict(type='object', properties={}, required=[], additionalProperties=False)
+        self.assertEqual(diff.schema_change(dict(shape, enum=[{}, {'x': 1}]),
+                                           dict(shape, enum=[{'x': 1}, {}])), 'same')
+
     def test_flag_changes(self):
         flag = dict(id='FLAG-001', key='report', title='Report', state='enabled', owner='ACTOR-001',
                     introduced_in='1.0.0', remove_by=None)

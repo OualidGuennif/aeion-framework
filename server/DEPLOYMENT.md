@@ -9,7 +9,7 @@ distributed database. Size a deployment from its actual store and request mix.
 From the repository root:
 
 ```bash
-docker build -t aeion-framework:1.1.1 .
+docker build -t aeion-framework:1.1.2 .
 docker compose up --build -d
 curl --fail http://127.0.0.1:8787/health/ready
 ```
@@ -38,7 +38,7 @@ docker run --name axiom-api --init --restart unless-stopped \
   --log-driver local --log-opt max-size=10m --log-opt max-file=3 \
   -e AXIOM_WORKERS=2 -p 127.0.0.1:8787:8787 \
   --mount type=volume,source=axiom-store,target=/data \
-  aeion-framework:1.1.1
+  aeion-framework:1.1.2
 ```
 
 For a bind mount, provision the directory so UID 10001 can read, traverse and write it. A read-only
@@ -50,14 +50,17 @@ docker run --rm --init --read-only --tmpfs /tmp:size=16m \
   --cap-drop ALL --security-opt no-new-privileges:true \
   -p 127.0.0.1:8787:8787 \
   --mount type=bind,source="$PWD/AxiomSpec",target=/spec,readonly \
-  aeion-framework:1.1.1 \
+  aeion-framework:1.1.2 \
   --store /spec/examples/refund-ledger/spec.json --mode sandbox \
   --repo /spec --include examples/refund-ledger --host 0.0.0.0
 ```
 
 The application still requires an authenticated TLS gateway for a multi-user deployment. Apply access
 policy there before content is returned. Configure the externally used MCP Host explicitly with
-`--allowed-host`; forward-header trust is opt-in with `--proxy-headers --forwarded-allow-ips <trusted-proxy>`.
+`--allowed-host`. Clients sending an Origin header also need that exact origin in the allowlist, for
+example `--allowed-host spec.example.com --allowed-origin https://spec.example.com` behind an HTTPS
+gateway. Repeat `--allowed-origin` for additional permitted origins; an unlisted origin still receives
+403. Forward-header trust is opt-in with `--proxy-headers --forwarded-allow-ips <trusted-proxy>`.
 Do not use a wildcard proxy trust setting for an API reachable directly by clients. Set gateway header/connection timeouts and per-client rate/concurrency limits; the ASGI body deadline begins after headers are available.
 
 ## Concurrency and overload
@@ -141,7 +144,7 @@ or from a small synthetic workload.
 With both requirements files installed on the host and Docker available:
 
 ```bash
-python3 tools/check_container.py --image aeion-framework:1.1.1 \
+python3 tools/check_container.py --image aeion-framework:1.1.2 \
   --requests 2000 --concurrency 128 --output /tmp/container-check.json
 ```
 

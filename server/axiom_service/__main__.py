@@ -39,6 +39,7 @@ def arguments(argv=None):
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=os.environ.get('AXIOM_PORT', '8787'))
     parser.add_argument('--allowed-host', action='append', default=[], help='extra Host value the MCP endpoint accepts, such as host.openshell.internal:8787')
+    parser.add_argument('--allowed-origin', action='append', default=[], help='extra MCP Origin value, such as https://spec.example.com; repeat for each origin')
     parser.add_argument('--workers', type=positive, default=os.environ.get('AXIOM_WORKERS', '1'))
     parser.add_argument('--max-inflight', type=positive, default=os.environ.get('AXIOM_MAX_INFLIGHT', '32'))
     parser.add_argument('--body-timeout', type=seconds, default=os.environ.get('AXIOM_BODY_TIMEOUT', '15'))
@@ -62,7 +63,8 @@ def main():
     os.environ['AXIOM_SERVICE_OPTIONS'] = json.dumps(dict(
         service=dict(store_paths=options.store, mode=options.mode, snapshot=options.snapshot, repository=options.repo,
                      include=options.include, exclude=options.exclude, lock_timeout=options.store_wait),
-        http=dict(allowed_hosts=options.allowed_host, max_inflight=options.max_inflight, body_timeout=options.body_timeout)))
+        http=dict(allowed_hosts=options.allowed_host, allowed_origins=options.allowed_origin,
+                  max_inflight=options.max_inflight, body_timeout=options.body_timeout)))
     uvicorn.run('axiom_service.app:configured_app', factory=True, workers=options.workers,
                 host=options.host, port=options.port, log_level=options.log_level, access_log=options.access_log,
                 limit_concurrency=options.limit_concurrency, backlog=256, timeout_keep_alive=5,

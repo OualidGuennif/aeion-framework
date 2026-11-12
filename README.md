@@ -80,7 +80,7 @@ curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.1: contracts, JSON schemas, a file checker, Markdown generation and reference checks, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.2: contracts, JSON schemas, a file checker, Markdown generation, release comparison and store verification, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
 | [`server/`](server/README.md) | The FastAPI REST and MCP service, with a Python 3.15 Docker image, bounded admission and persistent file storage |
 | [`playbooks/`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | Three procedures: [a new project](playbooks/01_NEW_PROJECT_AXIOMSPEC.md), [an existing one](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md), and [an agent in a sandbox](playbooks/03_AGENT_IN_A_SANDBOX.md) |
 
@@ -102,11 +102,22 @@ python3 -m venv .venv && .venv/bin/pip install -r AxiomSpec/qa/requirements-qa.t
 .venv/bin/python AxiomSpec/axiom.py markdown AxiomSpec/examples/refund-ledger/spec.json --output ledger.md
 ```
 
-Replace the example path with your own specification. The checker reads strict JSON, validates the
-schema, restricted environments and selected reference rules. Add `--json` for a machine-readable report.
-It does not execute product code or establish product readiness. The Markdown command runs these checks
-first, then writes a view of the requirements, decisions, constraints and traceability. It preserves
-existing files; omit `--output` to write to stdout. Both commands also accept a parts manifest.
+Replace the example path with your own specification. `check` reads strict JSON and verifies the
+schema, the environments and selected reference rules; add `--json` for a report a program can read.
+`markdown` runs the same checks, then writes a view of the requirements, decisions, constraints and
+links. Without `--output` it prints to stdout, and it never overwrites a file. Both accept a parts
+manifest, and neither runs product code.
+
+The same CLI compares releases and verifies a whole store from its files:
+
+```bash
+.venv/bin/python AxiomSpec/axiom.py compare AxiomSpec/examples/refund-ledger/releases/1.0.0.json AxiomSpec/examples/refund-ledger/spec.json
+.venv/bin/python AxiomSpec/axiom.py verify-store AxiomSpec/examples --json
+```
+
+`compare` prints JSON; add `--format markdown --output changes.md` for a report to read. `verify-store`
+checks release chains, approvals and imports, says what is missing when it cannot conclude, and
+exits with 3 in that case.
 
 To replay the package QA, including the ledger's tests, run the following from `AxiomSpec` with the
 dependencies installed. It rewrites the package's receipts:

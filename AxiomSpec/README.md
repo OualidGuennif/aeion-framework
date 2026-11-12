@@ -2,7 +2,7 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.1.1 · 12 November 2026**
+**Edition 1.1.2 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
@@ -73,13 +73,11 @@ Edition 0.7.0 added the service interface and kept format 0.3: a graph index, `@
 
 Edition 1.0.0 was the first tagged release. It fixed what a third pass found, including an approvals file that could block a release depending on the order the store read it, and kept format 0.3. The version number means the release is published and will not change; it does not mean the engine is qualified, and the [review](REVIEW.md#edition-100) says what it covers. Edition 1.0.1 requires Python 3.14 or later. Edition 1.0.2 rewrites the READMEs and the release notes in plainer language. Neither changes the format, the checks or the service.
 
-Edition 1.1.0 adds the file checker and Markdown generator. It also requires a passing ancestor chain before a release can pass the store, isolates invalid reference graphs, enforces response budgets and reports unavailable code scans. Python annotations are read only from comments and actual docstrings. The specification format stays 0.3; see the [change record](REVIEW.md#edition-110).
+Edition 1.1.0 adds the file checker and the Markdown generator. A release now passes the store only when its whole ancestor chain passes, an invalid reference graph is set apart, response budgets are enforced, and a code scan that cannot run is reported. Python annotations are read only from comments and real docstrings. The format stays 0.3, and the [change record](REVIEW.md#edition-110) lists each change.
 
-Edition 1.1.1 adds the Python 3.15 Docker deployment to the FastAPI service, bounded REST/MCP admission and
-body deadlines, worker processes, health probes, durable concurrent publication and recovery tests.
-Pinned reads check their own source files instead of listing unrelated releases, including invalidation
-and recovery of specification parts. See the service deployment guide in the full repository distribution;
-the standalone package still contains the file tools and contracts.
+Edition 1.1.1 gives the FastAPI service a Docker image on Python 3.15, with worker processes, health probes, a cap on requests in flight and deadlines for request bodies, over both REST and MCP. Concurrent publication is durable and has recovery tests. A pinned read checks its own source files, including the parts of a split specification, and no longer lists unrelated releases. The deployment guide ships with the full repository; this package alone keeps the file tools and the contracts.
+
+Edition 1.1.2 fixes four defects found in 1.1.1. Enum changes that hold objects or arrays are compared correctly, the store and the candidates use the same environment checks as the checker, MCP accepts HTTPS origins you list explicitly, and a malformed part gives a clean error. It also adds the `compare` and `verify-store` commands. The [change record](REVIEW.md#edition-112) has the details.
 
 ## Commands
 
@@ -89,16 +87,21 @@ With the QA dependencies installed, run these from the package directory:
 python3 axiom.py check examples/refund-ledger/spec.json
 python3 axiom.py check examples/refund-ledger/spec.json --json
 python3 axiom.py markdown examples/refund-ledger/spec.json --output ledger.md
+python3 axiom.py compare examples/refund-ledger/releases/1.0.0.json examples/refund-ledger/spec.json
+python3 axiom.py compare examples/refund-ledger/releases/1.0.0.json examples/refund-ledger/spec.json --format markdown --output changes.md
+python3 axiom.py verify-store examples --json
 ```
 
-The checker verifies strict JSON, the schema, restricted environment shapes and selected reference rules.
-Its exit code is 0 for pass, 2 for a failed check and 4 for an unreadable input or processing error. It does
-not evaluate BCIR, verify signatures, execute tests or establish a product phase. The Markdown command
-requires these checks to pass and generates a deterministic view of every declared node, relationships,
-open decisions and supporting metadata. It writes to stdout unless `--output` names a new file; it never
-overwrites a file. Both commands accept a specification or a parts manifest and work from any directory.
-Edit the source specification and regenerate its Markdown rather than maintaining two editable models.
+`check` reads strict JSON and verifies the schema, the restricted environment shapes and selected reference rules. It exits with 0 on pass, 2 on a failed check and 4 when the input cannot be read or processed. It keeps the first 50 schema errors in sorted order and still reports the exact total. It does not evaluate BCIR, verify signatures, run tests or decide a product phase.
 
-Install the [QA dependencies](qa/requirements-qa.txt), then replay the package checks with `python3 qa/run_checks.py`. Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. Check approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]`, and a whole store with `python3 qa/release_store.py verify <directory>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, package checks that exist, and product capabilities that do not.
+`markdown` runs the same checks first, then writes a view of every node, its links, the open decisions and the metadata. The output is the same for the same input. Edit `spec.json` and regenerate the view; the Markdown is not a second source.
+
+`compare` checks both inputs, then runs the G14 comparison: changed IDs, the version step, compatibility errors and the risk score. It prints JSON by default, and `--format markdown` gives a report to read. A comparison that fails G14 is still printed, with exit code 2. If an input fails its checks, you get the check report and code 2, and in Markdown mode that report goes to stderr and no file is created.
+
+`verify-store` takes files or directories and checks release chains, signatures, approval policies and pinned imports. It prints a summary, with what is missing for each incomplete release, and `--json` gives the full report. It exits with 0 on pass, 2 on fail, 3 when something is missing (an ancestor or a provider, for instance) and 4 when a path cannot be read. A pass says nothing about product readiness or about who holds a key.
+
+`check`, `markdown` and `compare` accept a specification or a parts manifest. All four commands work from any directory and write to stdout, or with `--output` to a new file. They never overwrite a file and never write into the store. When `compare` or `verify-store` fails to process its input in JSON mode, the error has the format `axiomspec-cli-error/0.1`.
+
+Install the [QA dependencies](qa/requirements-qa.txt), then replay the package checks with `python3 qa/run_checks.py`. The standalone scripts `qa/release_diff.py` and `qa/release_store.py` remain available. Check individual approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, package checks that exist, and product capabilities that do not.
 
 Start with the handoff and the contracts for the increment you are building. A coding session does not need the whole package loaded.

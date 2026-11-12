@@ -44,6 +44,10 @@ curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 
 The MCP endpoint is `http://127.0.0.1:8787/mcp/` (Streamable HTTP, stateless). It accepts requests addressed to `127.0.0.1` and `localhost`. If clients reach it under another host name, add that name with `--allowed-host`, for example `--allowed-host host.openshell.internal:8787`.
 
+For clients sending an Origin header through an HTTPS gateway, explicitly add the origin too:
+`--allowed-host spec.example.com --allowed-origin https://spec.example.com`. Repeat `--allowed-origin`
+for each permitted origin. Host and Origin checks remain enabled, independently of proxy-header trust.
+
 ## How it works
 
 | File | Role |

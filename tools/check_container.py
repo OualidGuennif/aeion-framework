@@ -184,7 +184,7 @@ async def exercise(urls, requests, concurrency):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--image', default='aeion-framework:1.1.1')
+    parser.add_argument('--image', default='aeion-framework:1.1.2')
     parser.add_argument('--requests', type=int, default=2000)
     parser.add_argument('--concurrency', type=int, default=128)
     parser.add_argument('--output', type=Path)

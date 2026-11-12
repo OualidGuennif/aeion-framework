@@ -135,5 +135,5 @@ A candidate enters the store only when it passes these checks, and the answer sa
 
 - The queries follow declared links and annotations. An undeclared dependency, a requirement nobody annotated and a call path through other code are not found, and each answer states this.
 - Symbols are resolved for Python only. No call graph is built.
-- The reference server has no authentication and no access control, and was not load-tested. It answers one operation at a time and lists the store directory before each organization request.
+- The reference server has no authentication or access control; multi-user deployment requires an authenticated gateway. Each worker serializes store operations with bounded admission and lock waits. Inventories, approvals, verdicts and writes refresh the store; pinned reads check their own unchanged source files. The repository's deployment guide records local container concurrency and recovery tests and their workload limits; these are not a production capacity SLO.
 - A delivery records what was supplied. It does not show that an agent read or obeyed it.

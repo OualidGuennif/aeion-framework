@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "1.1.1",
+  "edition": "1.1.2",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T06:38:04.467328+00:00",
+  "evaluated_at": "2026-11-12T08:24:35.834301+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -150,6 +150,7 @@
       "test_releases_weights_flags.ReleaseComparison.test_declared_step_covers_the_required_one",
       "test_releases_weights_flags.ReleaseComparison.test_dependents_are_reached_at_a_capped_factor",
       "test_releases_weights_flags.ReleaseComparison.test_environment_changes",
+      "test_releases_weights_flags.ReleaseComparison.test_environment_enums_compare_json_values_including_objects_and_arrays",
       "test_releases_weights_flags.ReleaseComparison.test_flag_changes",
       "test_releases_weights_flags.ReleaseComparison.test_identity_and_revision_rules",
       "test_releases_weights_flags.ReleaseComparison.test_ledger_release_1_1_0_is_a_minor_step_with_three_recorded_overrides",
@@ -210,9 +211,15 @@
       "test_sixth_review.Store.test_a_part_that_is_a_link_is_refused",
       "test_sixth_review.Store.test_the_listing_is_what_the_store_reads_and_nothing_else",
       "test_spec_tools.SpecTools.test_check_is_read_only_and_works_from_another_directory",
+      "test_spec_tools.SpecTools.test_compare_failed_checks_and_invalid_inputs_do_not_create_reports",
+      "test_spec_tools.SpecTools.test_compare_reuses_g14_and_accepts_parts_from_another_directory",
+      "test_spec_tools.SpecTools.test_comparison_markdown_escapes_diagnostic_text",
+      "test_spec_tools.SpecTools.test_dense_invalid_input_keeps_the_exact_count_and_only_fifty_sorted_diagnostics",
       "test_spec_tools.SpecTools.test_generation_is_deterministic_under_record_reordering",
       "test_spec_tools.SpecTools.test_invalid_input_does_not_create_a_markdown_file",
       "test_spec_tools.SpecTools.test_invalid_json_has_a_machine_readable_error",
+      "test_spec_tools.SpecTools.test_malformed_environment_keyword_shapes_are_controlled_failures",
+      "test_spec_tools.SpecTools.test_malformed_parts_keep_machine_readable_errors",
       "test_spec_tools.SpecTools.test_markdown_covers_the_model_and_uses_resolving_internal_links",
       "test_spec_tools.SpecTools.test_output_never_overwrites_the_spec_or_an_existing_file",
       "test_spec_tools.SpecTools.test_parts_are_checked_and_rendered_like_the_single_file",
@@ -220,6 +227,8 @@
       "test_spec_tools.SpecTools.test_source_text_cannot_inject_links_html_or_a_fence_end",
       "test_spec_tools.SpecTools.test_the_cli_is_covered_by_the_regression_input_receipt",
       "test_spec_tools.SpecTools.test_unsupported_environment_shapes_are_reported",
+      "test_spec_tools.SpecTools.test_verify_store_distinguishes_failed_incomplete_and_unreadable_inputs",
+      "test_spec_tools.SpecTools.test_verify_store_reuses_the_reference_report_and_writes_nothing",
       "test_third_review.CroaEvidenceChecks.test_captured_reviewed_source_reference_is_still_only_declared",
       "test_third_review.CroaEvidenceChecks.test_retired_mapping_is_rejected_on_current_snapshot",
       "test_third_review.CroaEvidenceChecks.test_unrelated_method_binding_is_rejected",
@@ -245,7 +254,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 232,
+    "tests_run": 241,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -259,11 +268,11 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "5b52b24930ea0fe66b62fc87aec4937a1238b0696f9609a32a75fb584d55de28"
+      "sha256": "4f3bcc3a0cc2cfef62d2d32a5b02cb8a7154287fca99e75b7e4e0479b1d2120c"
     },
     {
       "path": "axiom.py",
-      "sha256": "6f3eb8e862f4d0ca113ee9cde240fe88a3ce6f5c6870cdd413a8d0d24eb7edb1"
+      "sha256": "f2cceabd7004acba100bb12ebc9470d4075c8d0321357724e3ca957b7162682e"
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -323,7 +332,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "d7dd4ca08cd8d9c1a674e9ff807c1587d4c3062e60f66c08f106bc05a5670e29"
+      "sha256": "5f1893d60a332424c7a073afa50aa01d5b35c45073013c4a8625e1c1009614e5"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -351,7 +360,7 @@
     },
     {
       "path": "qa/release_diff.py",
-      "sha256": "eb05175cf0622e0afb35561b0c0dda1afba3e3108409521684f0f37f3546b71d"
+      "sha256": "72504896fca030502bbc31664fe73883fafd2ba4bdcd9add7abf859bd10b0a97"
     },
     {
       "path": "qa/release_store.py",
@@ -363,11 +372,11 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "3883200962f400ccd04005b0fa6d7eeef086cb729732f271204c68f2a6aaba5f"
+      "sha256": "cc8ad7e6728ad3e7d95e9c6dbb1c11b7ce48c23d2fc7161ebc1c4b183745063a"
     },
     {
       "path": "qa/spec_parts.py",
-      "sha256": "27a0dd4ba285c98c136f76a458bcc85106063193bc6a77b2adbb3292bcc82464"
+      "sha256": "b1e949fec0c917d32729a3a73d88a0216879509a8f2ad60dd49911a5deeb1348"
     },
     {
       "path": "qa/test_approvals_store_parts.py",
@@ -391,7 +400,7 @@
     },
     {
       "path": "qa/test_releases_weights_flags.py",
-      "sha256": "04b828a7f742d536e2795dc95257d7dbcc1827086417283d4fd44f5618f30744"
+      "sha256": "810f15458c722dc5685d4457a630394bfa43a04bb0c9ea7bab588f2727522d6a"
     },
     {
       "path": "qa/test_review_regressions.py",
@@ -411,7 +420,7 @@
     },
     {
       "path": "qa/test_spec_tools.py",
-      "sha256": "4ca9cb194a59a5c4804997b79eb48d042fca4d6b4d59364501c6786eb420c857"
+      "sha256": "8c44e787c7798fb09c83ae5b15b58522129d289243086fe559e6a0daf572ffe2"
     },
     {
       "path": "qa/test_third_review.py",
@@ -465,7 +474,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "96041260d5e74b74d02cd3b05ee4a798e10e60c70bd3be7517bfa5bc4dba739d"
+    "sha256": "e1881209007d812f28d3350ac52b721fb8851c8aa619c91384bae38891c01836"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "4c7eac0b17f369f3749a04a411926c43be4118d4b7650de14d44ff45a813f4a2",
-      "bytes": 10917
+      "sha256": "ccad3a11fab444921b3f820297f92c81831b77233c400d48b0155ee94d72da56",
+      "bytes": 12664
     },
     {
       "path": "REVIEW.md",
-      "sha256": "24b7fca871a8d8d360c094b6b96e18b420bdea9b4b96340bcffdd9344895f68b",
-      "bytes": 55584
+      "sha256": "e596e52c7d65c079a30377d2f0361d11b298a135c3bdc5e66c75b1534e868c2e",
+      "bytes": 57426
     },
     {
       "path": "RULE_INDEX.md",
@@ -23,13 +23,13 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "5b52b24930ea0fe66b62fc87aec4937a1238b0696f9609a32a75fb584d55de28",
+      "sha256": "4f3bcc3a0cc2cfef62d2d32a5b02cb8a7154287fca99e75b7e4e0479b1d2120c",
       "bytes": 104355
     },
     {
       "path": "axiom.py",
-      "sha256": "6f3eb8e862f4d0ca113ee9cde240fe88a3ce6f5c6870cdd413a8d0d24eb7edb1",
-      "bytes": 9504
+      "sha256": "f2cceabd7004acba100bb12ebc9470d4075c8d0321357724e3ca957b7162682e",
+      "bytes": 15523
     },
     {
       "path": "docs/00_IMPLEMENTATION_HANDOFF.md",
@@ -128,8 +128,8 @@
     },
     {
       "path": "docs/19_SERVICE_INTERFACE.md",
-      "sha256": "940b6a4b4e706d4c2d5352a5a2da0d8adaa7c381c7c64db1aa3760bab684779c",
-      "bytes": 14807
+      "sha256": "4090d6a453edada77153b90924382dd8b464a2551799835ecd944ee4e77cb9cb",
+      "bytes": 15088
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -203,8 +203,8 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "d7dd4ca08cd8d9c1a674e9ff807c1587d4c3062e60f66c08f106bc05a5670e29",
-      "bytes": 69083
+      "sha256": "5f1893d60a332424c7a073afa50aa01d5b35c45073013c4a8625e1c1009614e5",
+      "bytes": 69671
     },
     {
       "path": "qa/croa_readiness.py",
@@ -238,8 +238,8 @@
     },
     {
       "path": "qa/release_diff.py",
-      "sha256": "eb05175cf0622e0afb35561b0c0dda1afba3e3108409521684f0f37f3546b71d",
-      "bytes": 25044
+      "sha256": "72504896fca030502bbc31664fe73883fafd2ba4bdcd9add7abf859bd10b0a97",
+      "bytes": 25258
     },
     {
       "path": "qa/release_store.py",
@@ -253,13 +253,13 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "3883200962f400ccd04005b0fa6d7eeef086cb729732f271204c68f2a6aaba5f",
+      "sha256": "cc8ad7e6728ad3e7d95e9c6dbb1c11b7ce48c23d2fc7161ebc1c4b183745063a",
       "bytes": 13313
     },
     {
       "path": "qa/spec_parts.py",
-      "sha256": "27a0dd4ba285c98c136f76a458bcc85106063193bc6a77b2adbb3292bcc82464",
-      "bytes": 6090
+      "sha256": "b1e949fec0c917d32729a3a73d88a0216879509a8f2ad60dd49911a5deeb1348",
+      "bytes": 6564
     },
     {
       "path": "qa/test_approvals_store_parts.py",
@@ -288,8 +288,8 @@
     },
     {
       "path": "qa/test_releases_weights_flags.py",
-      "sha256": "04b828a7f742d536e2795dc95257d7dbcc1827086417283d4fd44f5618f30744",
-      "bytes": 42842
+      "sha256": "810f15458c722dc5685d4457a630394bfa43a04bb0c9ea7bab588f2727522d6a",
+      "bytes": 43927
     },
     {
       "path": "qa/test_review_regressions.py",
@@ -313,8 +313,8 @@
     },
     {
       "path": "qa/test_spec_tools.py",
-      "sha256": "4ca9cb194a59a5c4804997b79eb48d042fca4d6b4d59364501c6786eb420c857",
-      "bytes": 6957
+      "sha256": "8c44e787c7798fb09c83ae5b15b58522129d289243086fe559e6a0daf572ffe2",
+      "bytes": 14001
     },
     {
       "path": "qa/test_third_review.py",
@@ -338,8 +338,8 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "4e343d6912e16c37088351afbf1f2a310db29658cab0425f1a7ef93a652ff16a",
-      "bytes": 7300
+      "sha256": "77f7fc273f82012c1aa990fa538436871f2ce1fa8955feba05d20250bea56460",
+      "bytes": 7701
     },
     {
       "path": "review/probes-before.json",
@@ -363,13 +363,13 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "96041260d5e74b74d02cd3b05ee4a798e10e60c70bd3be7517bfa5bc4dba739d",
-      "bytes": 34760
+      "sha256": "e1881209007d812f28d3350ac52b721fb8851c8aa619c91384bae38891c01836",
+      "bytes": 36271
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "75b5397313906ec958051f641d15e9b38b38196b65c4e044d80d0c1fc04c1dfb",
-      "bytes": 30627
+      "sha256": "4a4ae3db1269d77535e015dffe5e560f0b6d8e023192eb473dfc63d4c0546cef",
+      "bytes": 31550
     },
     {
       "path": "schemas/approvals.schema.json",

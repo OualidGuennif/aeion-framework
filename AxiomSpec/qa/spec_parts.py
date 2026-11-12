@@ -43,17 +43,22 @@ def split(spec, budget=PART_BUDGET):
 
 def join(manifest, load):
     """Rebuild the specification a manifest names. `load(path)` returns the raw bytes of one part."""
-    require(manifest.get('format') == MANIFEST and isinstance(manifest.get('parts'), list), 'Not a parts manifest')
+    require(isinstance(manifest, dict) and manifest.get('format') == MANIFEST
+            and isinstance(manifest.get('parts'), list), 'Not a parts manifest')
     require(1 <= len(manifest['parts']) <= MAX_PARTS, 'Part count out of bounds')
     spec = {section: [] for section in SECTIONS}
     for entry in manifest['parts']:
+        require(isinstance(entry, dict) and isinstance(entry.get('path'), str) and entry['path']
+                and isinstance(entry.get('sha256'), str), 'A part entry needs a path and SHA-256')
         lexical = PurePosixPath(entry['path'])
         require(not lexical.is_absolute() and '..' not in lexical.parts and '\\' not in entry['path'],
                 'Part path must stay beside the manifest')
         raw = load(entry['path'])
         require(digest(raw) == entry['sha256'], f"Part digest differs: {entry['path']}")
         part = strict_json(raw)
-        require(part.get('format') == PART and set(part) == {'format', 'fields', 'items'}, 'Not a specification part')
+        require(isinstance(part, dict) and part.get('format') == PART and set(part) == {'format', 'fields', 'items'},
+                'Not a specification part')
+        require(isinstance(part['fields'], dict) and isinstance(part['items'], dict), 'Part fields and items must be objects')
         for name, value in part['fields'].items():
             require(name in FIELDS and name not in spec, f'Root field repeated or unknown: {name}')
             spec[name] = value
@@ -86,7 +91,8 @@ def write(spec, directory, stem='spec', budget=PART_BUDGET):
 def read(manifest_path, dependencies=None):
     """Read and join the specification a manifest file names."""
     manifest_path = Path(manifest_path)
-    manifest = strict_json(manifest_path.read_bytes())
+    with manifest_path.open('rb') as source:
+        manifest = strict_json(source.read(BOUNDS['max_input_bytes'] + 1))
     base = manifest_path.parent.resolve()
 
     def load(relative):

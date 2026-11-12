@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.1 · 12 November 2026. The [1.1.1 change record](#edition-111) describes the current service runtime; [1.1.0](#edition-110) describes the file tools and earlier corrections. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.2 · 12 November 2026. The [1.1.2 change record](#edition-112) describes the current corrections and file commands; [1.1.1](#edition-111) describes the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,31 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.2
+
+12 November 2026. Fixes four defects reproduced on 1.1.1 and adds two file commands. The format stays
+`axiomspec/0.3`, and the reference engines and dependencies are unchanged.
+
+- Environment enums that hold objects or arrays are compared by their canonical JSON. A boolean no longer
+  equals an integer, and reordering an enum counts as no change. Before, such an enum crashed the
+  comparison and blocked the verdicts of unrelated releases in the store.
+- The shared reference rules now check the restricted environment schemas. An invalid release, loaded or
+  uploaded, gets a failed verdict, and an invalid candidate stays out of the store.
+- MCP accepts the HTTPS origins listed with `--allowed-origin`, which can be repeated. Host and Origin
+  checks stay on, and an unlisted origin still gets 403.
+- Manifest and part shapes are checked before their fields are read, so a malformed part gives a JSON
+  error and exit code 4 from `axiom.py check --json` instead of a traceback.
+- The checker keeps only the first 50 sorted diagnostics and still counts every schema error.
+- `axiom.py compare` runs G14 and prints JSON or Markdown. `axiom.py verify-store` runs the release
+  chain, approval and import checks, and in its text summary names what each incomplete release is
+  missing (the baseline, the approvals, or an unresolved import). Both read files only, run no product
+  code and never overwrite a file. An incomplete store exits with 3.
+
+The package suite has 241 tests and the service suite 60; the example still runs 33 tests. The new tests
+cover each defect above, the origin setting in every worker, the CLI outputs and exit codes, parts as
+input, and that input and output files are left untouched. These are still reference checks by their
+author, not an independent assessment or a product-readiness decision.
 
 ## Confirmed findings and corrections
 

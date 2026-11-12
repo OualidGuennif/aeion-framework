@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Check an AxiomSpec file or generate its Markdown reading view. Reads never execute product code."""
+"""Check, read and compare AxiomSpec files, or verify a release store. Never executes product code."""
 import argparse
 import html
+from heapq import nsmallest
 import json
 from pathlib import Path
 import re
@@ -17,6 +18,8 @@ from check_package import BOUNDS, canonical, check_environment, digest, make_val
 from queries import KIND_ORDER, statement  # noqa: E402
 from run_checks import EDITION, MIN_PYTHON  # noqa: E402
 import spec_parts  # noqa: E402
+import release_diff  # noqa: E402
+import release_store  # noqa: E402
 
 LIMITS = ['Checks strict JSON, the specification schema and selected reference rules only.',
           'Does not establish product readiness, evaluate BCIR, verify approvals or execute tests.']
@@ -33,21 +36,30 @@ def load_spec(path):
 def check(spec):
     """A deterministic report for one parsed file. No clock, network, repository scan or writes."""
     validator = make_validator(json.loads((ROOT / 'schemas/spec.schema.json').read_text()), check_formats=True)
-    errors = sorted((dict(pointer='/' + '/'.join(str(p).replace('~', '~0').replace('/', '~1') for p in e.absolute_path),
-                          message=e.message[:400]) for e in validator.iter_errors(spec)),
-                    key=lambda e: (e['pointer'], e['message']))
-    references = reference_errors(spec) if not errors else []
-    # These shapes are deliberately restricted by AX-C-002, beyond the outer specification schema.
-    if not errors:
+    error_count = 0
+
+    def diagnostics():
+        nonlocal error_count
+        for error in validator.iter_errors(spec):
+            error_count += 1
+            yield dict(pointer='/' + '/'.join(str(p).replace('~', '~0').replace('/', '~1') for p in error.absolute_path),
+                       message=error.message[:400])
+        if error_count:
+            return
+        # AX-C-002 restricts these shapes beyond the outer specification schema.
         for number, environment in enumerate(spec['environments']):
             try:
                 check_environment(environment['schema'])
             except (ValueError, KeyError, TypeError, SchemaError) as exc:
-                errors.append(dict(pointer=f'/environments/{number}/schema',
-                                   message=str(exc)[:400]))
+                error_count += 1
+                yield dict(pointer=f'/environments/{number}/schema', message=str(exc)[:400])
+
+    # Keep the same first 50 sorted diagnostics and exact count without retaining every error.
+    errors = nsmallest(50, diagnostics(), key=lambda error: (error['pointer'], error['message']))
+    references = reference_errors(spec) if not error_count else []
     return dict(format='axiomspec-check/0.1', scope='structure_and_references', edition=EDITION,
                 status='fail' if errors or references else 'pass', spec_sha256=digest(canonical(spec)),
-                schema_errors=errors[:50], schema_error_count=len(errors), reference_errors=references,
+                schema_errors=errors, schema_error_count=error_count, reference_errors=references,
                 limitations=LIMITS)
 
 
@@ -121,6 +133,42 @@ def markdown(spec, report):
     return '\n'.join(lines)
 
 
+def comparison_markdown(report):
+    """A reading view of the existing G14 report; it adds no classification or approval decision."""
+    risk = report['risk']
+    lines = ['# AxiomSpec release comparison', '',
+             f"Status: {report['status']} · Declared step: {report['declared_step']} · Required step: {report['required_step']}", '',
+             f"Baseline: {report['baseline']['version']} · `{report['baseline']['spec_sha256']}`", '',
+             f"Candidate: {report['candidate']['version']} · `{report['candidate']['spec_sha256']}`", '',
+             f"Change risk score: {risk['score']} points · Exposure: {risk['exposure_permille']}/1000", '',
+             '## Changes', '', '| ID | Kind | Change | Level | Accepted as | Reasons |', '|---|---|---|---|---|---|']
+    for change in report['changes']:
+        values = [change['subject_id'], change['kind'], change['change'], change['level'],
+                  change['accepted_as'] or '—', '; '.join(change['reasons'])]
+        lines.append('| ' + ' | '.join(prose(value) for value in values) + ' |')
+    lines.extend(['', '## Errors', ''])
+    lines += [f"- {prose(error['code'])} · {prose(error['subject_id'] or 'release')}: {prose(error['message'])}"
+              for error in report['errors']] or ['None.']
+    lines.extend(['', '## Risk detail', '',
+                  f"Weight minor units per point: {risk['weight_minor_units']} · Total active weight: {risk['total_weight_minor']}", '',
+                  '| Requirement | Weight minor | Factor percent | Reach |', '|---|---|---|---|'])
+    for requirement in risk['requirements']:
+        lines.append('| ' + ' | '.join(prose(requirement[name]) for name in ('id', 'weight_minor', 'factor_percent', 'reach')) + ' |')
+    lines.extend(['', 'Unmapped changes: ' + (', '.join(prose(item) for item in risk['unmapped_changes']) or 'None.'), '',
+                  '## Scope', ''])
+    lines += ['- ' + prose(limit) for limit in report['limitations']]
+    return '\n'.join(lines) + '\n'
+
+
+def emit(body, output=None):
+    """Write stdout or a new file; preserve every existing file, including inputs."""
+    if output is None:
+        sys.stdout.write(body)
+    else:
+        with output.open('x', encoding='utf-8', newline='\n') as target:
+            target.write(body)
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', action='version', version=f'AxiomSpec {EDITION}')
@@ -131,11 +179,56 @@ def main(arguments=None):
     writer = commands.add_parser('markdown', help='generate a Markdown view after checking the specification')
     writer.add_argument('spec', type=Path, help='a specification or parts manifest')
     writer.add_argument('--output', type=Path, help='write a new file instead of stdout; existing files are preserved')
+    comparer = commands.add_parser('compare', help='compare two releases with the reference G14 classifier')
+    comparer.add_argument('baseline', type=Path, help='the baseline specification or parts manifest')
+    comparer.add_argument('candidate', type=Path, help='its candidate specification or parts manifest')
+    comparer.add_argument('--format', choices=('json', 'markdown'), default='json', help='report format (default: json)')
+    comparer.add_argument('--output', type=Path, help='write a new report file instead of stdout')
+    store_checker = commands.add_parser('verify-store', help='verify release chains, approvals and imports from files')
+    store_checker.add_argument('paths', type=Path, nargs='+', help='release/approval files or store directories')
+    store_checker.add_argument('--json', action='store_true', help='emit the full reference store report as JSON')
     options = parser.parse_args(arguments)
     if sys.version_info < MIN_PYTHON:
         print('AxiomSpec needs Python 3.14 or later', file=sys.stderr)
         return 4
     try:
+        if options.command == 'verify-store':
+            for path in options.paths:
+                if not path.exists():
+                    raise ValueError(f'Store path does not exist: {path}')
+            report = release_store.verify(release_store.load(options.paths))
+            if options.json:
+                print(json.dumps(report, ensure_ascii=False, indent=2))
+            else:
+                print(f"AxiomSpec store: {report['status']} ({len(report['releases'])} releases, {len(report['projects'])} projects)")
+                for release in report['releases']:
+                    missing = ['baseline release'] if release['link'] == 'unknown' else []
+                    missing += ['approvals'] if release['approvals'] == 'unknown' else []
+                    missing += [f"{item['project_id']} {item['version']} ({item['id']})"
+                                for item in release['imports'] if item['state'] == 'unresolved']
+                    print(f"{release['project_id']} {release['version']}: {release['status']} {release['spec_sha256']}"
+                          + (f" · missing: {', '.join(missing)}" if missing else ''))
+                for error in report['errors']:
+                    print(f"{error['code']} ({error['subject']}): {error['message']}")
+                for rejected in report['rejected_files']:
+                    print(f"Rejected {rejected['path']}: {rejected['reason']}")
+                for limit in report['limitations']:
+                    print(limit)
+            return {'pass': 0, 'fail': 2, 'incomplete': 3}[report['status']]
+        if options.command == 'compare':
+            documents = []
+            for path in (options.baseline, options.candidate):
+                spec = load_spec(path)
+                report = check(spec)
+                if report['status'] != 'pass':
+                    print(json.dumps(dict(report, input=str(path)), ensure_ascii=False, indent=2),
+                          file=sys.stdout if options.format == 'json' else sys.stderr)
+                    return 2
+                documents.append(spec)
+            report = release_diff.compare(*documents)
+            emit(comparison_markdown(report) if options.format == 'markdown' else json.dumps(report, ensure_ascii=False, indent=2) + '\n',
+                 options.output)
+            return 0 if report['status'] == 'pass' else 2
         spec = load_spec(options.spec)
         report = check(spec)
         if options.command == 'check':
@@ -153,18 +246,16 @@ def main(arguments=None):
         if report['status'] != 'pass':
             print(json.dumps(report, ensure_ascii=False, indent=2), file=sys.stderr)
             return 2
-        body = markdown(spec, report)
-        if options.output is None:
-            sys.stdout.write(body)
-        else:
-            with options.output.open('x', encoding='utf-8', newline='\n') as output:
-                output.write(body)
+        emit(markdown(spec, report), options.output)
         return 0
     except (OSError, ValueError, KeyError, TypeError, RecursionError) as exc:
         message = f'{type(exc).__name__}: {str(exc)[:400]}'
         if options.command == 'check' and options.json:
             print(json.dumps(dict(format='axiomspec-check/0.1', scope='structure_and_references', edition=EDITION,
                                   status='error', message=message, limitations=LIMITS)))
+        elif (options.command == 'compare' and options.format == 'json') or (options.command == 'verify-store' and options.json):
+            print(json.dumps(dict(format='axiomspec-cli-error/0.1', command=options.command,
+                                  edition=EDITION, status='error', message=message)))
         else:
             print(message, file=sys.stderr)
         return 4

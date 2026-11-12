@@ -53,13 +53,16 @@ def schema_change(old, new):
     elif kind == 'string':
         outcomes += [bound('minLength', True, 0), bound('maxLength', False)]
     before, after = old.get('enum'), new.get('enum')
-    if before != after:
-        if after is None:
-            outcomes.append('widened')
-        elif before is None or not set(before) <= set(after):
+    if before is None:
+        if after is not None:
             outcomes.append('breaking')
-        else:
-            outcomes.append('widened')
+    elif after is None:
+        outcomes.append('widened')
+    else:
+        # JSON values include objects/arrays; canonical bytes also distinguish true from 1.
+        before, after = {canonical(value) for value in before}, {canonical(value) for value in after}
+        if before != after:
+            outcomes.append('widened' if before <= after else 'breaking')
     return max(outcomes, key=ORDER.get, default='same')
 
 

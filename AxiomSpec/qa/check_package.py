@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from urllib.parse import unquote
 
 from jsonschema import Draft202012Validator, FormatChecker
+from jsonschema.exceptions import SchemaError
 from referencing import Registry
 from croa_readiness import assess_inputs
 from run_checks import (EDITION, EXAMPLE_RECEIPT, validate_example_receipt, validate_receipt,
@@ -328,6 +329,11 @@ def reference_errors(spec):
     if not spec['project']['id'].startswith('PROJECT-'):
         errors.append('WRONG_PREFIX')
     for env in spec['environments']:
+        try:
+            check_environment(env['schema'])
+        except (ValueError, KeyError, TypeError, SchemaError):
+            errors.append('INVALID_ENVIRONMENT_SCHEMA')
+            continue
         annotated = {}
         for annotation in env['units']:
             if nodes.get(annotation['term_id'], {}).get('kind') != 'Term':
@@ -594,23 +600,29 @@ def check_example_evidence(spec, executed_ids, root=None):
 def check_environment(schema):
     allowed = {'type', 'properties', 'required', 'additionalProperties', 'items', 'enum',
                'minimum', 'maximum', 'minItems', 'maxItems', 'minLength', 'maxLength', 'description'}
-    require(set(schema).issubset(allowed), 'Unsupported environment keyword')
-    t = schema.get('type')
-    require(t in {'object', 'array', 'integer', 'boolean', 'string'}, 'Explicit environment type required')
-    if t == 'object':
-        require(schema.get('additionalProperties') is False, 'Environment object must be closed')
-        require(set(schema.get('required', [])) == set(schema.get('properties', {})), 'Every property required')
-        for child in schema.get('properties', {}).values():
-            check_environment(child)
-    elif t == 'array':
-        require(type(schema.get('maxItems')) is int and 0 <= schema['maxItems'] <= 10000, 'Array bound')
-        check_environment(schema['items'])
-    elif t == 'integer':
-        require(type(schema.get('minimum')) is int and type(schema.get('maximum')) is int, 'Integer bounds')
-        require(-SAFE <= schema['minimum'] <= schema['maximum'] <= SAFE, 'Safe bounds')
-    elif t == 'string':
-        require(type(schema.get('maxLength')) is int and schema['maxLength'] >= 0, 'String bound')
+    require(isinstance(schema, dict), 'Environment schema must be an object')
+    # Validate keyword shapes before traversing them, once for the whole schema.
     Draft202012Validator.check_schema(schema)
+
+    def shape(current):
+        require(isinstance(current, dict), 'Environment schema must be an object')
+        require(set(current).issubset(allowed), 'Unsupported environment keyword')
+        t = current.get('type')
+        require(t in {'object', 'array', 'integer', 'boolean', 'string'}, 'Explicit environment type required')
+        if t == 'object':
+            require(current.get('additionalProperties') is False, 'Environment object must be closed')
+            require(set(current.get('required', [])) == set(current.get('properties', {})), 'Every property required')
+            for child in current.get('properties', {}).values():
+                shape(child)
+        elif t == 'array':
+            require(type(current.get('maxItems')) is int and 0 <= current['maxItems'] <= 10000, 'Array bound')
+            shape(current.get('items'))
+        elif t == 'integer':
+            require(type(current.get('minimum')) is int and type(current.get('maximum')) is int, 'Integer bounds')
+            require(-SAFE <= current['minimum'] <= current['maximum'] <= SAFE, 'Safe bounds')
+        elif t == 'string':
+            require(type(current.get('maxLength')) is int and current['maxLength'] >= 0, 'String bound')
+    shape(schema)
 
 
 class BudgetExceeded(ValueError):

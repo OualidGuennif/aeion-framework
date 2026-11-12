@@ -136,6 +136,7 @@ test_constraint_changes (test_releases_weights_flags.ReleaseComparison.test_cons
 test_declared_step_covers_the_required_one (test_releases_weights_flags.ReleaseComparison.test_declared_step_covers_the_required_one) ... ok
 test_dependents_are_reached_at_a_capped_factor (test_releases_weights_flags.ReleaseComparison.test_dependents_are_reached_at_a_capped_factor) ... ok
 test_environment_changes (test_releases_weights_flags.ReleaseComparison.test_environment_changes) ... ok
+test_environment_enums_compare_json_values_including_objects_and_arrays (test_releases_weights_flags.ReleaseComparison.test_environment_enums_compare_json_values_including_objects_and_arrays) ... ok
 test_flag_changes (test_releases_weights_flags.ReleaseComparison.test_flag_changes) ... ok
 test_identity_and_revision_rules (test_releases_weights_flags.ReleaseComparison.test_identity_and_revision_rules) ... ok
 test_ledger_release_1_1_0_is_a_minor_step_with_three_recorded_overrides (test_releases_weights_flags.ReleaseComparison.test_ledger_release_1_1_0_is_a_minor_step_with_three_recorded_overrides) ... ok
@@ -196,9 +197,15 @@ test_an_id_of_the_release_left_on_the_line_is_reported (test_sixth_review.Scan.t
 test_a_part_that_is_a_link_is_refused (test_sixth_review.Store.test_a_part_that_is_a_link_is_refused) ... ok
 test_the_listing_is_what_the_store_reads_and_nothing_else (test_sixth_review.Store.test_the_listing_is_what_the_store_reads_and_nothing_else) ... ok
 test_check_is_read_only_and_works_from_another_directory (test_spec_tools.SpecTools.test_check_is_read_only_and_works_from_another_directory) ... ok
+test_compare_failed_checks_and_invalid_inputs_do_not_create_reports (test_spec_tools.SpecTools.test_compare_failed_checks_and_invalid_inputs_do_not_create_reports) ... ok
+test_compare_reuses_g14_and_accepts_parts_from_another_directory (test_spec_tools.SpecTools.test_compare_reuses_g14_and_accepts_parts_from_another_directory) ... ok
+test_comparison_markdown_escapes_diagnostic_text (test_spec_tools.SpecTools.test_comparison_markdown_escapes_diagnostic_text) ... ok
+test_dense_invalid_input_keeps_the_exact_count_and_only_fifty_sorted_diagnostics (test_spec_tools.SpecTools.test_dense_invalid_input_keeps_the_exact_count_and_only_fifty_sorted_diagnostics) ... ok
 test_generation_is_deterministic_under_record_reordering (test_spec_tools.SpecTools.test_generation_is_deterministic_under_record_reordering) ... ok
 test_invalid_input_does_not_create_a_markdown_file (test_spec_tools.SpecTools.test_invalid_input_does_not_create_a_markdown_file) ... ok
 test_invalid_json_has_a_machine_readable_error (test_spec_tools.SpecTools.test_invalid_json_has_a_machine_readable_error) ... ok
+test_malformed_environment_keyword_shapes_are_controlled_failures (test_spec_tools.SpecTools.test_malformed_environment_keyword_shapes_are_controlled_failures) ... ok
+test_malformed_parts_keep_machine_readable_errors (test_spec_tools.SpecTools.test_malformed_parts_keep_machine_readable_errors) ... ok
 test_markdown_covers_the_model_and_uses_resolving_internal_links (test_spec_tools.SpecTools.test_markdown_covers_the_model_and_uses_resolving_internal_links) ... ok
 test_output_never_overwrites_the_spec_or_an_existing_file (test_spec_tools.SpecTools.test_output_never_overwrites_the_spec_or_an_existing_file) ... ok
 test_parts_are_checked_and_rendered_like_the_single_file (test_spec_tools.SpecTools.test_parts_are_checked_and_rendered_like_the_single_file) ... ok
@@ -206,6 +213,8 @@ test_schema_and_reference_errors_are_distinct (test_spec_tools.SpecTools.test_sc
 test_source_text_cannot_inject_links_html_or_a_fence_end (test_spec_tools.SpecTools.test_source_text_cannot_inject_links_html_or_a_fence_end) ... ok
 test_the_cli_is_covered_by_the_regression_input_receipt (test_spec_tools.SpecTools.test_the_cli_is_covered_by_the_regression_input_receipt) ... ok
 test_unsupported_environment_shapes_are_reported (test_spec_tools.SpecTools.test_unsupported_environment_shapes_are_reported) ... ok
+test_verify_store_distinguishes_failed_incomplete_and_unreadable_inputs (test_spec_tools.SpecTools.test_verify_store_distinguishes_failed_incomplete_and_unreadable_inputs) ... ok
+test_verify_store_reuses_the_reference_report_and_writes_nothing (test_spec_tools.SpecTools.test_verify_store_reuses_the_reference_report_and_writes_nothing) ... ok
 test_captured_reviewed_source_reference_is_still_only_declared (test_third_review.CroaEvidenceChecks.test_captured_reviewed_source_reference_is_still_only_declared) ... ok
 test_retired_mapping_is_rejected_on_current_snapshot (test_third_review.CroaEvidenceChecks.test_retired_mapping_is_rejected_on_current_snapshot) ... ok
 test_unrelated_method_binding_is_rejected (test_third_review.CroaEvidenceChecks.test_unrelated_method_binding_is_rejected) ... ok
@@ -232,6 +241,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 232 tests in 14.831s
+Ran 241 tests in 22.539s
 
 OK

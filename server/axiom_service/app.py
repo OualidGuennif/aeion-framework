@@ -47,13 +47,13 @@ def required(request, name):
     return value
 
 
-def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15):
+def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15, allowed_origins=()):
     mcp_server = mcp_tools.build(service)
     hosts = ['127.0.0.1:*', 'localhost:*', '[::1]:*', *allowed_hosts]
     mcp_app = mcp_server.streamable_http_app(
         streamable_http_path='/', json_response=True, stateless_http=True,
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=True, allowed_hosts=hosts,
-                                                     allowed_origins=[f'http://{host}' for host in hosts]))
+                                                     allowed_origins=[f'http://{host}' for host in hosts] + list(allowed_origins)))
 
     @asynccontextmanager
     async def lifespan(app):

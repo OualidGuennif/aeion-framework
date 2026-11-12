@@ -1,5 +1,6 @@
 """Bounded overload, durable publication and the worker startup contract."""
 import asyncio
+import copy
 from concurrent.futures import ThreadPoolExecutor
 import errno
 import json
@@ -13,6 +14,7 @@ from unittest import mock
 SERVER = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVER))
 from axiom_service.__main__ import arguments  # noqa: E402
+from axiom_service import __main__ as startup  # noqa: E402
 from axiom_service.app import configured_app, create_app  # noqa: E402
 from axiom_service.http_limits import RequestLimits  # noqa: E402
 from axiom_service.service import MAX_BODY_BYTES, Service  # noqa: E402
@@ -127,6 +129,66 @@ class Runtime(Case):
         self.assertEqual((response.status_code, response.json()['code']), (422, 'INVALID_DOCUMENT'))
         self.assertLess(len(response.content), 2048)
 
+    def test_object_enums_do_not_block_other_release_verdicts(self):
+        _, client = self.limited()
+        baseline = copy.deepcopy(self.identity)
+        baseline['project']['id'] = 'PROJECT-900'
+        for band in baseline['approval']['policy'].values():
+            band['approvers'] = 0
+        baseline['environments'] = [dict(id='ENV-900', title='Enum fixture', units=[], schema=dict(
+            type='object', properties={'x': dict(type='integer', minimum=0, maximum=10)}, required=['x'],
+            additionalProperties=False, enum=[{'x': 1}]))]
+        key = digest(canonical(baseline))
+        self.assertEqual(client.put('/v1/releases/' + key, content=canonical(baseline)).json()['status'], 'pass')
+        candidate = copy.deepcopy(baseline)
+        candidate['release'] = dict(version='1.1.0', previous=dict(version='1.0.0', spec_sha256=key), compatibility=[])
+        candidate['environments'][0]['schema']['enum'].append({'x': 2})
+        key = digest(canonical(candidate))
+        response = client.put('/v1/releases/' + key, content=canonical(candidate))
+        self.assertEqual((response.status_code, response.json()['status']), (200, 'pass'))
+        response = client.get(f'/v1/releases/{self.head}/verdict')
+        self.assertEqual((response.status_code, response.json()['status']), (200, 'pass'))
+        restarted = self.client(Service([self.store], 'organization'))
+        self.assertEqual(restarted.get(f'/v1/releases/{key}/verdict').json()['status'], 'pass')
+
+    def test_invalid_environments_fail_loaded_uploaded_and_proposed_releases(self):
+        service, client = self.limited()
+        environment = dict(id='ENV-900', title='Unsupported environment', units=[], schema=dict(
+            type='object', properties={}, required=[], additionalProperties=False,
+            **{'$ref': 'https://example.invalid/never-retrieve'}))
+        invalid = copy.deepcopy(self.identity)
+        invalid['environments'] = [environment]
+        for band in invalid['approval']['policy'].values():
+            band['approvers'] = 0
+        key = digest(canonical(invalid))
+        response = client.put('/v1/releases/' + key, content=canonical(invalid))
+        self.assertEqual((response.status_code, response.json()['status']), (200, 'fail'))
+        self.assertTrue(any('INVALID_ENVIRONMENT_SCHEMA' in e['message'] for e in response.json()['errors']))
+        loaded = Service([self.store], 'organization').call('getVerdict', digest=key)
+        self.assertEqual(loaded['status'], 'fail')
+        before = set(self.store.iterdir())
+        response = client.post('/v1/candidates', json=dict(baseline=self.provider, version='1.1.0',
+            operations=[dict(op='put', section='environments', item=environment)]))
+        self.assertEqual((response.status_code, response.json()['status'], response.json()['held']), (201, 'fail', False))
+        self.assertIn('INVALID_ENVIRONMENT_SCHEMA', response.json()['reference_errors'])
+        self.assertEqual(set(self.store.iterdir()), before)
+        self.assertNotIn(response.json()['spec_sha256'], service.store.releases)
+
+    def test_mcp_accepts_only_explicit_https_origins_and_allowed_hosts(self):
+        service = Service([self.store], 'organization')
+        client = TestClient(create_app(service, allowed_hosts=['spec.example.test'],
+                                      allowed_origins=['https://spec.example.test']))
+        with client:
+            payload = dict(jsonrpc='2.0', id=1, method='initialize', params=dict(
+                protocolVersion='2025-11-25', capabilities={}, clientInfo=dict(name='test', version='1')))
+            headers = {'Host': 'spec.example.test', 'Accept': 'application/json, text/event-stream'}
+            for origin, expected in [('https://spec.example.test', 200), ('https://other.example.test', 403)]:
+                response = client.post('/mcp/', json=payload, headers=dict(headers, Origin=origin))
+                self.assertEqual(response.status_code, expected, response.text)
+            response = client.post('/mcp/', json=payload,
+                                   headers=dict(headers, Host='attacker.example', Origin='https://spec.example.test'))
+            self.assertNotEqual(response.status_code, 200)
+
     def test_a_failed_flush_never_publishes_an_acknowledged_release(self):
         service, client = self.limited()
         candidate = self.successor(self.spec, '1.1.1')
@@ -210,6 +272,15 @@ class Startup(unittest.TestCase):
         self.assertEqual((options.workers, options.max_inflight, options.body_timeout), (2, 8, 4))
         self.assertFalse(options.proxy_headers)
         self.assertFalse(options.access_log)
+
+    def test_explicit_origins_reach_each_worker_factory(self):
+        with mock.patch.object(sys, 'argv', ['axiom_service', '--store', '/data',
+            '--allowed-origin', 'https://spec.example.test', '--allowed-origin', 'https://agents.example.test']), \
+                mock.patch.dict(os.environ), mock.patch.object(startup.uvicorn, 'run') as run:
+            startup.main()
+            self.assertEqual(json.loads(os.environ['AXIOM_SERVICE_OPTIONS'])['http']['allowed_origins'],
+                             ['https://spec.example.test', 'https://agents.example.test'])
+            self.assertTrue(run.call_args.kwargs['factory'])
 
 
 if __name__ == '__main__':
