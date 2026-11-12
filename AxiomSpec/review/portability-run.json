@@ -2,7 +2,7 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T04:44:55.443461+00:00",
+  "evaluated_at": "2026-11-12T04:53:58.668714+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
@@ -112,11 +112,11 @@
     },
     {
       "path": "qa/requirements-qa.txt",
-      "sha256": "426baddebb672eba7819a510eef8a0de87edfdd0fd0ad2c1ff0cdab334f8907f"
+      "sha256": "75c96a3d0461b1f78629c3ec6e6f8098eb2ad8c052f5c2e801fd484bcfcdf342"
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "b804d19b6bb9dc6e612724bd264edbdb25cf4c5fa65b84f06066aaec039b7d19"
+      "sha256": "8f288d8ef4511a586f5ff19a8e3fdef7c3577391155f99efcd1bfb7793a571e3"
     },
     {
       "path": "qa/spec_parts.py",
@@ -192,7 +192,7 @@
     }
   ],
   "toolchain": {
-    "python": "3.12.8",
+    "python": "3.15.2",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",

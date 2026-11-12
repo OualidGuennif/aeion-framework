@@ -88,7 +88,7 @@
     },
     {
       "path": "docs/12_IMPLEMENTATION_PLAN.md",
-      "sha256": "105eb62a01a2668888329d3f0c8262f11a0303cdd6d0919d0fd8e6dc2e151529",
+      "sha256": "5d9c0372675075fcd550e32f62dc6cecd7068ace8db4ad8218788102520e3c20",
       "bytes": 5137
     },
     {
@@ -243,13 +243,13 @@
     },
     {
       "path": "qa/requirements-qa.txt",
-      "sha256": "426baddebb672eba7819a510eef8a0de87edfdd0fd0ad2c1ff0cdab334f8907f",
-      "bytes": 261
+      "sha256": "75c96a3d0461b1f78629c3ec6e6f8098eb2ad8c052f5c2e801fd484bcfcdf342",
+      "bytes": 283
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "b804d19b6bb9dc6e612724bd264edbdb25cf4c5fa65b84f06066aaec039b7d19",
-      "bytes": 13142
+      "sha256": "8f288d8ef4511a586f5ff19a8e3fdef7c3577391155f99efcd1bfb7793a571e3",
+      "bytes": 13261
     },
     {
       "path": "qa/spec_parts.py",
@@ -323,7 +323,7 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "0235dc16488abd539c28fe57bbdcc06a65c9f57d278166161574fc32a60fc38e",
+      "sha256": "5365e26b172e3e1ebf913bafe35e54eedf46a74368b18397c2d6f20d3cf88bf6",
       "bytes": 7300
     },
     {
@@ -348,12 +348,12 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "dbba8a3de6b0ffbf1ba24c6fd651e9432d952bec8d26cc8a7736cba8ce0599de",
+      "sha256": "aee919644b42982bc3d2ecf298be35d6f0b2d0c3c8ed2e5109f6f1e6a99654f4",
       "bytes": 31817
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "01ee3b30b9d4d2433d26d03ada133924b33ad8e73c038f57b018690846e666ec",
+      "sha256": "ccc7c67c4412a449b07ff1ae82c7cec3d377998c344ba8c41179dcd7ce4f9c14",
       "bytes": 28362
     },
     {

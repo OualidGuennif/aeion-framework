@@ -7,6 +7,7 @@ Organization (every release of the store, plus candidates, uploads and approvals
     python3 -m axiom_service --store path/to/store --mode organization
 """
 import argparse
+import sys
 
 import uvicorn
 
@@ -15,6 +16,8 @@ from .service import Service
 
 
 def main():
+    if sys.version_info < (3, 14):
+        sys.exit('The AxiomSpec service needs Python 3.14 or later')
     parser = argparse.ArgumentParser(prog='axiom_service', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--store', nargs='+', required=True, help='files or directories holding releases and approvals')
     parser.add_argument('--mode', choices=('sandbox', 'organization'), default='sandbox')

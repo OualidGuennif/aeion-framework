@@ -6,7 +6,7 @@ The contract is [openapi.json](../AxiomSpec/api/openapi.json) and [mcp-tools.jso
 
 ## Run
 
-Install the dependencies of the package and of the service:
+With Python 3.14 or later, install the dependencies of the package and of the service:
 
 ```bash
 python3 -m pip install -r AxiomSpec/qa/requirements-qa.txt -r server/requirements.txt

@@ -1,10 +1,10 @@
 # Package validation: pass
 
-Run: 2026-11-12T04:45:54.703013+00:00.
+Run: 2026-11-12T04:54:19.166144+00:00.
 
 **Scope: design package. No product or example-application acceptance is asserted.**
 
-Python 3.12.8; jsonschema 4.26.0; untrusted local runner.
+Python 3.15.2; jsonschema 4.26.0; untrusted local runner.
 
 ## Results
 

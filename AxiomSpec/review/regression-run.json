@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T04:45:49.729825+00:00",
+  "evaluated_at": "2026-11-12T04:54:14.956993+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -336,11 +336,11 @@
     },
     {
       "path": "qa/requirements-qa.txt",
-      "sha256": "426baddebb672eba7819a510eef8a0de87edfdd0fd0ad2c1ff0cdab334f8907f"
+      "sha256": "75c96a3d0461b1f78629c3ec6e6f8098eb2ad8c052f5c2e801fd484bcfcdf342"
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "b804d19b6bb9dc6e612724bd264edbdb25cf4c5fa65b84f06066aaec039b7d19"
+      "sha256": "8f288d8ef4511a586f5ff19a8e3fdef7c3577391155f99efcd1bfb7793a571e3"
     },
     {
       "path": "qa/spec_parts.py",
@@ -416,7 +416,7 @@
     }
   ],
   "toolchain": {
-    "python": "3.12.8",
+    "python": "3.15.2",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",
@@ -434,7 +434,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "dbba8a3de6b0ffbf1ba24c6fd651e9432d952bec8d26cc8a7736cba8ce0599de"
+    "sha256": "aee919644b42982bc3d2ecf298be35d6f0b2d0c3c8ed2e5109f6f1e6a99654f4"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

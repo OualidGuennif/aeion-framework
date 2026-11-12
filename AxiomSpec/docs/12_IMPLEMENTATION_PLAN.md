@@ -4,7 +4,7 @@
 
 A local CLI validates a specification, explains failures, generates reading views and answers bounded queries. Product commands named `axiom` are proposed interfaces. The shipped `qa/` programs verify this package and selected reference behavior, not the product engine. Two of them are reference implementations a product engine can be compared with: `release_diff.py` for gate G14 and `migrate_0_1.py` for the 0.1 migration.
 
-Inspect an existing repository before choosing a stack. For greenfield work, Python 3.12+, standard-library modules and an established JSON Schema validator are a reasonable starting point. Package QA pins its own dependencies separately. Add SQLite only for a measured indexing need.
+Inspect an existing repository before choosing a stack. For greenfield work, Python 3.14+, standard-library modules and an established JSON Schema validator are a reasonable starting point. Package QA pins its own dependencies separately. Add SQLite only for a measured indexing need.
 
 ## Increments
 

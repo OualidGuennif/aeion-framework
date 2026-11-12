@@ -14,6 +14,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 EDITION = '1.0.0'
+MIN_PYTHON = (3, 14)
 TEST_COMMAND = ['python3', 'qa/run_checks.py', '--tests-only']
 EXAMPLE = 'examples/refund-ledger'
 EXAMPLE_COMMAND = ['python3', 'qa/run_checks.py', '--example-tests']
@@ -160,6 +161,8 @@ def failure_marker(message):
 
 
 def main():
+    if sys.version_info < MIN_PYTHON:
+        sys.exit('AxiomSpec QA needs Python 3.14 or later')
     try:
         failure_marker('Verification is in progress or was interrupted. No current pass is established.')
         for path in ROOT.rglob('*'):

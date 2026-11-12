@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-12T04:45:52.430132+00:00",
+  "evaluated_at": "2026-11-12T04:54:17.096093+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -76,7 +76,7 @@
     }
   ],
   "toolchain": {
-    "python": "3.12.8",
+    "python": "3.15.2",
     "implementation": "CPython",
     "system": "Darwin",
     "machine": "arm64",
@@ -95,7 +95,7 @@
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "a0ee8260e1d8decd5016a32253bc6c59bf1ca673b4da2fde7b785d29760ad64e"
+    "sha256": "e63c45d5480b442a4a26a42932d8a360f94b7a469e8d43620c44de14d6dcd027"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",
