@@ -77,7 +77,7 @@ Return missing sources/oracles, broken references, unresolved bindings, open dec
 }
 ```
 
-Initial limits are 100 items and 32,768 UTF-8 bytes, including headers. Reference an oversized object without cutting a constraint in half. Cursors bind snapshot, query digest, principal scope, policy and position; they grant no rights. Recheck rights on every page and reject stale or invalid cursors.
+Initial limits are 100 records (items and omissions together) and 32,768 UTF-8 bytes for the complete JSON envelope, including its metadata. Reference an oversized object without cutting a constraint in half. Cursors bind snapshot, query digest, principal scope, policy and position; they grant no rights. Recheck rights on every page and reject stale or invalid cursors. Whole-document operations of the reference service are listed separately in AX-V-003.
 
 Exploratory pages may be partial. Coding packets remain incomplete until all mandatory parts have been delivered.
 

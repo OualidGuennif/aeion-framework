@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AxiomSpec service interface",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
@@ -93,6 +93,26 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "The release has invalid references.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         }
       }
@@ -173,6 +193,26 @@
           },
           "404": {
             "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The release has invalid references, or RESPONSE_TOO_LARGE: the lookup exceeds 32,768 UTF-8 bytes.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -283,6 +323,16 @@
           },
           "404": {
             "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The release has invalid references.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -407,6 +457,26 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "The release has invalid references.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         },
         "x-mcp-tool": "axiom_trace"
@@ -500,6 +570,26 @@
           },
           "404": {
             "description": "The object or snapshot is not held.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The release has invalid references.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -993,6 +1083,16 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "The release has invalid references.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         },
         "x-mcp-tool": "axiom_compare"
@@ -1060,6 +1160,16 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "The release has invalid references.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         },
         "x-mcp-tool": "axiom_impact"
@@ -1118,7 +1228,7 @@
             }
           },
           "422": {
-            "description": "The body is not strict JSON, or the store cannot hold the candidate.",
+            "description": "The release has invalid references.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -2533,7 +2643,7 @@
                 "type": "null"
               }
             ],
-            "description": "The highest release of the project whose verdict is pass, or null when none passes. The head is the highest version whatever its status."
+            "description": "The highest release whose own checks and complete baseline chain pass, or null when none passes. A genesis still needs a trusted digest pin; the head is the highest version whatever its status."
           },
           "tied_heads": {
             "type": "array",
@@ -2603,7 +2713,7 @@
       },
       "Verdict": {
         "type": "object",
-        "description": "The store verdict on one release (AX-L-010).",
+        "description": "The store verdict on one release and its baseline chain (AX-L-010). Local approvals may pass while status fails or remains unknown because an ancestor is not accepted.",
         "properties": {
           "project_id": {
             "type": "string",

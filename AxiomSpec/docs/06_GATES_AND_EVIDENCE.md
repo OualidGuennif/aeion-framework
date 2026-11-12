@@ -119,7 +119,7 @@ G12 takes a release, the approvals offered for it and the baseline it names. It 
 3. **What is required.** The low band applies to every release. Each requirement the release reaches (AX-L-009) adds its band; a first release reaches every active requirement. A change to the actors, the policy or the keys adds all four bands.
 4. **What counts.** For each required band, the distinct actors with a valid approval through a method that band accepts. One person approving by two methods is one approver.
 
-The result is pass when every required band has its number, fail when one has not, and unknown when the governing baseline was not supplied. An approval that does not verify is set aside and reported. It never invalidates the approvals that do, so a damaged or hostile file cannot block a release that has its approvers.
+The result is pass when every required band has its number, fail when one has not, and unknown when the governing baseline was not supplied. This is the local G12 result; the release store also requires the baseline's chain to pass before accepting the release (AX-L-010). An approval that does not verify is set aside and reported. It never invalidates the approvals that do, so a damaged or hostile file cannot block a release that has its approvers.
 
 Approvals are a set. They can be made in any order, on separate devices and at separate times, and files of approvals for one release merge by union. The union keeps every distinct approval. It never chooses between two approvals of the same actor and key, because a merge cannot tell which of them verifies: a forged approval that replaced a valid one would block the release. An approver is counted once, however many approvals name them.
 

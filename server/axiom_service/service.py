@@ -23,8 +23,9 @@ import queries  # noqa: E402
 import release_diff  # noqa: E402
 import release_store  # noqa: E402
 import spec_parts  # noqa: E402
-from check_package import BOUNDS, canonical, digest as digest_of, strict_json  # noqa: E402
+from check_package import BOUNDS, canonical, digest as digest_of, reference_errors, strict_json  # noqa: E402
 from queries import QueryError  # noqa: E402
+from run_checks import EDITION  # noqa: E402
 
 MODES = ('sandbox', 'organization')
 READ = ('listSnapshots', 'getIndex', 'lookup', 'context', 'trace', 'gaps')
@@ -109,6 +110,13 @@ class Service:
     def release(self, name):
         return self.store.releases[self.resolve(name)]
 
+    def checked_release(self, name):
+        spec = self.release(name)
+        problems = reference_errors(spec)
+        if problems:
+            raise QueryError('INVALID_DOCUMENT', 'The release has invalid references: ' + ', '.join(problems), 422)
+        return spec
+
     def snapshot(self, name, code=True):
         """The snapshot a digest names. `code` is false for a query that reads the release alone: the code is not looked at."""
         key = self.resolve(name)
@@ -119,11 +127,12 @@ class Service:
                 if state != self.scanned:  # the code changed: read its annotations again
                     self.annotations, self.scanned = graph_index.scan(self.repository, self.include, self.exclude), state
                     self.snapshots.pop(key, None)
-            except (ValueError, OSError):
-                pass  # a scanned path is missing for a moment: keep the last complete scan
+            except (ValueError, OSError) as exc:
+                raise QueryError('CODE_UNAVAILABLE', 'The current code scan is unavailable; retry after restoring '
+                                 'the included paths and read access.', 503) from exc
         if key not in self.snapshots:
-            self.snapshots[key] = queries.Snapshot(self.store.releases[key], self.annotations if local else [],
-                                                   self.repository if local else None)
+            self.snapshots[key] = queries.Snapshot(self.checked_release(key), self.annotations if local else [],
+                                                   self.repository if local else None, self.scanned if local else None)
         return self.snapshots[key]
 
     def verify(self):
@@ -215,14 +224,14 @@ class Service:
         return dict(statement=message.decode('utf-8'), sha256=digest_of(message), webauthn_challenge=approvals.challenge(message))
 
     def _compare(self, baseline, candidate):
-        return release_diff.compare(self.release(baseline), self.release(candidate))
+        return release_diff.compare(self.checked_release(baseline), self.checked_release(candidate))
 
     def _impact(self, baseline, candidate):
-        before, after = self.release(baseline), self.release(candidate)
+        before, after = self.checked_release(baseline), self.checked_release(candidate)
         return release_store.impact(self.store, before, after, self.verify())
 
     def _propose(self, baseline, version, operations):
-        result = queries.propose(self.release(baseline), version, operations)
+        result = queries.propose(self.checked_release(baseline), version, operations)
         if result['status'] == 'pass':
             # Only a candidate that passes its own checks enters the store. A refused one is returned to its
             # author and leaves the store, its heads and its verdict as they were.

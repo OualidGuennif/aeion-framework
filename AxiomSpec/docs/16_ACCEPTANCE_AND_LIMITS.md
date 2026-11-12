@@ -4,7 +4,7 @@
 
 Design contracts, artifact schemas, a structured example in two releases, reference observations, conformance vectors and package QA. The example has a reference implementation and executed tests. A reference release comparison and a migration from format 0.1 are included. Execution and CROA declarations are optional sidecars. Actual checks and review results are linked from the README.
 
-The product CLI, static compiler, an access-controlled query engine, identity integration, deployed execution controls and runner adapters remain unimplemented. The queries and the service of the [service interface](19_SERVICE_INTERFACE.md) are references. Approval signatures are verified against declared keys; enrolling those keys for real people is part of that missing identity integration. One example executed on local SQLite is evidence about that example only.
+The file checker and Markdown generator are implemented in `axiom.py`. The full product-phase CLI, static compiler, an access-controlled query engine, identity integration, deployed execution controls and runner adapters remain unimplemented. The queries and the service of the [service interface](19_SERVICE_INTERFACE.md) are references. Approval signatures are verified against declared keys; enrolling those keys for real people is part of that missing identity integration. One example executed on local SQLite is evidence about that example only.
 
 ### AX-ACT-001 — Demonstrate advertised capabilities
 
@@ -34,4 +34,4 @@ BCIR has a compiler and qualification cost. Reuse a suitable existing model/solv
 
 Define comparable tasks, participants, time accounting, defect criteria, corpus and assessment method before measuring benefits. Track useful early defects, context omissions, clarification effort and maintenance cost, including failures. A well-documented toy example is not evidence of performance at scale.
 
-Next step: run the release comparison on a real product across several releases and measure two things: how many breaking candidates the classifier raises that reviewers override, and whether the score orders releases the way incident history does. Then define how specifications of separate services refer to each other. Qualify each additional capability rather than treating the document count as progress.
+Next step: run the release comparison on a real product across several releases and measure two things: how many breaking candidates the classifier raises that reviewers override, and whether the score orders releases the way incident history does. Exercise the existing imports/exports and release-store contracts on that pilot when it needs multiple services. Qualify each additional capability rather than treating the document count as progress.

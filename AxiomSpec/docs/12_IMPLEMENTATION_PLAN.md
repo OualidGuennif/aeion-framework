@@ -2,7 +2,7 @@
 
 ## Target
 
-A local CLI validates a specification, explains failures, generates reading views and answers bounded queries. Product commands named `axiom` are proposed interfaces. The shipped `qa/` programs verify this package and selected reference behavior, not the product engine. Two of them are reference implementations a product engine can be compared with: `release_diff.py` for gate G14 and `migrate_0_1.py` for the 0.1 migration.
+A local product CLI validates a specification, explains failures, generates reading views and answers bounded queries. The shipped `python3 axiom.py check <spec.json>` and `python3 axiom.py markdown <spec.json>` already provide selected structural checks and a static reading view. Product-phase commands named `axiom` below remain proposed interfaces. The `qa/` programs verify this package and selected reference behavior, not the full product engine; they include release comparison, approval and store verification, graph queries and migrations.
 
 Inspect an existing repository before choosing a stack. For greenfield work, Python 3.14+, standard-library modules and an established JSON Schema validator are a reasonable starting point. Package QA pins its own dependencies separately. Add SQLite only for a measured indexing need.
 

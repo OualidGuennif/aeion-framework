@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "d1074054451e16cf56cf40da9042c5c66c68711413e6efc298a0f1ed80848f85",
-      "bytes": 8892
+      "sha256": "7e2826a8280a033f5ebe7c9cfafe7420ac226d522425b18d12cf9073c2fda496",
+      "bytes": 10429
     },
     {
       "path": "REVIEW.md",
-      "sha256": "8a51d479ff841809b24b1e9dd12036415a8b9482d68a2e945d1c2bac65c163a0",
-      "bytes": 49984
+      "sha256": "b9a790d06a7a5bed583187ef9cd1481e06edba620069ecd4d63f60a741146ad7",
+      "bytes": 52993
     },
     {
       "path": "RULE_INDEX.md",
@@ -23,13 +23,18 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "5115d5956d72c35814759d6190ce72820aafc7826b8d6cdbf127f219140a6d6c",
-      "bytes": 80884
+      "sha256": "20923d06aac145f1ef24a0acd5170b508ee179a3c15541adbe12da80e0e0c77a",
+      "bytes": 84641
+    },
+    {
+      "path": "axiom.py",
+      "sha256": "6f3eb8e862f4d0ca113ee9cde240fe88a3ce6f5c6870cdd413a8d0d24eb7edb1",
+      "bytes": 9504
     },
     {
       "path": "docs/00_IMPLEMENTATION_HANDOFF.md",
-      "sha256": "3e0b2d14cd9525b446669c9baf96d55b19ee8e918119df3e9f365da65d49c334",
-      "bytes": 3643
+      "sha256": "0bdfebb98f3ae780f496629690143d89583069f46e4333610a5f9d45bc4b5a84",
+      "bytes": 3814
     },
     {
       "path": "docs/01_FOUNDATIONS.md",
@@ -58,13 +63,13 @@
     },
     {
       "path": "docs/06_GATES_AND_EVIDENCE.md",
-      "sha256": "8fde3bcad6ec2e93aa796fead275c671e181f6caf83a2fb0633b01a3100cf2d8",
-      "bytes": 11751
+      "sha256": "b7fc79106c8484409fc8d1dc827549312e505ac333f9663da44267ee40ea479a",
+      "bytes": 11883
     },
     {
       "path": "docs/07_KNOWLEDGE_GRAPH_AND_QUERIES.md",
-      "sha256": "d924e1e83b1bdddd04947090508a6a57ed24ff87eddcc924e4574fbd80f5de52",
-      "bytes": 7625
+      "sha256": "ae2457e287511652210fcb632978ccc516810a6bfd4b6103290779d52606833a",
+      "bytes": 7780
     },
     {
       "path": "docs/08_AGENT_CODING_CONTRACT.md",
@@ -78,8 +83,8 @@
     },
     {
       "path": "docs/10_LIFECYCLE_AND_CHANGE_CONTROL.md",
-      "sha256": "4e30306e2ed681984c007439a32201260a3de885944ee8091effbb56e620e74a",
-      "bytes": 14138
+      "sha256": "0f89c0086f3e66d6a2010e9500f64a092a5c5e4ffb9320944c845b10451ed7bb",
+      "bytes": 14832
     },
     {
       "path": "docs/11_RISK_SECURITY_AND_EXTENSIONS.md",
@@ -88,8 +93,8 @@
     },
     {
       "path": "docs/12_IMPLEMENTATION_PLAN.md",
-      "sha256": "5d9c0372675075fcd550e32f62dc6cecd7068ace8db4ad8218788102520e3c20",
-      "bytes": 5137
+      "sha256": "1248cf63a6f87ff0acbe186b051e0030fd803a9283db130850a41566c2b763ce",
+      "bytes": 5260
     },
     {
       "path": "docs/13_REFUND_LEDGER_WALKTHROUGH.md",
@@ -108,8 +113,8 @@
     },
     {
       "path": "docs/16_ACCEPTANCE_AND_LIMITS.md",
-      "sha256": "c8350091f874f98f88edb4f48d89684495c5247b86267e275bcab6ceb7e190fd",
-      "bytes": 4133
+      "sha256": "04f9ce2489e263f27f93a3e246b2c6802bb948426aa29f43b43083816e09a00f",
+      "bytes": 4255
     },
     {
       "path": "docs/17_CONTEXT_DOMAIN_INTERFACE.md",
@@ -123,8 +128,8 @@
     },
     {
       "path": "docs/19_SERVICE_INTERFACE.md",
-      "sha256": "2598669b8c6d04ed28d9b615e327f05fa5a0def108aede6c05b60e382a26b6f6",
-      "bytes": 12661
+      "sha256": "adc5377997abad8a8612b9ff988fd0cfe326beaa0b7639ca65f49838ada09c1c",
+      "bytes": 13942
     },
     {
       "path": "examples/identity-adapter/approvals.json",
@@ -198,8 +203,8 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "9a3926de8194f2b6d3b18116c7820923c8d2c481cb5cf393d4af3e7ad731be09",
-      "bytes": 69006
+      "sha256": "d7dd4ca08cd8d9c1a674e9ff807c1587d4c3062e60f66c08f106bc05a5670e29",
+      "bytes": 69083
     },
     {
       "path": "qa/croa_readiness.py",
@@ -213,8 +218,8 @@
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "c271ade7e26e829091c124e5077fa6d51d7ea46478eb2303353847439d6c5c35",
-      "bytes": 13879
+      "sha256": "2b7de3eb9a614d86a12174c2e9fa23d4bab8f253d1a3659f59abfd5b7734eedb",
+      "bytes": 15884
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -228,8 +233,8 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "4264ce8537b90853f5cc6302cd74d1fb13b560461a3573f5898cd6da846c3e5f",
-      "bytes": 28731
+      "sha256": "4fbd5bfd9aac8cee8673de6712e81e04d0a404c5d38dd2a945fb17c5bd6f05a4",
+      "bytes": 29264
     },
     {
       "path": "qa/release_diff.py",
@@ -238,8 +243,8 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "15599b3fdbae48713a0d2b2601a6fb732e11affa6b5e38b9b9529a0e1b6043ea",
-      "bytes": 17924
+      "sha256": "c9f6d2c0e9b80e74b2acea291b62cadcbb81764d7e61bbbe6999b220a2b611ab",
+      "bytes": 19660
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -248,8 +253,8 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "339724949bd247aa795ebc940da75083b814b78d636f3f10e270fe1ef8a7679d",
-      "bytes": 13261
+      "sha256": "4814fbc96a0ddee5f89323e8b8c11ed9219859df27ee16b55c11a3f408247a9f",
+      "bytes": 13313
     },
     {
       "path": "qa/spec_parts.py",
@@ -277,6 +282,11 @@
       "bytes": 36217
     },
     {
+      "path": "qa/test_release_read_safety.py",
+      "sha256": "fcad6330cde102a42d5692da074a62cc7d051501effa24b94085f85aa68f9a8e",
+      "bytes": 7650
+    },
+    {
       "path": "qa/test_releases_weights_flags.py",
       "sha256": "04b828a7f742d536e2795dc95257d7dbcc1827086417283d4fd44f5618f30744",
       "bytes": 42842
@@ -302,6 +312,11 @@
       "bytes": 8632
     },
     {
+      "path": "qa/test_spec_tools.py",
+      "sha256": "4ca9cb194a59a5c4804997b79eb48d042fca4d6b4d59364501c6786eb420c857",
+      "bytes": 6957
+    },
+    {
       "path": "qa/test_third_review.py",
       "sha256": "1df389ed0292d99b153b9ff5b84dd82a4e2e5ce4557d754b0b25297b8ce57403",
       "bytes": 11775
@@ -313,8 +328,8 @@
     },
     {
       "path": "review/ASSURANCE_MATRIX.md",
-      "sha256": "e874f03487874849a239d4e96493a10654c9a77f3c653b6f1b3ecde9e0c878e8",
-      "bytes": 4802
+      "sha256": "f1bfd84ad5a45009860de5736dc9b9a71e8592e3d026abb621052cbb50030cbf",
+      "bytes": 5153
     },
     {
       "path": "review/SOURCE_AUDIT.md",
@@ -348,13 +363,13 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "060fad023626e9e13b7bbef0f2cc011790c341db3b300ca00e25c4577c92b262",
-      "bytes": 31817
+      "sha256": "a07079135620dd07e4ef22454408420887e0a05cdac98e2dab2a59d3c16832a5",
+      "bytes": 34760
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "a93d96d22f0074d8b4e0e0172bf87f54a90ec2607454f599ecfe33cb3406e1a5",
-      "bytes": 28362
+      "sha256": "26432cdd16ecbb46e36f13c290699a51e9bfbc534803c289eab66a2cb102e132",
+      "bytes": 30627
     },
     {
       "path": "schemas/approvals.schema.json",

@@ -1154,7 +1154,7 @@ def main():
                          input_change_policy='reject_detected_changes')
     config_text = json.dumps(configuration, ensure_ascii=False, indent=2) + '\n'
     limitations = [
-        'Artifact QA only. The product CLI, static type/unit compiler, an access-controlled query engine and test adapters are not implemented.',
+        'Artifact QA only. The full product-phase engine, static type/unit compiler, an access-controlled query engine and general test adapters are not implemented.',
         f"{stats.get('product_obligations_pending', 30)} future product obligations are descriptions, not executed tests.",
         'The worked example runs its own tests on a local SQLite reference implementation. That is not a production store, and no other application was tested.',
         'Release comparison classifies changes mechanically by ID; API compatibility and data migration are not examined.',
@@ -1166,7 +1166,7 @@ def main():
     status = 'error' if any(c['status'] == 'error' for c in checks) else ('fail' if any(c['status'] != 'pass' for c in checks) else 'pass')
     report = dict(format='axiomspec-report/0.4', scope='package', status=status,
                   profile='AX-CORE-0.3', requested_phase='package',
-                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'reference_approval_verification', 'reference_graph_index', 'reference_bounded_queries', 'reference_release_store', 'specification_parts', 'format_migration_0_1', 'format_migration_0_2', 'example_python_binding_resolution', 'example_application_tests'],
+                  available_capabilities=['strict_json', 'shape_validation', 'local_schema_resolution', 'selected_reference_checks', 'reference_fixture_evaluation', 'editorial_checks', 'optional_declaration_checks', 'croa_guide_red_flag_calculation', 'local_receipt_consistency', 'input_manifest_change_detection', 'reference_release_comparison', 'reference_approval_verification', 'reference_graph_index', 'reference_bounded_queries', 'reference_release_store', 'specification_parts', 'format_migration_0_1', 'format_migration_0_2', 'example_python_binding_resolution', 'example_application_tests', 'specification_file_checker', 'markdown_reading_view'],
                   unsupported_capabilities=['static_type_unit_compiler', 'access_controlled_queries', 'code_call_analysis', 'general_binding_resolution', 'product_application_tests', 'identity_binding_of_approval_keys', 'authenticator_attestation', 'croa_deployment_assessment', 'croa_weighted_scorecard'],
                   configuration=dict(path='validation/package-config.json', sha256=digest(config_text.encode('utf-8'))),
                   subject=dict(spec_sha256=digest(canonical(baseline)), source_tree_sha256=digest(canonical(manifest)),

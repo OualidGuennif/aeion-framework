@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-EDITION = '1.0.2'
+EDITION = '1.1.0'
 MIN_PYTHON = (3, 14)
 TEST_COMMAND = ['python3', 'qa/run_checks.py', '--tests-only']
 EXAMPLE = 'examples/refund-ledger'
@@ -59,7 +59,7 @@ def toolchain(root):
 
 
 def regression_manifest(root):
-    result = []
+    result = [dict(path='axiom.py', sha256=sha(root / 'axiom.py'))]
     for folder in ['qa', 'schemas', 'fixtures', 'examples', 'api']:
         for path in sorted((root / folder).rglob('*')):
             require(not path.is_symlink(), 'Regression inputs cannot contain symlinks')

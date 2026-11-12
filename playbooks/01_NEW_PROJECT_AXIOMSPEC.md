@@ -1,6 +1,6 @@
 # New project: AxiomSpec and a human documentation cockpit
 
-Version 1.0 · 9 November 2026 · Companion to AxiomSpec edition 0.3.0.
+Version 1.1 · 12 November 2026 · Companion to AxiomSpec edition 1.1.0.
 
 ## Contents
 
@@ -24,7 +24,7 @@ The requested deliverables are two connected outputs:
 
 The cockpit is a documentation layer. It does not extend the AxiomSpec schema or create another requirements authority. This playbook defines a proposed project workflow, not new normative `AX-*` rules.
 
-**Current implementation limit:** the supplied AxiomSpec package contains contracts, schemas, reference material and package QA. Its product CLI, complete static compiler, graph/query engine and application test adapters are not implemented. Commands named `axiom` in that package are proposed interfaces. Neither this guide nor a generated cockpit makes them executable.
+**Available tools:** the supplied package includes the file checker (`python3 axiom.py check`), a Markdown reading view (`python3 axiom.py markdown`), reference graph queries and an HTTP/MCP service. Its complete product-phase CLI, static compiler and general application test adapters remain unimplemented. Commands named `axiom` in the product plan are proposed interfaces. Neither this guide nor a generated cockpit establishes a product phase.
 
 The workflow can start with manual or AI-assisted authoring and an ordinary Markdown viewer. Automation should be added in small verified increments. Never describe a planned generator, test or graph query as executed.
 
@@ -644,7 +644,8 @@ After an incident, retain the observation, reproduce it in scope, determine whet
 Use this playbook with the supplied AxiomSpec package to start a new product.
 
 First inspect the repository, package capabilities, schemas, actual tools and
-existing conventions. Do not assume the proposed axiom CLI or graph engine exists.
+existing conventions. Use the shipped file checker and Markdown generator for their
+stated scope; do not assume the proposed product-phase CLI is implemented.
 
 Capture the idea and its sources. Separate facts, proposals and unknowns. Produce
 one canonical spec/spec.json using the supplied schema. Define domain meaning,

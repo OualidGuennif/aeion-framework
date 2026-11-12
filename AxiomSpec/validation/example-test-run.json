@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-test-receipt/0.1",
   "scope": "example_application",
-  "edition": "1.0.2",
+  "edition": "1.1.0",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -13,7 +13,7 @@
     "name": "unittest",
     "trust": "untrusted_local"
   },
-  "evaluated_at": "2026-11-12T05:09:48.257931+00:00",
+  "evaluated_at": "2026-11-12T05:43:01.476724+00:00",
   "tests": {
     "test_ids": [
       "test_ledger.Test001CapacityAggregation.test_over_consumed_state_is_detected",
@@ -72,7 +72,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "9a3926de8194f2b6d3b18116c7820923c8d2c481cb5cf393d4af3e7ad731be09"
+      "sha256": "d7dd4ca08cd8d9c1a674e9ff807c1587d4c3062e60f66c08f106bc05a5670e29"
     }
   ],
   "toolchain": {
@@ -95,7 +95,7 @@
   "environment": "SQLite database files in a temporary directory on the local host",
   "raw_output": {
     "path": "validation/example-test-output.txt",
-    "sha256": "f130392611eb745fac2b3b8de1a8282e56460447e4cdead7d80f41a5f497d59b"
+    "sha256": "f7539b2c42f6593f541113324c2bd977b69aeb1458863b064b6f3f50efc6eb38"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

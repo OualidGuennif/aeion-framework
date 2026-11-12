@@ -159,6 +159,9 @@ def verify(store):
     def error(code, subject, message):
         errors.append(dict(code=code, subject=subject, message=message))
 
+    # Reference failures are known before comparing either end of a link. Comparison and risk traversal
+    # require valid typed relations; a bad release must not make the entire store unverifiable.
+    reference_problems = {key: sorted(set(reference_errors(spec))) for key, spec in store.releases.items()}
     successors = {}
     for key, spec in store.releases.items():
         previous = spec['release']['previous']
@@ -171,17 +174,21 @@ def verify(store):
                      status='pass', files=sorted(store.paths[key]), link='genesis' if previous is None else 'unknown',
                      comparison=None, approvals='unknown', imports=[])
         known = len(errors)
-        found = sorted(set(reference_errors(spec)))
+        found = reference_problems[key]
         if found:
             error('REFERENCE_ERRORS', key, ', '.join(found))
         baseline = store.releases.get(previous['spec_sha256']) if previous is not None else None
         comparison = None
         if previous is not None and baseline is not None:
-            comparison = release_diff.compare(baseline, spec)
-            entry['link'], entry['comparison'] = 'present', comparison['status']
-            for problem in comparison['errors']:
-                error(problem['code'], key, problem['message'])
-        if previous is None or baseline is not None:
+            entry['link'] = 'present'
+            if reference_problems[previous['spec_sha256']]:
+                error('INVALID_BASELINE', key, 'The named baseline has invalid references; it cannot govern this release.')
+            elif not found:
+                comparison = release_diff.compare(baseline, spec)
+                entry['comparison'] = comparison['status']
+                for problem in comparison['errors']:
+                    error(problem['code'], key, problem['message'])
+        if not found and (previous is None or (baseline is not None and comparison is not None)):
             document = store.approvals_of(key) or approval_check.empty(spec)
             check = approval_check.verify(spec, document, baseline, comparison, validated=True)
             entry['approvals'] = check['status']
@@ -207,6 +214,21 @@ def verify(store):
             entry['status'] = 'unknown'
         releases.append(entry)
 
+    # A valid successor always has a numerically smaller baseline version. Resolve authority in that
+    # order, without recursion or dependence on file arrival. Local approval details stay visible.
+    by_digest = {entry['spec_sha256']: entry for entry in releases}
+    for entry in sorted(releases, key=lambda r: (version_tuple(r['version']), r['spec_sha256'])):
+        previous = store.releases[entry['spec_sha256']]['release']['previous']
+        baseline_entry = by_digest.get(previous['spec_sha256']) if previous is not None else None
+        if entry['status'] == 'fail' or baseline_entry is None:
+            continue
+        if baseline_entry['status'] == 'fail':
+            entry['status'] = 'fail'
+            error('BASELINE_NOT_ACCEPTED', entry['spec_sha256'],
+                  f"The baseline {previous['spec_sha256']} does not pass its release chain.")
+        elif baseline_entry['status'] == 'unknown':
+            entry['status'] = 'unknown'
+
     passed = {entry['spec_sha256'] for entry in releases if entry['status'] == 'pass'}
     projects = []
     for project_id in sorted({spec['project']['id'] for spec in store.releases.values()}):
@@ -230,7 +252,8 @@ def verify(store):
     return dict(format='axiomspec-store-check/0.2', status='fail' if errors else 'incomplete' if open_ends else 'pass',
                 releases=releases, projects=projects, errors=sorted(errors, key=lambda e: (e['code'], e['subject'], e['message'])),
                 rejected_files=sorted(rejected, key=lambda r: r['path']),
-                limitations=['The verdict covers the files supplied. A release whose baseline or provider is absent is unknown, not accepted.',
+                limitations=['The verdict covers the files supplied. An absent baseline, ancestor or provider leaves a release unknown, not accepted.',
+                             'A release passes only when its own checks and its baseline chain pass. Trust in a genesis still requires pinning its digest through a trusted channel.',
                              'A fork is reported when two releases hold the highest version of a project. Settling it is a decision; the store never deletes a file.',
                              'The head of a project is its highest version, whatever its status. The accepted head is its highest release that passes; it is null when none does.',
                              'Nothing here says a store is complete or current: an absent newer release cannot be detected from the files present.'])

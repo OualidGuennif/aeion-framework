@@ -15,7 +15,7 @@ Build a local tool for authoring, validating and querying augmented specificatio
 
 Run `python3 qa/run_checks.py` to replay package QA. This is a build/test operation over trusted package code, separate from pure specification validation. Start the product work with S1 and a small declared-graph slice; do not build every optional adapter before demonstrating a useful end-to-end change.
 
-Commands named `axiom` in the documents are proposed interfaces. Do not claim to have run them until they exist.
+`python3 axiom.py check <spec.json>` and `python3 axiom.py markdown <spec.json>` are implemented local commands for selected structural checks and a reading view. Commands named `axiom` in the product plan remain proposed interfaces. Do not claim a product phase from the file check.
 
 ## Two modes
 

@@ -21,11 +21,13 @@ The index is derived. It never replaces the specification, and an annotation is 
 where an author placed a requirement, not that the code satisfies it.
 """
 import ast
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
 import sys
+import tokenize
 
 from check_package import canonical, digest, strict_json
 import release_diff
@@ -82,6 +84,43 @@ def symbol_at(spans, lines, number):
                 return name
     inside = [span for span in spans if span[0] <= number <= span[1]]
     return max(inside, key=lambda span: span[0])[2] if inside else None
+
+
+def python_annotation_lines(text):
+    """Keep comments and actual module/class/function docstrings at their original line and column.
+
+    During an incomplete edit only tokenized comments are available: ordinary strings are never promoted
+    to docstrings just because the file does not parse.
+    """
+    lines = text.splitlines()
+    kept = [[' '] * len(line) for line in lines]
+
+    def keep(start, end):
+        for number in range(start[0], end[0] + 1):
+            left = start[1] if number == start[0] else 0
+            right = end[1] if number == end[0] else len(lines[number - 1])
+            kept[number - 1][left:right] = lines[number - 1][left:right]
+
+    try:
+        for token in tokenize.generate_tokens(io.StringIO(text).readline):
+            if token.type == tokenize.COMMENT:
+                keep(token.start, token.end)
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        pass  # retain comments already identified before the incomplete token
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError):
+        return [''.join(line) for line in kept]
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.body:
+            first = node.body[0]
+            if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
+                value = first.value
+                # AST columns are UTF-8 byte offsets; tokenize and Python strings use characters.
+                column = lambda row, offset: len(lines[row - 1].encode('utf-8')[:offset].decode('utf-8'))
+                keep((value.lineno, column(value.lineno, value.col_offset)),
+                     (value.end_lineno, column(value.end_lineno, value.end_col_offset)))
+    return [''.join(line) for line in kept]
 
 
 def source_files(root, include=('.',), exclude=()):
@@ -143,8 +182,10 @@ def scan(root, include=('.',), exclude=()):
         if '@req' not in text:
             continue
         lines = text.splitlines()
-        spans = python_symbols(text) if path.suffix in {'.py', '.pyi'} else []
-        for number, line in enumerate(lines, 1):
+        python = path.suffix in {'.py', '.pyi'}
+        spans = python_symbols(text) if python else []
+        annotation_lines = python_annotation_lines(text) if python else lines
+        for number, line in enumerate(annotation_lines, 1):
             tokens = list(TOKEN.finditer(line))
             for position, token in enumerate(tokens):
                 match = ANNOTATION.match(line, token.start())

@@ -473,9 +473,13 @@ class FifthReview(Case):
         gaps = http.get('/v1/snapshots/current/gaps?phase=implementation')
         self.assertEqual(gaps.status_code, 200)
         self.assertTrue([g for g in valid('GapsPage', gaps.json())['items'] if 'cannot be parsed' in g['message']])
-        # The scanned folder disappears for a moment: the last complete scan still answers.
+        # Missing code must not be presented as a current, complete scan.
         shutil.move(repository / 'examples', repository / 'moved')
-        self.assertEqual(http.get(path).json()['total_visible_count'], after.json()['total_visible_count'])
+        unavailable = http.get(path)
+        self.assertEqual((unavailable.status_code, valid('Problem', unavailable.json())['code']), (503, 'CODE_UNAVAILABLE'))
+        self.assertEqual(http.get('/v1/snapshots/current/context?ids=REQ-004').status_code, 200)
+        shutil.move(repository / 'moved', repository / 'examples')
+        self.assertEqual(http.get(path).status_code, 200)
 
     def test_a_scan_path_that_does_not_exist_stops_the_service_at_start(self):
         repository, _ = self.copy_of_the_code()
@@ -605,7 +609,7 @@ class SixthReview(Case):
     def test_a_service_on_a_repository_that_contains_the_package_leaves_it_out(self):
         whole = Service([LEDGER / 'spec.json'], repository=PACKAGE)  # the package mentions the token in its own code
         reported = {gap['code'] for gap in whole.call('gaps', phase='implementation')['items']}
-        self.assertEqual(reported, {'MALFORMED_ANNOTATION', 'UNKNOWN_ANNOTATION_ID'})
+        self.assertIn('MALFORMED_ANNOTATION', reported)  # data strings are no longer treated as annotations
         service = Service([LEDGER / 'spec.json'], repository=PACKAGE, exclude=['qa'])
         self.assertEqual(service.call('gaps', phase='implementation')['items'], [])
         self.assertEqual(service.call('getIndex'), load(LEDGER / 'axiom-graph.json'))
@@ -663,6 +667,102 @@ class SeventhReview(Case):
         run = subprocess.run(command, cwd=SERVER, capture_output=True, text=True, timeout=60)
         self.assertEqual(run.returncode, 2)
         self.assertIn('--include', run.stderr)
+
+
+class ReleaseReadSafety(Case):
+    def test_an_unapproved_policy_cannot_make_its_successor_the_accepted_head(self):
+        service = Service([self.store], 'organization')
+        http = self.client(service)
+        policy = self.successor(self.spec, '1.1.1')
+        for band in policy['approval']['policy'].values():
+            band['approvers'] = 0
+        child = self.successor(policy, '1.1.2')
+        for spec in (policy, child):
+            response = http.put('/v1/releases/' + digest(canonical(spec)), json=spec)
+            self.assertEqual((response.status_code, valid('Verdict', response.json())['status']), (200, 'fail'))
+        self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['accepted_head']['version'], '1.1.0')
+        key = digest(canonical(policy))
+        http.put(f'/v1/releases/{key}/approvals', json=fk.approvals_for(policy, self.spec, PASSKEYS))
+        self.assertEqual(http.get('/v1/projects/PROJECT-001').json()['accepted_head']['version'], '1.1.2')
+
+    def test_an_invalid_release_is_isolated_even_after_restart(self):
+        invalid = self.successor(self.spec, '1.1.1')
+        edge = dict(id='EDGE-999999', relation='governs', origin='declared', rationale='Invalid self-link',
+                    **{'from': 'DEC-001', 'to': 'DEC-001'})
+        invalid['edges'].append(edge)
+        key = digest(canonical(invalid))
+        service = Service([self.store], 'organization')
+        http = self.client(service)
+        response = http.put(f'/v1/releases/{key}', json=invalid)
+        self.assertEqual((response.status_code, valid('Verdict', response.json())['status']), (200, 'fail'))
+        self.assertIn('WRONG_EDGE_TYPE', response.json()['errors'][0]['message'])
+        for client in (http, self.client(Service([self.store], 'organization'))):
+            self.assertEqual(client.get(f'/v1/releases/{self.head}/verdict').json()['status'], 'pass')
+            self.assertEqual(client.get('/v1/projects/PROJECT-001').json()['accepted_head']['version'], '1.1.0')
+            self.assertEqual(client.get(f'/v1/releases/{key}').status_code, 200)  # the failed input stays inspectable
+            for url in (f'/v1/snapshots/{key}/index', f'/v1/compare?baseline={self.head}&candidate={key}',
+                        f'/v1/impact?baseline={self.head}&candidate={key}'):
+                refused = client.get(url)
+                self.assertEqual((refused.status_code, refused.json()['code']), (422, 'INVALID_DOCUMENT'))
+        proposed = http.post('/v1/candidates', json=dict(baseline=self.head, version='1.1.1',
+                              operations=[dict(op='put', section='edges', item=edge)]))
+        candidate = valid('CandidateResult', proposed.json())
+        self.assertEqual((proposed.status_code, candidate['status'], candidate['held'], candidate['comparison']),
+                         (201, 'fail', False, None))
+
+    def test_a_large_lookup_is_a_problem_document_over_http_and_an_mcp_error(self):
+        spec = copy.deepcopy(self.spec)
+        next(n for n in spec['nodes'] if n['id'] == 'REQ-001')['data']['response'] = 'é' * 16384
+        path = Path(self.directory.name) / 'large.json'
+        path.write_bytes(canonical(spec))
+        service = Service([path])
+        http = self.client(service)
+        response = http.get('/v1/snapshots/current/nodes/REQ-001')
+        self.assertEqual((response.status_code, valid('Problem', response.json())['code']), (422, 'RESPONSE_TOO_LARGE'))
+
+        async def ask():
+            async with Client(mcp_tools.build(service)) as client:
+                return await client.call_tool('axiom_lookup', dict(id='REQ-001'))
+        result = asyncio.run(ask())
+        self.assertTrue(result.is_error)
+        self.assertTrue(result.content[0].text.startswith('RESPONSE_TOO_LARGE:'))
+
+    def test_deleting_an_included_file_never_returns_its_old_traces(self):
+        root = Path(self.directory.name) / 'repository'
+        root.mkdir()
+        code = root / 'app.py'
+        text = '# @req REQ-004\ndef authorize(): pass\n'
+        code.write_text(text)
+        service = Service([LEDGER / 'spec.json'], repository=root, include=['app.py'])
+        http = self.client(service)
+        self.assertEqual(http.get('/v1/snapshots/current/trace?path=app.py').status_code, 200)
+        code.unlink()
+        for operation in ('index', 'nodes/REQ-004', 'trace?path=app.py', 'gaps?phase=implementation'):
+            response = http.get('/v1/snapshots/current/' + operation)
+            self.assertEqual((response.status_code, response.json()['code']), (503, 'CODE_UNAVAILABLE'))
+        self.assertEqual(http.get('/v1/snapshots/current/context?ids=REQ-004').status_code, 200)
+        code.write_text(text.replace('REQ-004', 'REQ-005'))
+        response = http.get('/v1/snapshots/current/trace?path=app.py')
+        self.assertEqual((response.status_code, response.json()['items'][0]['node_id']), (200, 'REQ-005'))
+
+    def test_code_cursors_are_invalidated_even_when_annotations_did_not_change(self):
+        root = Path(self.directory.name) / 'repository'
+        root.mkdir()
+        code = root / 'app.py'
+        code.write_text('# @req REQ-004\ndef authorize(): pass\n')
+        spec = copy.deepcopy(self.spec)
+        for binding in spec['bindings']:
+            binding['expected_resolution'] = 'planned'
+        path = Path(self.directory.name) / 'planned.json'
+        path.write_bytes(canonical(spec))
+        service = Service([path], repository=root)
+        http = self.client(service)
+        url = '/v1/snapshots/current/gaps?phase=implementation&budget_bytes=4096'
+        first = http.get(url).json()
+        self.assertIsNotNone(first['next_cursor'])
+        code.write_text(code.read_text() + '\n# an edit without an annotation\n')
+        response = http.get(url, params=dict(cursor=first['next_cursor']))
+        self.assertEqual((response.status_code, response.json()['code']), (400, 'INVALID_CURSOR'))
 
 
 class Tools(Case):

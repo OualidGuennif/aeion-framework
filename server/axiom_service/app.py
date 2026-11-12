@@ -17,11 +17,11 @@ from mcp.server.transport_security import TransportSecuritySettings
 from starlette.concurrency import run_in_threadpool
 
 from . import mcp_tools
-from .service import MAX_BODY_BYTES, PACKAGE, QueryError, strict_json
+from .service import EDITION, MAX_BODY_BYTES, PACKAGE, QueryError, strict_json
 
 IMMUTABLE = 'public, max-age=31536000, immutable'
 TITLES = {400: 'Invalid request', 404: 'Not found', 409: 'Digest mismatch', 413: 'Body too large',
-          422: 'Invalid document', 500: 'Internal error'}
+          422: 'Invalid document', 500: 'Internal error', 503: 'Code unavailable'}
 INTEGER = re.compile(r'[0-9]{1,9}')
 
 
@@ -59,7 +59,7 @@ def create_app(service, allowed_hosts=()):
         async with mcp_server.session_manager.run():
             yield
 
-    app = FastAPI(title='AxiomSpec service', version='1.0.0', openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
+    app = FastAPI(title='AxiomSpec service', version=EDITION, openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
     app.add_exception_handler(QueryError, lambda request, error: problem(error))
     # Any other exception is a defect of the service. The caller still receives a problem document.
     app.add_exception_handler(Exception, lambda request, error: problem(

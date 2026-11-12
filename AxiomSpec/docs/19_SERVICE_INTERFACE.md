@@ -25,6 +25,7 @@ def authorize(principal, request_tenant, resource_tenant):
 
 - A colon or an opening parenthesis may follow the token, and the IDs are separated by spaces or commas: `@req: REQ-004` and `@req(REQ-004, CON-005)` are read the same. All the IDs of an annotation are on the line of the token: a list continued on the next comment line is not read, so a long list is split into several annotations.
 - It belongs to the definition a comment block directly precedes, otherwise to the innermost definition that contains it, otherwise to the file. Symbols are resolved for Python; elsewhere the location is the file and line.
+- For Python, only comments and actual module, class or function docstrings are read. Ordinary string literals are data. During an incomplete edit, identified comments are still read but no docstring is guessed. Other supported languages use a lexical token scan, not a language parser; keep annotation tokens in comments and exclude source fixtures that contain them as data.
 - It names an object the release holds and has not retired. Anything else fails the scan, and so does the token with no ID after it: an annotation that is skipped would tell an agent that no requirement concerns the code.
 - An ID of the release that follows other words on the line, as in `@req REQ-004 and CON-005`, also fails the scan: it was meant to be annotated and was not read. Other words on the line are ignored.
 - A scanned path that does not exist is an error, not an empty scan. Below a scanned path, version-control, dependency, cache and output folders (`.git`, `node_modules`, `build`, `dist`, `target` and the like) are not entered; a source folder with such a name is scanned by naming it. A path can be left out of the scan; a repository that contains a copy of this package, which mentions the token in its own code, leaves that copy out.
@@ -41,7 +42,9 @@ Every read is a GET on a release named by its canonical digest. An answer that i
 
 The digest covers the release, not the code beside it. When a service reads annotations and bindings from a repository, the index, a lookup, a trace and the gaps also depend on that code. Those answers carry an ETag and are revalidated on each use; they are never marked immutable. The context of a requirement reads the release only and stays immutable.
 
-Reads are bounded as AX-K-006 states: at most 100 items and 32,768 bytes, with a cursor bound to the snapshot, the query and, for an answer that reads the code, the state of the scanned code. A cursor holds no state on the service and grants nothing. A page of an index, a trace or the gaps begun before the code changed is not continued afterwards; the pages of a context, which reads the release alone, continue. An object that cannot fit the budget is named in `omissions` and never cut, and `complete` is true only when the whole answer was deliverable. A place in the code is listed once, however many declared links lead to it.
+Paged context, trace and gap answers are bounded as AX-K-006 states: at most 100 records (items and omissions together) and 32,768 UTF-8 bytes for the complete JSON envelope, or the smaller requested budget. A cursor binds the snapshot, query and, for an answer that reads the code, the state of the scanned files. It holds no state on the service and grants nothing. A trace or gap page begun before the code changed is not continued afterwards, even if its annotations stayed the same; context pages read the release alone and continue. An object that cannot fit the budget is named in `omissions` and never cut; omissions themselves are paged within the budget. `complete` is true only when the whole answer was deliverable. A place in the code is listed once, however many declared links lead to it.
+
+A lookup is also bounded at 32,768 bytes. If its statement, content, links or traces do not fit, it returns `RESPONSE_TOO_LARGE` (422), never a cut rule. Context can identify the oversized object in an omission; reading the full specification is a separate file operation. The index, release downloads, comparisons and organization inventories are whole-document operations, not paged answers; they are not covered by the query-page budget.
 
 An unknown ID is `not_found`. Errors are problem documents (RFC 9457) with a stable `code`, including `INTERNAL_ERROR` for a defect of the service. A bound file that does not parse, as happens while it is being edited, is a gap in the answer and not a failed request.
 
@@ -70,6 +73,8 @@ The change scope is conservative by design. On a specification as small and conn
 In sandbox mode the service serves one release, chosen when it starts, and only the read operations. No other method and no other route exists. It runs outside the agent's sandbox, which is allowed to reach it by host and port for GET only.
 
 The release is fixed for the task; the code is not. The service reads the annotations again when a scanned file changes, so an annotation the agent adds is in the next answer.
+
+If the scan cannot complete, including when an explicitly included path disappears, code-dependent reads return `CODE_UNAVAILABLE` (503). They never return the last scan as if it were current. Release-only context reads remain available, and code reads recover when the scan succeeds again.
 
 The task names the release by digest. Every answer carries that digest, so an agent cannot mix two versions of the requirements within one task (AX-K-008).
 

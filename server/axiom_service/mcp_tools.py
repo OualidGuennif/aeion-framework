@@ -10,7 +10,7 @@ import mcp.types as types
 from mcp.server.lowlevel import Server
 from starlette.concurrency import run_in_threadpool
 
-from .service import PACKAGE, QueryError
+from .service import EDITION, PACKAGE, QueryError
 
 RENAMED = dict(snapshot='digest')  # a tool names the release `snapshot`; the operation calls it `digest`
 
@@ -65,6 +65,6 @@ def build(service):
         return types.CallToolResult(content=[types.TextContent(type='text', text=json.dumps(result, ensure_ascii=False, separators=(',', ':')))],
                                     structured_content=result)
 
-    return Server('axiomspec', version='1.0.0',
+    return Server('axiomspec', version=EDITION,
                   instructions='Requirements of one release, by ID. Look an ID up before changing code that carries it.',
                   on_list_tools=list_tools, on_call_tool=call_tool)

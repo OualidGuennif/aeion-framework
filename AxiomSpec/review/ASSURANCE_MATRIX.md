@@ -4,14 +4,14 @@ This is a manual scope map, not a product-gate report. Package pass means the li
 
 | Gate | Implemented here | Still required for a product engine |
 |---|---|---|
-| G01 parsing/schema | Strict local loader, schema library, guards and reference fixtures | Qualify the production CLI and profiles across supported inputs |
+| G01 parsing/schema | Strict local loader, schema library, guards, reference fixtures and the supplied-file `axiom.py check` command | Qualify complete product phases and profiles across supported inputs |
 | G02 references | Selected ID/prefix/edge checks, active link targets, binding targets, repeated edges, asset locators, iterative cycle detection, flag declarations and removal targets, release declaration | Complete all normative semantic/applicability conditions |
 | G03 static semantics | Runtime checks in a reference subset; unit-annotation targets, effective-window shape and path-only collections | Complete BCIR type/unit analysis and qualified methods |
 | G04 authoring/decisions | Shape fields, templates, requirement-pattern consistency, weight range and risk band, flag on optional requirements | Blocking decisions and assumption semantics |
 | G05 state models | State/transition/guard references, terminal states and topological reachability | Executable effects before simulation or exploration claims |
 | G06 scenarios | 35 observations/89 expectations, eighteen of them before/after pairs, five of audit rows and three of report answers; 100 seeded states and 200 seeded transitions in tests | General processing with qualified applicability and semantics |
 | G07 test plan | Declared links, scenario-to-requirement agreement and a test in each flag state for a flagged must requirement | Required normal/negative/integration cases by risk, complete behavioral scenarios and oracles |
-| G08 context | Reference closure (AX-K-010) and a narrower direct scope, paged within a byte budget with stateless cursors; answers validated against the service contract | Access control before disclosure, freshness, a qualified engine |
+| G08 context | Reference closure (AX-K-010) and a narrower direct scope; items and omissions paged within a byte budget; oversized lookups refused; code cursors bind the scanned file signature; unavailable code scans are explicit errors | Access control before disclosure, qualified evidence freshness and a qualified engine |
 | G09 bindings/impact | Lexical checks; for the example, Python symbols resolved by parsing and every TestCase bound; `@req` annotations scanned, checked against the release and joined with bindings into traces | Resolution for other languages, coverage, call relationships and unmapped-change handling |
 | G10 product tests | The example's 33 tests executed on local SQLite with a receipt bound to its inputs | Runner adapters, other stores, isolation and a trusted producer |
 | G11 evidence | Local receipt consistency, hashes and detected-change checks | Independent producer/storage and product freshness qualification |
@@ -22,6 +22,7 @@ This is a manual scope map, not a product-gate report. Package pass means the li
 ## Available claims
 
 - Replay package checks with `python3 qa/run_checks.py`.
+- Check a supplied specification with `python3 axiom.py check <spec.json>` and generate its deterministic reading view with `python3 axiom.py markdown <spec.json>`. These commands do not establish a product phase.
 - Selected reference data satisfy their declared expectations.
 - Covered metadata inconsistencies are detected.
 - CROA input structure and selected red-flag calculations are available with explicit evidence limits.

@@ -1,6 +1,6 @@
 # Existing project: temporary NVIDIA discovery, then AxiomSpec
 
-Version 1.0 · 9 November 2026 · Companion to AxiomSpec edition 0.3.0.
+Version 1.1 · 12 November 2026 · Companion to AxiomSpec edition 1.1.0.
 
 NVIDIA source baseline examined: Auto-Ontology commit `c447003f72a822301e927196a4ecb5b597c308d5`. Recheck the installed version before using its interfaces. This document proposes an integration workflow; no NVIDIA-to-AxiomSpec importer is shipped with the current package.
 
@@ -55,7 +55,7 @@ Auto-Ontology's documented core is semantic interpretation and querying of relat
 
 Auto-Ontology has an implemented application, semantic compilation, inspection tools and model import/export. Source inspection does not qualify its deployment on your data.
 
-The local AxiomSpec package supplies schemas, authoring/model contracts, a reference example and package checks. Its complete product engine, graph/query implementation and real test adapters remain unimplemented. [AxiomSpec capabilities](../AxiomSpec/review/ASSURANCE_MATRIX.md).
+The local AxiomSpec package supplies schemas, authoring/model contracts, a reference example, a file checker, Markdown generation, reference graph queries and an HTTP/MCP service. Its complete product engine and general test adapters remain unimplemented. [AxiomSpec capabilities](../AxiomSpec/review/ASSURANCE_MATRIX.md).
 
 Accordingly, the first migration can be manual or AI-assisted: inspect an export, draft canonical objects, review meaning and run only actual available checks. Building an offline importer is a separate implementation increment. Do not invent a `nvidia export axiom` command or claim a direct native integration exists.
 

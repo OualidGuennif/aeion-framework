@@ -72,13 +72,13 @@ def statement(node):
 class Snapshot:
     """One release with the annotations of one state of its code, indexed once. Every answer names the release digest.
 
-    `state` also covers the annotations. A cursor is bound to it, so a page is never continued across a rescan
-    of the code.
+    `state` covers the annotations and, when supplied by the service, the scanned file signature. A code
+    cursor is bound to it, so a page is never continued across a changed scan.
     """
 
-    def __init__(self, spec, annotations=(), repository=None):
+    def __init__(self, spec, annotations=(), repository=None, code_state=None):
         self.spec, self.digest = spec, digest(canonical(spec))
-        self.state = digest(canonical([self.digest, list(annotations)]))
+        self.state = digest(canonical([self.digest, list(annotations), code_state]))
         self.index = release_diff.Index(spec)
         self.nodes = self.index.nodes
         self.annotations = list(annotations)
@@ -144,12 +144,16 @@ def page(snapshot, name, parameters, items, budget_bytes=MAX_BYTES, cursor=None,
     # Reserve room for the longest cursor and counters, so the finished envelope stays within the budget.
     reserve = len(canonical(dict(envelope, next_cursor='x' * 240, returned_count=MAX_ITEMS, total_visible_count=10 ** 9)))
     used = reserve
-    while position < len(items) and len(envelope['items']) < MAX_ITEMS:
+    while position < len(items) and len(envelope['items']) + len(envelope['omissions']) < MAX_ITEMS:
         item = items[position]
         size = len(canonical(item)) + 1
         if size > budget_bytes - reserve:
-            envelope['omissions'].append(dict(id=item.get('id'), reason='exceeds_budget', bytes=size))
-            used += 160
+            omission = dict(id=item.get('id'), reason='exceeds_budget', bytes=size)
+            cost = len(canonical(omission)) + 1
+            if used + cost > budget_bytes:
+                break
+            envelope['omissions'].append(omission)
+            used += cost
         elif used + size > budget_bytes:
             break
         else:
@@ -191,6 +195,9 @@ def lookup(snapshot, object_id, detail='brief'):
                                    verification_mode=content['data']['verification_mode'])
     if detail == 'full':
         view['content'] = content
+    if len(canonical(view)) > MAX_BYTES:
+        raise QueryError('RESPONSE_TOO_LARGE', f'{object_id} exceeds the {MAX_BYTES}-byte lookup budget; '
+                         'read its context for an explicit omission or use the specification file.', 422)
     return view
 
 
@@ -468,7 +475,7 @@ def propose(baseline, version, operations):
             raise fail('op is put, retire, remove or set')
     schema_errors = sorted(f"{'/'.join(str(p) for p in e.absolute_path)}: {e.message[:200]}" for e in spec_validator().iter_errors(spec))[:50]
     references = sorted(set(reference_errors(spec))) if not schema_errors else []
-    comparison = release_diff.compare(baseline, spec) if not schema_errors else None
+    comparison = release_diff.compare(baseline, spec) if not schema_errors and not references else None
     acceptable = not schema_errors and not references and comparison['status'] == 'pass'
     return dict(spec_sha256=digest(canonical(spec)), version=version,
                 baseline=dict(version=baseline['release']['version'], spec_sha256=digest(canonical(baseline))),

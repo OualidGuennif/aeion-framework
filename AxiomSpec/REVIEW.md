@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.0.2 · 12 November 2026. The fourth review describes edition 0.3.1 and the seven sections after it editions 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.1, 0.7.2 and 1.0.0; edition 0.5.1 is a note at the end of the second, and editions 1.0.1 and 1.0.2 are notes at the end of the last. The section on edition 0.7.1 is a fifth review, and it names three claims of the two sections before it that did not hold. The section on edition 0.7.2 is a sixth, of the corrected code, and the section on edition 1.0.0 a seventh. The sections below those describe edition 0.3.0 and are kept as written, except where marked.
+Edition 1.1.0 · 12 November 2026. The [1.1.0 change record](#edition-110) describes the current corrections and file tools. Earlier sections are historical: the fourth review describes edition 0.3.1 and the following sections editions 0.4.0 through 1.0.2. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -394,6 +394,34 @@ Three regression tests in the package and four in the server. Run against the co
 ### Edition 1.0.2
 
 12 November 2026. The root README, this package's README, the server README and the release notes were rewritten in plainer language, and two code comments with them. The format, the checks, the service and the examples are unchanged.
+
+## Edition 1.1.0
+
+12 November 2026. Corrects the five findings reproduced on 1.0.2 and adds two local file commands.
+Specification format remains `axiomspec/0.3`; no dependency, database or orchestration layer was added.
+
+| Finding | Reproduced before correction | Behavior in this edition |
+|---|---|---|
+| An unapproved baseline could govern an accepted successor | An unsigned policy downgrade failed, but its unsigned successor passed and became `accepted_head` | A release passes only when its own checks and complete baseline chain pass. Missing ancestors leave it unknown; failed ancestors make it fail. |
+| Invalid typed relations could block the store | A `Decision governs itself` edge produced recursion after upload; verdicts on healthy releases also returned 500 | Reference failures are reported before comparison or risk traversal, including invalid baselines. Failed uploads remain inspectable without blocking unrelated verdicts. Invalid graph queries return 422. |
+| Response budgets ignored omissions and large lookups | Many oversized objects exceeded a requested 4 KB page; a valid Unicode requirement exceeded the 32 KB lookup limit | Omissions are counted and paged within the envelope budget. Oversized lookups return `RESPONSE_TOO_LARGE` (422). Whole-document operations are explicitly outside the page contract. |
+| A missing scan path silently served old code traces | Deleting an explicitly included file left its traces available as current | Code-dependent reads return `CODE_UNAVAILABLE` (503), recover after a successful scan, and bind cursors to the scanned file signature. Release-only context remains available. |
+| Ordinary Python strings were treated as annotations | A data string containing a requirement token suppressed an untraced-requirement gap | Python scanning reads comments and actual docstrings only. Incomplete edits retain identified comments; no docstring is guessed. Other languages retain a documented lexical scan. |
+
+`python3 axiom.py check <spec.json> [--json]` checks strict JSON, the schema, restricted environment shapes
+and selected reference rules. `python3 axiom.py markdown <spec.json> [--output <new-file.md>]` runs that
+check before rendering every declared node, open decisions, relationships and supporting metadata.
+Both accept parts manifests, work from another directory, read no product code and preserve existing
+output files. The Markdown is deterministic and identifies its canonical source digest. It is a reading
+view, not an editable source or an approval/test receipt.
+
+Nineteen new package tests and five new service tests cover these changes, bringing the suites to 232
+and 43 respectively; the example still has 33 executed tests. Coverage includes policy downgrades and
+key rotations, absent ancestors and arrival order, invalid graphs across a service restart, omission
+budgets, Unicode, missing includes and recovery, unchanged annotations on edited code, CLI error/exit
+behavior, parts, Markdown links, escaping and preservation of source/output files. The file CLI is
+included in the regression input receipt. Tests and the source review are by the same assistant, not
+an independent qualification. Product-phase, identity, load and real-sandbox limits remain explicit.
 
 ## Confirmed findings and corrections
 

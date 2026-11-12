@@ -50,7 +50,9 @@ In organization mode each accepted upload becomes its own file in the first stor
 
 Before each organization request the service lists the store and reads the files that appeared, each once. Several processes on one directory therefore give the same answers, and asking for a digest the store does not hold costs one listing of the directory. A request body must be strict JSON of at most one megabyte, and the service refuses a release that the store could not read back.
 
-In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. A context query reads only the release and never looks at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable.
+In sandbox mode with `--repo`, the annotations are read again when a scanned file changes. If that scan cannot complete, code-dependent reads return `CODE_UNAVAILABLE` (503) until it recovers. A context query reads only the release and never looks at the code. Answers that depend on the code carry an ETag and `no-cache`; answers that depend on the release alone are immutable. Context, trace and gap pages include their omissions within the requested byte budget. A lookup over 32,768 UTF-8 bytes returns `RESPONSE_TOO_LARGE` (422).
+
+A release verdict also checks its baseline chain. A successor of a failed release cannot become the accepted head, even when signatures under that failed release's new policy verify locally. Invalid reference graphs are reported as failed releases and do not prevent verdicts on unrelated releases.
 
 ## Limits
 

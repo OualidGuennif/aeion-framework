@@ -2,10 +2,10 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.0.2 · 12 November 2026**  
+**Edition 1.1.0 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
-This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. There is no product CLI or runner adapter here, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
+This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
 
 A specification links an intended outcome to defined terms, requirements, constraints, scenarios, bindings to the code, and evidence. Open questions and decisions are recorded in it as items of their own. The checks make the declared properties reproducible. They cannot tell whether the requirements are complete or right for the business; that stays with the people who approve them.
 
@@ -73,7 +73,25 @@ Edition 0.7.0 added the service interface and kept format 0.3: a graph index, `@
 
 Edition 1.0.0 was the first tagged release. It fixed what a third pass found, including an approvals file that could block a release depending on the order the store read it, and kept format 0.3. The version number means the release is published and will not change; it does not mean the engine is qualified, and the [review](REVIEW.md#edition-100) says what it covers. Edition 1.0.1 requires Python 3.14 or later. Edition 1.0.2 rewrites the READMEs and the release notes in plainer language. Neither changes the format, the checks or the service.
 
+Edition 1.1.0 adds the file checker and Markdown generator. It also requires a passing ancestor chain before a release can pass the store, isolates invalid reference graphs, enforces response budgets and reports unavailable code scans. Python annotations are read only from comments and actual docstrings. The specification format stays 0.3; see the [change record](REVIEW.md#edition-110).
+
 ## Commands
+
+With the QA dependencies installed, run these from the package directory:
+
+```bash
+python3 axiom.py check examples/refund-ledger/spec.json
+python3 axiom.py check examples/refund-ledger/spec.json --json
+python3 axiom.py markdown examples/refund-ledger/spec.json --output ledger.md
+```
+
+The checker verifies strict JSON, the schema, restricted environment shapes and selected reference rules.
+Its exit code is 0 for pass, 2 for a failed check and 4 for an unreadable input or processing error. It does
+not evaluate BCIR, verify signatures, execute tests or establish a product phase. The Markdown command
+requires these checks to pass and generates a deterministic view of every declared node, relationships,
+open decisions and supporting metadata. It writes to stdout unless `--output` names a new file; it never
+overwrites a file. Both commands accept a specification or a parts manifest and work from any directory.
+Edit the source specification and regenerate its Markdown rather than maintaining two editable models.
 
 Install the [QA dependencies](qa/requirements-qa.txt), then replay the package checks with `python3 qa/run_checks.py`. Compare two releases with `python3 qa/release_diff.py <baseline.json> <candidate.json>`. Check approvals with `python3 qa/approvals.py verify <spec.json> <approvals.json> [<baseline.json>]`, and a whole store with `python3 qa/release_store.py verify <directory>`. The [assurance matrix](review/ASSURANCE_MATRIX.md) separates declared contracts, package checks that exist, and product capabilities that do not.
 
