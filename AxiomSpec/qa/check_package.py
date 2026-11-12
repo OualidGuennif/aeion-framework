@@ -558,7 +558,7 @@ def reference_errors(spec):
 
 def resolve_symbol(path, symbol):
     """AX-M-014: True when a Python file declares `name` or `Class.member`. Parses the file; runs nothing."""
-    scope = ast.parse(path.read_text()).body
+    scope = ast.parse(path.read_bytes()).body  # bytes: Python's own reading of a BOM or a coding declaration
     for name in symbol.split('.'):
         found = [node for node in scope
                  if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name]

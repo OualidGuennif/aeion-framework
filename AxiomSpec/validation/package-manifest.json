@@ -3,13 +3,13 @@
   "entries": [
     {
       "path": "README.md",
-      "sha256": "d74b5138fe3649efa7ff3171224c102f3b0510fe35e157f85ac35304bcfe830f",
-      "bytes": 13578
+      "sha256": "d14d304aa0dd50d560c00dcebf857353678a74a27be4f62420216b3a9889ba74",
+      "bytes": 14012
     },
     {
       "path": "REVIEW.md",
-      "sha256": "38c12825bb09bf2469f8831c8b4e2314832fe9861f391c5e24157ce3b7f2e2a6",
-      "bytes": 60567
+      "sha256": "7b1a1bd6e2254e4439e54d55004097f7865cfc5cf79a1c3874eb354931a78c9f",
+      "bytes": 62033
     },
     {
       "path": "RULE_INDEX.md",
@@ -23,7 +23,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "21d2864e10eb93c027a87b87de61d4bc2bbbd22623c9af879de23f1173fa38c5",
+      "sha256": "d8c4c33ba155128ceeb3921d4c837053414883d6ccc29eca16d842767679459d",
       "bytes": 104941
     },
     {
@@ -143,8 +143,8 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "d6c30eede427aa100b5f40775302c174d058141ed63e60f694964b875482ed33",
-      "bytes": 9934
+      "sha256": "7edeb5ca387f3935f9a0e38980a2f2f13b143ec9fea019ce103f489e211746aa",
+      "bytes": 9986
     },
     {
       "path": "examples/refund-ledger/approvals.json",
@@ -188,8 +188,8 @@
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "1dde999c3b479e9588b18a6663582bf72e1167398cdbf60da467a31d35d496b6",
-      "bytes": 25637
+      "sha256": "f4a57119cc3972fb38f2056e379a0932eba594ce4c48485c4eb38e6a20bba2d5",
+      "bytes": 25999
     },
     {
       "path": "fixtures/conformance.json",
@@ -203,8 +203,8 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "5f1893d60a332424c7a073afa50aa01d5b35c45073013c4a8625e1c1009614e5",
-      "bytes": 69671
+      "sha256": "fe7304cd0bf995cc97f469a533eb5d30ab6922c462eafe862da42727a9b7a31d",
+      "bytes": 69736
     },
     {
       "path": "qa/croa_readiness.py",
@@ -253,7 +253,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "ea2f371dd2c32b9a74927b8b4b22f965c6478ca6de4320f35c8a3c0ec2c0c8f9",
+      "sha256": "72e5a364a966d280e68ed4f37cf1295325d834910d036cccb4e86f2cda532488",
       "bytes": 13313
     },
     {
@@ -278,8 +278,8 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "0d9cfa34c471254696317156d139887fa729034b2756318a5aabd14c58d4a71a",
-      "bytes": 38320
+      "sha256": "6011a940cdee9badb91227acd58b8a4e6c3e70630538e9e8ee630de64b451910",
+      "bytes": 39030
     },
     {
       "path": "qa/test_release_read_safety.py",
@@ -338,7 +338,7 @@
     },
     {
       "path": "review/portability-run.json",
-      "sha256": "586a4355d2f325c9ce113c590a02d2a0a62c035d54be67a5bdc5d437a6293df6",
+      "sha256": "937ceee8aa9386561f9d602521b53e55378382eeecdd8f7f3e89536a2004b91c",
       "bytes": 7701
     },
     {
@@ -363,13 +363,13 @@
     },
     {
       "path": "review/regression-output.txt",
-      "sha256": "09914d72df24a93790e65f53c76ef60b532b85286582cea84f1d69484b8dc8c8",
-      "bytes": 36601
+      "sha256": "b5cf442d6e4fb3eee85ac6e7e1b0a607f53185eaac173a77e6825b15551c0dc5",
+      "bytes": 36791
     },
     {
       "path": "review/regression-run.json",
-      "sha256": "3e41cf2081daf72d99a7a2b2738a20afe60058fdc68589c83bf8a7d8f3c198cc",
-      "bytes": 31755
+      "sha256": "7f994cc535feecf297dfd0b6e0d3d6c1fd57ab6f6684890a00aeab83ba9c426a",
+      "bytes": 31870
     },
     {
       "path": "schemas/approvals.schema.json",

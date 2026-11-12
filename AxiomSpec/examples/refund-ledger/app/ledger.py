@@ -138,12 +138,12 @@ class Ledger:
             if not authorize(principal, tenant_id, owner):
                 return Result('denied')
             seq = record_id[2:] if isinstance(record_id, str) and record_id.startswith('r-') else ''
-            row = self.connection.execute('SELECT status FROM refunds WHERE payment_id = ? AND seq = ?',
-                                          (payment_id, int(seq) if seq.isdigit() else -1)).fetchone()
+            seq = int(seq) if seq.isascii() and seq.isdigit() and seq[0] != '0' and len(seq) <= 18 else -1  # only IDs as issued
+            row = self.connection.execute('SELECT status FROM refunds WHERE payment_id = ? AND seq = ?', (payment_id, seq)).fetchone()
             if row is None:
                 return Result('not_found')  # REQ-009
             if row[0] == 'reserved':
-                self.connection.execute('UPDATE refunds SET status = ? WHERE seq = ?', (target, int(seq)))
+                self.connection.execute('UPDATE refunds SET status = ? WHERE seq = ?', (target, seq))
                 return Result(target, record_id)  # REQ-005, REQ-006
             return Result('repeated' if row[0] == target else 'refused', record_id)  # REQ-009, DEC-003
         return self.run(kind, operation_id, body)

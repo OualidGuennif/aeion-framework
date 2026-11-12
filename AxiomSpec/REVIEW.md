@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.4 · 12 November 2026. The [1.1.4](#edition-114) and [1.1.3](#edition-113) change records describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.5 · 12 November 2026. The [1.1.5](#edition-115), [1.1.4](#edition-114) and [1.1.3](#edition-113) change records describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,25 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.5
+
+12 November 2026. A review pass over the reference rules, the BCIR evaluator, the migrations, the CROA
+input check, the container qualification and the worked example. The format stays `axiomspec/0.3`.
+
+- Binding resolution decoded a Python file as UTF-8 text before parsing it, without the two rules Python
+  applies when it reads a source file. A file starting with a byte-order mark, or declaring
+  `# -*- coding: latin-1 -*-`, was valid Python and still reported as unparsable, so `gaps` in the
+  implementation phase listed its bindings as `UNRESOLVED_BINDING`. The bytes now go to `ast.parse`, which
+  applies both rules. 1.1.3 fixed the same defect in the annotation scan; this was a second place.
+- The public entrypoint of the reference ledger read the digits of a record ID with `str.isdigit` and
+  `int`. `r-²` raised `ValueError`, a 30-digit number raised `OverflowError` from SQLite, and `r-١`
+  (an Arabic-Indic one) or `r-01` reached record `r-1`. Only the spelling the ledger issues names a
+  record now: ASCII digits, no leading zero, at most 18 of them. Any other ID is `not_found`, as REQ-009
+  states. The file keeps its line count, so the annotation lines in `axiom-graph.json` are unchanged.
+
+One regression test covers the binding defect and fails on 1.1.4. TEST-017 now also checks the four
+record IDs, and the example still runs 33 tests. The package suite has 244 tests and the service suite 60.
 
 ## Edition 1.1.4
 

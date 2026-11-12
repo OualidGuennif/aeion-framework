@@ -406,7 +406,11 @@ class Test017InapplicableCommand(LedgerCase):
                  ('commit', released, 'refused'),
                  ('commit', committed, 'repeated'),
                  ('commit', 'r-999', 'not_found'),    # SCN-025
-                 ('cancel', 'not-an-id', 'not_found')]
+                 ('cancel', 'not-an-id', 'not_found'),
+                 # Only the spelling the ledger issues names a record: other digits, a leading zero or a
+                 # number SQLite cannot hold used to raise an error or reach r-1.
+                 ('commit', 'r-²', 'not_found'), ('commit', 'r-' + '9' * 30, 'not_found'),
+                 ('commit', 'r-١', 'not_found'), ('commit', 'r-01', 'not_found')]
         for kind, record, expected in cases:
             with self.subTest(kind=kind, record=record):
                 self.assertEqual(self.command(kind, record).outcome, expected)

@@ -2,13 +2,13 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T09:05:27.740872+00:00",
+  "evaluated_at": "2026-11-12T09:19:51.731433+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 243,
+  "test_count": 244,
   "tested_inputs": [
     {
       "path": "api/mcp-tools.json",
@@ -16,7 +16,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "21d2864e10eb93c027a87b87de61d4bc2bbbd22623c9af879de23f1173fa38c5"
+      "sha256": "d8c4c33ba155128ceeb3921d4c837053414883d6ccc29eca16d842767679459d"
     },
     {
       "path": "axiom.py",
@@ -32,7 +32,7 @@
     },
     {
       "path": "examples/refund-ledger/app/ledger.py",
-      "sha256": "d6c30eede427aa100b5f40775302c174d058141ed63e60f694964b875482ed33"
+      "sha256": "7edeb5ca387f3935f9a0e38980a2f2f13b143ec9fea019ce103f489e211746aa"
     },
     {
       "path": "examples/refund-ledger/approvals.json",
@@ -68,7 +68,7 @@
     },
     {
       "path": "examples/refund-ledger/tests/test_ledger.py",
-      "sha256": "1dde999c3b479e9588b18a6663582bf72e1167398cdbf60da467a31d35d496b6"
+      "sha256": "f4a57119cc3972fb38f2056e379a0932eba594ce4c48485c4eb38e6a20bba2d5"
     },
     {
       "path": "fixtures/conformance.json",
@@ -80,7 +80,7 @@
     },
     {
       "path": "qa/check_package.py",
-      "sha256": "5f1893d60a332424c7a073afa50aa01d5b35c45073013c4a8625e1c1009614e5"
+      "sha256": "fe7304cd0bf995cc97f469a533eb5d30ab6922c462eafe862da42727a9b7a31d"
     },
     {
       "path": "qa/croa_readiness.py",
@@ -120,7 +120,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "ea2f371dd2c32b9a74927b8b4b22f965c6478ca6de4320f35c8a3c0ec2c0c8f9"
+      "sha256": "72e5a364a966d280e68ed4f37cf1295325d834910d036cccb4e86f2cda532488"
     },
     {
       "path": "qa/spec_parts.py",
@@ -140,7 +140,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "0d9cfa34c471254696317156d139887fa729034b2756318a5aabd14c58d4a71a"
+      "sha256": "6011a940cdee9badb91227acd58b8a4e6c3e70630538e9e8ee630de64b451910"
     },
     {
       "path": "qa/test_release_read_safety.py",

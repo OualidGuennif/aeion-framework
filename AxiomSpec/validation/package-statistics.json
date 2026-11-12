@@ -1,5 +1,5 @@
 {
-  "regression_tests_recorded": 243,
+  "regression_tests_recorded": 244,
   "observations": 35,
   "boolean_expectations": 89,
   "mutations_executed": 23,
@@ -21,7 +21,7 @@
   "example_test_cases_covered": 20,
   "qa_self_checks": 17,
   "normative_rules": 126,
-  "local_links": 206,
+  "local_links": 207,
   "json_blocks": 3,
   "toolchain": {
     "python": "3.15.2",

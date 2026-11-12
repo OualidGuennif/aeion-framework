@@ -113,6 +113,14 @@ class Annotations(unittest.TestCase):
                          [('ledger.py', 2, 'reserve', ['REQ-001']), ('ledger.py', 4, 'reserve', ['REQ-002']),
                           ('ledger.ts', 2, None, ['REQ-003'])])
 
+    def test_a_binding_resolves_in_a_file_python_reads_with_a_bom_or_a_coding_line(self):
+        # The text was decoded as UTF-8 without the BOM rule or the coding line, so a valid file looked unparsable.
+        with tempfile.TemporaryDirectory(prefix='axiomspec-symbol-') as directory:
+            bom, latin = Path(directory, 'bom.py'), Path(directory, 'latin.py')
+            bom.write_bytes(b'\xef\xbb\xbfclass Ledger:\n    def reserve(self):\n        pass\n')
+            latin.write_bytes(b'# -*- coding: latin-1 -*-\n# V\xe9rifie\nclass Ledger:\n    def reserve(self):\n        pass\n')
+            self.assertEqual([qa.resolve_symbol(path, 'Ledger.reserve') for path in (bom, latin)], [True, True])
+
     def test_a_test_file_is_recognized_by_name_or_folder(self):
         for path, expected in [('tests/test_ledger.py', True), ('pkg/ledger_test.go', True), ('src/__tests__/a.ts', True),
                                ('src/ledger.spec.ts', True), ('app/ledger.py', False), ('src/contest.py', False), ('test.py', False)]:
