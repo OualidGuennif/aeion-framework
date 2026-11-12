@@ -501,6 +501,31 @@ class FifthReview(Case):
         with self.assertRaisesRegex(ValueError, 'does not exist: exmaples'):
             Service([LEDGER / 'spec.json'], repository=repository, include=['exmaples/refund-ledger'])
 
+    def test_an_unreadable_source_directory_withholds_code_reads_until_it_recovers(self):
+        repository, code = self.copy_of_the_code()
+        settings = dict(repository=repository, include=['examples/refund-ledger'])
+        http = self.client(Service([LEDGER / 'spec.json'], **settings))
+        base = '/v1/snapshots/current'
+        trace = base + f'/trace?path={APP}'
+        before = http.get(trace).json()
+        self.assertGreater(before['returned_count'], 0)
+        scandir = graph_index.os.scandir
+
+        def denied(path):
+            if Path(path) == code.parent.resolve():
+                raise PermissionError('Source directory is unreadable')
+            return scandir(path)
+
+        with mock.patch.object(graph_index.os, 'scandir', side_effect=denied):
+            for path in (base + '/index', base + '/nodes/REQ-004', trace, base + '/gaps?phase=implementation'):
+                response = http.get(path)
+                self.assertEqual(response.status_code, 503)
+                self.assertEqual(valid('Problem', response.json())['code'], 'CODE_UNAVAILABLE')
+            self.assertEqual(http.get(base + '/context?ids=REQ-004').status_code, 200)
+            with self.assertRaises(PermissionError):
+                Service([LEDGER / 'spec.json'], **settings)
+        self.assertEqual(http.get(trace).json(), before)
+
     def test_every_error_is_a_problem_document(self):
         service = self.sandbox()
         http = TestClient(create_app(service), raise_server_exceptions=False)

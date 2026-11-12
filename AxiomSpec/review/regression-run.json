@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "1.1.7",
+  "edition": "1.1.8",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T10:38:47.084801+00:00",
+  "evaluated_at": "2026-11-12T11:06:27.374427+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -92,6 +92,7 @@
       "test_graph_queries.Annotations.test_a_scan_cannot_leave_its_root",
       "test_graph_queries.Annotations.test_a_test_file_is_recognized_by_name_or_folder",
       "test_graph_queries.Annotations.test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in",
+      "test_graph_queries.Annotations.test_an_unreadable_directory_is_an_error_not_an_empty_scan",
       "test_graph_queries.Annotations.test_only_the_exact_token_in_source_files_counts",
       "test_graph_queries.Context.test_a_seed_that_is_not_a_requirement_leads_to_the_requirements_it_concerns",
       "test_graph_queries.Context.test_a_shared_term_does_not_lead_back_to_unrelated_requirements",
@@ -259,7 +260,7 @@
       "test_transition_scenarios.TransitionObservations.test_every_transition_scenario_states_both_assertions",
       "test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change"
     ],
-    "tests_run": 246,
+    "tests_run": 247,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
@@ -273,7 +274,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "2749b8ae0dc5a477ea31753ac0bc8d98c31427c8bfe0cb5ca337d9bd8c9641b4"
+      "sha256": "15a9eaf6083f8dba44f5a336ec101cf42ff7fdefa3eb50b077f92e0c50167ac0"
     },
     {
       "path": "axiom.py",
@@ -349,7 +350,7 @@
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "5d1ab3c4203b4c0ecd8ef75dc8ddc954ff10ac39f1409a7cffbf9e0a47e23cf0"
+      "sha256": "08131375ecab341aa6170248371ddcc7baf9839e0ac86997e91f7a32fb4a5a69"
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -377,7 +378,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "1840ee8f90e8000182dbd6f4ca4ac7a864e3480d1681cb0300e25b2b1566b594"
+      "sha256": "fe34f5ae69ea8b32fc86c5200de1fbbbc2bb12b0f031ed5abe17f0fa68126253"
     },
     {
       "path": "qa/spec_parts.py",
@@ -397,7 +398,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "95fa2071aee7692994d64fbfb05af0b27d88f27f9d01b64a68012269a0051747"
+      "sha256": "b12b7b639a90aab4d19f2e85a7afa40a07a49727d87d35dd05c6da95d628f4e3"
     },
     {
       "path": "qa/test_release_read_safety.py",
@@ -479,7 +480,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "9d945342cd47fa86c1c383c73f9d74854372e9c03ce8d44a0537bb70111f5163"
+    "sha256": "c9e5d002565423eb07a21ba4d22865ec6ae02bfdac006fb37bf912a475153151"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

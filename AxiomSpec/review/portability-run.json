@@ -2,13 +2,13 @@
   "format": "axiomspec-portability-run/0.1",
   "scope": "relocated_code_and_data_inputs",
   "status": "pass",
-  "evaluated_at": "2026-11-12T10:38:23.631785+00:00",
+  "evaluated_at": "2026-11-12T11:07:22.035933+00:00",
   "path_with_spaces": true,
   "command": [
     "python3",
     "qa/run_checks.py"
   ],
-  "test_count": 246,
+  "test_count": 247,
   "tested_inputs": [
     {
       "path": "api/mcp-tools.json",
@@ -16,7 +16,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "2749b8ae0dc5a477ea31753ac0bc8d98c31427c8bfe0cb5ca337d9bd8c9641b4"
+      "sha256": "15a9eaf6083f8dba44f5a336ec101cf42ff7fdefa3eb50b077f92e0c50167ac0"
     },
     {
       "path": "axiom.py",
@@ -92,7 +92,7 @@
     },
     {
       "path": "qa/graph_index.py",
-      "sha256": "5d1ab3c4203b4c0ecd8ef75dc8ddc954ff10ac39f1409a7cffbf9e0a47e23cf0"
+      "sha256": "08131375ecab341aa6170248371ddcc7baf9839e0ac86997e91f7a32fb4a5a69"
     },
     {
       "path": "qa/migrate_0_1.py",
@@ -120,7 +120,7 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "1840ee8f90e8000182dbd6f4ca4ac7a864e3480d1681cb0300e25b2b1566b594"
+      "sha256": "fe34f5ae69ea8b32fc86c5200de1fbbbc2bb12b0f031ed5abe17f0fa68126253"
     },
     {
       "path": "qa/spec_parts.py",
@@ -140,7 +140,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "95fa2071aee7692994d64fbfb05af0b27d88f27f9d01b64a68012269a0051747"
+      "sha256": "b12b7b639a90aab4d19f2e85a7afa40a07a49727d87d35dd05c6da95d628f4e3"
     },
     {
       "path": "qa/test_release_read_safety.py",

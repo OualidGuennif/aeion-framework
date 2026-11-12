@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.7 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.7](#edition-117) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.8 · 12 November 2026. The change records from [1.1.3](#edition-113) to [1.1.8](#edition-118) describe the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,20 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.8
+
+12 November 2026. One correction from a targeted review. The format stays `axiomspec/0.3`.
+
+The annotation scan used `os.walk` without an error handler, so an unreadable source directory was
+silently skipped. A trace could lose its annotations and still answer 200 with an empty, complete
+result. Directory traversal errors now propagate: the service returns `CODE_UNAVAILABLE` (503) for
+code-dependent reads until access is restored. Release-only context reads remain available, and a
+service started with an unreadable included directory fails to start rather than serving a partial scan.
+
+Two regression tests fail on 1.1.7: one covers errors in the scan root and a nested directory, and one
+covers all four code-dependent HTTP reads, context availability, startup failure and recovery. The
+package suite has 247 tests, the example 33 and the service 61. No dependency or interface was added.
 
 ## Edition 1.1.7
 

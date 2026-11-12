@@ -10,6 +10,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'qa'))
@@ -138,6 +139,22 @@ class Annotations(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, 'escapes'):
                 graph_index.scan(directory, ['..'])
+
+    def test_an_unreadable_directory_is_an_error_not_an_empty_scan(self):
+        with tempfile.TemporaryDirectory(prefix='axiomspec-scan-') as directory:
+            root = Path(directory).resolve()
+            (root / 'src').mkdir()
+            (root / 'src/mod.py').write_text('# @req REQ-001\n')
+            scandir = graph_index.os.scandir
+            for blocked in (root, root / 'src'):
+                def denied(path):
+                    if Path(path) == blocked:
+                        raise PermissionError('Source directory is unreadable')
+                    return scandir(path)
+                with self.subTest(blocked=blocked), mock.patch.object(graph_index.os, 'scandir', side_effect=denied):
+                    for operation in (graph_index.scan, graph_index.signature):
+                        with self.assertRaises(PermissionError):
+                            operation(root)
 
 
 class Index(Ledger):

@@ -131,6 +131,10 @@ def source_files(root, include=('.',), exclude=()):
     root = Path(root).resolve()
     excluded = [(root / entry).resolve() for entry in exclude]
     left_out = lambda path: any(path == other or other in path.parents for other in excluded)
+
+    def scan_error(error):
+        raise error
+
     found = set()
     for entry in include:
         start = (root / entry).resolve()
@@ -143,7 +147,7 @@ def source_files(root, include=('.',), exclude=()):
         if start.is_file():
             found.add(start)
             continue
-        for directory, folders, names in os.walk(start):
+        for directory, folders, names in os.walk(start, onerror=scan_error):
             here = Path(directory)
             folders[:] = sorted(folder for folder in folders if folder not in SKIPPED_DIRECTORIES and not left_out(here / folder))
             for name in names:

@@ -78,6 +78,7 @@ test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations (test_
 test_a_scan_cannot_leave_its_root (test_graph_queries.Annotations.test_a_scan_cannot_leave_its_root) ... ok
 test_a_test_file_is_recognized_by_name_or_folder (test_graph_queries.Annotations.test_a_test_file_is_recognized_by_name_or_folder) ... ok
 test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in (test_graph_queries.Annotations.test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in) ... ok
+test_an_unreadable_directory_is_an_error_not_an_empty_scan (test_graph_queries.Annotations.test_an_unreadable_directory_is_an_error_not_an_empty_scan) ... ok
 test_only_the_exact_token_in_source_files_counts (test_graph_queries.Annotations.test_only_the_exact_token_in_source_files_counts) ... ok
 test_a_seed_that_is_not_a_requirement_leads_to_the_requirements_it_concerns (test_graph_queries.Context.test_a_seed_that_is_not_a_requirement_leads_to_the_requirements_it_concerns) ... ok
 test_a_shared_term_does_not_lead_back_to_unrelated_requirements (test_graph_queries.Context.test_a_shared_term_does_not_lead_back_to_unrelated_requirements) ... ok
@@ -246,6 +247,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 246 tests in 22.985s
+Ran 247 tests in 22.874s
 
 OK
