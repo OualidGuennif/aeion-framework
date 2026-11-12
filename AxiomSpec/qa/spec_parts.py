@@ -83,7 +83,7 @@ def write(spec, directory, stem='spec', budget=PART_BUDGET):
     return path
 
 
-def read(manifest_path):
+def read(manifest_path, dependencies=None):
     """Read and join the specification a manifest file names."""
     manifest_path = Path(manifest_path)
     manifest = strict_json(manifest_path.read_bytes())
@@ -93,6 +93,8 @@ def read(manifest_path):
         require(not (base / relative).is_symlink(), 'A part is a regular file, not a link')
         path = (base / relative).resolve()
         require(path.is_relative_to(base), 'Part path escapes the manifest directory')
+        if dependencies is not None:
+            dependencies.append(path.as_posix())
         with path.open('rb') as source:
             return source.read(BOUNDS['max_input_bytes'] + 1)
     return join(manifest, load)

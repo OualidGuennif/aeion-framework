@@ -232,6 +232,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 232 tests in 14.635s
+Ran 232 tests in 14.831s
 
 OK

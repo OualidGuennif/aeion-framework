@@ -50,7 +50,7 @@ An unknown ID is `not_found`. Errors are problem documents (RFC 9457) with a sta
 
 ### AX-V-004 — One behavior, two transports
 
-Each operation is defined once. The HTTP route and the MCP tool for it return the same answer under the same schema, and neither adds behavior. The tool list is kept short, because every tool definition is read by the agent before it asks anything: four tools for an agent, four more for authoring.
+Each specification operation is defined once. The HTTP route and the MCP tool for it return the same successful answer under the same schema. Transport admission, body deadlines and health probes are separate runtime behavior. The tool list is kept short, because every tool definition is read by the agent before it asks anything: four tools for an agent, four more for authoring.
 
 The queries are a fixed set. There is no query language, no free-form search and no access to files: selection follows declared links and annotations only, and nothing is ranked or learned.
 
@@ -89,11 +89,12 @@ In organization mode the service also accepts releases and approvals. A release 
 - **A file is named by its content and never rewritten.** Each accepted upload is its own file: a release under its digest, approvals under the release digest and the digest of the approvals themselves. Two processes that receive different approvals write different files, and neither can undo the other.
 - **What is accepted is what the store reads back.** A body is strict JSON of at most one megabyte, the size of one store file, and a document is written in canonical form with `format` first, so that a copy cut short is reported as a broken store file instead of being ignored. A file that already holds the same bytes is not written again. A number, a duplicate key or a size the store would refuse on reading is refused on writing. A release larger than one file is held as parts (AX-M-022).
 - **Approvals are checked when they can be.** With the governing release at hand, only the approvals that verify are kept, and a body in which none verifies is refused. Without it they are kept as offered and the verdict sets aside what does not verify. A read of the approvals follows the same rule: it returns those that count, or all that were offered while the governing release is absent.
-- **Every request sees the store as it is.** Before answering, the service takes in the files that appeared since its last request. It reads each file once; a digest it does not hold costs a listing of the directory, not a reload. A rejected file is read again when a new file arrives, since that file may be the part it was missing.
+- **Reads discover what they need.** Inventories, approval reads, verdicts and writes refresh the store before answering. A held immutable read checks its own source files instead of listing unrelated releases; a missing digest triggers discovery. Changed or missing parts invalidate the shortcut, including when the store was configured by manifest filename. A rejected manifest is retried when a watched missing/repaired part arrives. Verification uses no clock or freshness TTL.
+- **Publication is complete and durable within the storage contract.** New files are flushed before exclusive publication, and their parent directory is synced before acknowledgement. Parts are flushed before an atomic directory rename. Competing identical files are idempotent; different bytes at a content-named file produce `STORE_CONFLICT` (409). This requires a shared POSIX filesystem with the documented link/rename/fsync semantics, not a replication protocol between independent volumes.
 
 An upload grants nothing. What makes a release usable is its verdict: its link to its baseline, the comparison, its approvals and its imports, computed from the files held. An uploaded release is kept whatever its verdict, and it becomes the accepted head of its project only when that verdict is pass (AX-L-010).
 
-The service keeps no state between requests other than files. It authenticates nobody: it sits behind the organization's gateway, and access policy is applied there before any content is returned (AX-K-009).
+The service keeps no durable state between requests other than files. In-memory views are disposable. It authenticates nobody: it sits behind the organization's gateway, and access policy is applied there before any content is returned (AX-K-009).
 
 ### AX-V-008 — Candidates from edits
 
@@ -115,6 +116,7 @@ A candidate enters the store only when it passes these checks, and the answer sa
 | Operation | Route | Tool | Mode |
 |---|---|---|---|
 | `listSnapshots` | `GET /v1/snapshots` | | both |
+| `liveness`, `readiness` (transport probes) | `GET /health/live`, `GET /health/ready` | | both |
 | `getIndex` | `GET /v1/snapshots/{digest}/index` | | both |
 | `lookup` | `GET /v1/snapshots/{digest}/nodes/{id}` | `axiom_lookup` | both |
 | `context` | `GET /v1/snapshots/{digest}/context` | `axiom_context` | both |

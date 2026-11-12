@@ -1,7 +1,7 @@
 {
   "format": "axiomspec-review-regression-run/0.2",
   "scope": "package_checker",
-  "edition": "1.1.0",
+  "edition": "1.1.1",
   "status": "pass",
   "exit_code": 0,
   "command": [
@@ -9,7 +9,7 @@
     "qa/run_checks.py",
     "--tests-only"
   ],
-  "evaluated_at": "2026-11-12T05:42:59.283139+00:00",
+  "evaluated_at": "2026-11-12T06:38:04.467328+00:00",
   "tests": {
     "test_ids": [
       "test_approvals_store_parts.ApprovalPolicy.test_any_number_of_approvers_is_a_valid_policy_when_keys_can_supply_it",
@@ -259,7 +259,7 @@
     },
     {
       "path": "api/openapi.json",
-      "sha256": "20923d06aac145f1ef24a0acd5170b508ee179a3c15541adbe12da80e0e0c77a"
+      "sha256": "5b52b24930ea0fe66b62fc87aec4937a1238b0696f9609a32a75fb584d55de28"
     },
     {
       "path": "axiom.py",
@@ -347,7 +347,7 @@
     },
     {
       "path": "qa/queries.py",
-      "sha256": "4fbd5bfd9aac8cee8673de6712e81e04d0a404c5d38dd2a945fb17c5bd6f05a4"
+      "sha256": "7274add044055d3f8e274098978c986733f1f65efb019f934fad67322f4fcf16"
     },
     {
       "path": "qa/release_diff.py",
@@ -355,7 +355,7 @@
     },
     {
       "path": "qa/release_store.py",
-      "sha256": "c9f6d2c0e9b80e74b2acea291b62cadcbb81764d7e61bbbe6999b220a2b611ab"
+      "sha256": "8dfc4cc435ab35c3589081c5ef18d133a6b3dcf9d419466914e4c33ce7a83b5a"
     },
     {
       "path": "qa/requirements-qa.txt",
@@ -363,11 +363,11 @@
     },
     {
       "path": "qa/run_checks.py",
-      "sha256": "4814fbc96a0ddee5f89323e8b8c11ed9219859df27ee16b55c11a3f408247a9f"
+      "sha256": "3883200962f400ccd04005b0fa6d7eeef086cb729732f271204c68f2a6aaba5f"
     },
     {
       "path": "qa/spec_parts.py",
-      "sha256": "be0d624eaeb6a61dd3a27e0bb4d4dd71f48c31f24152f44b0a4b6a52a4931a60"
+      "sha256": "27a0dd4ba285c98c136f76a458bcc85106063193bc6a77b2adbb3292bcc82464"
     },
     {
       "path": "qa/test_approvals_store_parts.py",
@@ -383,7 +383,7 @@
     },
     {
       "path": "qa/test_graph_queries.py",
-      "sha256": "256d6e2b97f0d25e3dafb6b012bcc3149c561287a98200e0704f08dbe7ffd431"
+      "sha256": "a3fc2181cf946c9050146b0a2b7a3247437567dd241024a28f6b728e6a2c4e45"
     },
     {
       "path": "qa/test_release_read_safety.py",
@@ -465,7 +465,7 @@
   },
   "raw_output": {
     "path": "review/regression-output.txt",
-    "sha256": "a07079135620dd07e4ef22454408420887e0a05cdac98e2dab2a59d3c16832a5"
+    "sha256": "96041260d5e74b74d02cd3b05ee4a798e10e60c70bd3be7517bfa5bc4dba739d"
   },
   "limitations": [
     "Local untrusted producer. Hash consistency does not authenticate this receipt.",

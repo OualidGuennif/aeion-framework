@@ -1,0 +1,30 @@
+services:
+  api:
+    build: .
+    image: aeion-framework:1.1.1
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      AXIOM_WORKERS: "2"
+    volumes:
+      - axiom-store:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 2
+    stop_grace_period: 40s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  axiom-store:

@@ -1,6 +1,6 @@
 # Package validation: pass
 
-Run: 2026-11-12T05:43:03.577706+00:00.
+Run: 2026-11-12T06:38:08.862023+00:00.
 
 **Scope: design package. No product or example-application acceptance is asserted.**
 
@@ -21,7 +21,7 @@ Python 3.15.2; jsonschema 4.26.0; untrusted local runner.
 - `PKG.RELEASE` : **pass** — Reference G14 comparison 1.0.0 -> 1.1.0: 136 changes, required step minor, change risk score 194.250 points. Classification is mechanical, not a compatibility proof.
 - `PKG.RELEASE_STORE` : **pass** — 3 releases of 2 projects verify as one store from their files alone: chain links, approvals and 1 pinned import. No index, log or clock is consulted.
 - `PKG.SCHEMAS` : **pass** — Six schema documents valid under Draft 2020-12; example shape valid.
-- `PKG.SERVICE_CONTRACT` : **pass** — 16 operations and 8 MCP tools agree; 72 reference answers on the example validate against the contract and stay within budget; the committed graph index is current with 13 annotated IDs. Reference queries, not a qualified service.
+- `PKG.SERVICE_CONTRACT` : **pass** — 18 operations and 8 MCP tools agree; 72 reference answers on the example validate against the contract and stay within budget; the committed graph index is current with 13 annotated IDs. Reference queries, not a qualified service.
 
 ## Limits
 

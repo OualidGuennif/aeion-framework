@@ -16,6 +16,7 @@ Selection follows declared links and annotations only. Nothing here is learned, 
 import base64
 import copy
 from functools import lru_cache
+from itertools import islice
 import json
 from pathlib import Path
 
@@ -473,7 +474,8 @@ def propose(baseline, version, operations):
                 spec[field] = operation['value']
         else:
             raise fail('op is put, retire, remove or set')
-    schema_errors = sorted(f"{'/'.join(str(p) for p in e.absolute_path)}: {e.message[:200]}" for e in spec_validator().iter_errors(spec))[:50]
+    schema_errors = sorted(f"{'/'.join(str(p) for p in e.absolute_path)}: {e.message[:200]}"
+                           for e in islice(spec_validator().iter_errors(spec), 50))
     references = sorted(set(reference_errors(spec))) if not schema_errors else []
     comparison = release_diff.compare(baseline, spec) if not schema_errors and not references else None
     acceptable = not schema_errors and not references and comparison['status'] == 'pass'

@@ -1,13 +1,15 @@
 """The behavior behind both transports: a release store and the snapshots read from it.
 
-Every operation of the contract (AxiomSpec/api/openapi.json) is one method call here. The HTTP routes and
-the MCP tools only translate a request into `Service.call` and its result back.
+Every specification operation of the contract (AxiomSpec/api/openapi.json) is one method call here.
+HTTP and MCP translate those calls; transport limits and health probes stay in the application layer.
 
 Nothing is kept between requests except files. Files are named by their content and never rewritten, so a
 write by one process cannot undo a write by another, and before each request the service takes in the
 files that appeared since the last one: a second process on the same directory answers the same.
 """
 import os
+import errno
+from itertools import islice
 from pathlib import Path
 import shutil
 import sys
@@ -41,10 +43,13 @@ def not_found(what):
 
 
 class Service:
-    def __init__(self, store_paths, mode='sandbox', snapshot=None, repository=None, include=('.',), exclude=()):
+    def __init__(self, store_paths, mode='sandbox', snapshot=None, repository=None, include=('.',), exclude=(), lock_timeout=1):
         if mode not in MODES:
             raise ValueError('mode is sandbox or organization')
-        self.mode, self.paths = mode, [Path(path) for path in store_paths]
+        self.mode, self.paths = mode, [Path(path).resolve() for path in store_paths]
+        if lock_timeout < 0:
+            raise ValueError('lock_timeout must not be negative')
+        self.lock_timeout = lock_timeout
         self.repository, self.include, self.exclude = repository, tuple(include), tuple(exclude)
         self.lock = threading.RLock()  # one operation at a time: the store is replaced as a whole when it changes
         self.store, self.seen = release_store.Store(), {}
@@ -73,7 +78,17 @@ class Service:
         the rejected files are read again with it, and only those. A file that changed or went away rebuilds
         the store from what is there.
         """
-        present = {file: state for file, state in release_store.listing(self.paths).items() if state is not None}
+        listed = release_store.listing(self.paths)
+        for dependencies in self.store.dependencies.values():
+            for name in dependencies:
+                file = Path(name)
+                if file not in listed:
+                    try:
+                        state = file.stat()
+                        listed[file] = (state.st_size, state.st_mtime_ns)
+                    except OSError:
+                        listed[file] = None
+        present = {file: state for file, state in listed.items() if state is not None}
         new = [file for file in present if file not in self.seen]
         changed = any(present.get(file) != state for file, state in self.seen.items())
         if changed:
@@ -88,6 +103,14 @@ class Service:
             except OSError:
                 continue  # gone since it was listed; the next request sees what is there
             self.seen[file] = present[file]
+            for name in self.store.dependencies.get(file.as_posix(), []):
+                dependency = Path(name)
+                if dependency not in self.seen:
+                    try:
+                        state = dependency.stat()
+                        self.seen[dependency] = (state.st_size, state.st_mtime_ns)
+                    except OSError:
+                        pass  # a missing part stays watched and will be retried when it arrives
         if new or changed:
             self.report = None
 
@@ -159,10 +182,45 @@ class Service:
             raise not_found(f'Unknown operation {operation}')
         if operation in ORGANIZATION and self.mode != 'organization':
             raise QueryError('READ_ONLY', 'This service is read-only: it serves one snapshot to a sandbox', 404)
-        with self.lock:
-            if self.mode == 'organization':
+        if not self.lock.acquire(timeout=self.lock_timeout):
+            raise QueryError('STORE_BUSY', 'This worker is processing another operation; retry with backoff.', 503)
+        try:
+            # New files cannot change a held immutable read. Avoid a directory scan on the hot path;
+            # inventories, approvals, verdicts and writes still refresh, and a missing digest refreshes once.
+            pinned = operation in ('getIndex', 'lookup', 'context', 'trace', 'gaps', 'getRelease')
+            held = self.unchanged(arguments.get('digest')) if pinned else False
+            compared = operation == 'compare' and all(self.unchanged(arguments.get(name)) for name in ('baseline', 'candidate'))
+            if self.mode == 'organization' and not ((pinned and held) or compared):
+                if not self.ready():
+                    raise QueryError('STORAGE_UNAVAILABLE', 'The configured store is not accessible.', 503)
                 self.refresh()
             return getattr(self, '_' + operation)(**arguments)
+        except OSError as exc:
+            raise QueryError('STORAGE_UNAVAILABLE', 'The store operation could not complete; retry after restoring storage.', 503) from exc
+        finally:
+            self.lock.release()
+
+    def unchanged(self, key):
+        """Check only the source(s) of this digest, rather than listing unrelated releases."""
+        for name in self.store.paths.get(key, []):
+            try:
+                for source in self.store.dependencies[name]:
+                    file = Path(source)
+                    state = file.stat()
+                    if (state.st_size, state.st_mtime_ns) != self.seen.get(file):
+                        break
+                else:
+                    return True
+            except OSError:
+                continue
+        return False
+
+    def ready(self):
+        """A cheap access probe, independent of the operation lock; not a full store-verification claim."""
+        if not self.paths or not all(path.exists() and os.access(path, os.R_OK | (os.X_OK if path.is_dir() else 0)) for path in self.paths):
+            return False
+        directory = next((path for path in self.paths if path.is_dir()), None)
+        return self.mode != 'organization' or directory is None or os.access(directory, os.W_OK | os.X_OK)
 
     def _listSnapshots(self):
         held = [self.only] if self.only else sorted(self.store.releases)
@@ -246,7 +304,7 @@ class Service:
         if named != digest:
             raise QueryError('DIGEST_MISMATCH', 'The body is not the release this digest names', 409)
         spec_validator, _ = release_store.validators()
-        problems = sorted(error.message[:200] for error in spec_validator.iter_errors(body))
+        problems = sorted(error.message[:200] for error in islice(spec_validator.iter_errors(body), 5))
         if problems:
             raise QueryError('INVALID_DOCUMENT', '; '.join(problems[:5]), 422)
         self.hold(body)
@@ -255,7 +313,7 @@ class Service:
     def _putApprovals(self, digest, body):
         key = self.resolve(digest)
         _, approvals_validator = release_store.validators()
-        problems = sorted(error.message[:200] for error in approvals_validator.iter_errors(body))
+        problems = sorted(error.message[:200] for error in islice(approvals_validator.iter_errors(body), 5))
         if problems:
             raise QueryError('INVALID_DOCUMENT', '; '.join(problems[:5]), 422)
         spec = self.store.releases[key]
@@ -305,6 +363,13 @@ class Service:
         """Keep a release under its digest: one canonical file, or parts when it exceeds one file (AX-M-022)."""
         key = digest_of(canonical(spec))
         if key in self.store.releases:
+            for name in self.store.paths[key]:
+                for source in self.store.dependencies[name]:
+                    with Path(source).open('rb') as stream:
+                        os.fsync(stream.fileno())
+                self.sync_directory(Path(name).parent)
+                if len(self.store.dependencies[name]) > 1:
+                    self.sync_directory(Path(name).parent.parent)
             return key
         directory = self.directory()
         if len(canonical(spec)) <= MAX_BODY_BYTES:
@@ -316,10 +381,16 @@ class Service:
                 staging = Path(tempfile.mkdtemp(dir=directory, prefix='.incoming-'))
                 try:
                     spec_parts.write(spec, staging / 'parts', stem=key)
+                    for file in (staging / 'parts').iterdir():
+                        with file.open('rb') as stream:
+                            os.fsync(stream.fileno())
+                    self.sync_directory(staging / 'parts')
                     try:
                         os.rename(staging / 'parts', directory / f'{key}.parts')
-                    except OSError:
-                        pass  # another process placed the same release first: the content is identical
+                    except OSError as exc:
+                        if exc.errno not in (errno.EEXIST, errno.ENOTEMPTY):
+                            raise
+                    self.sync_directory(directory)
                 finally:
                     shutil.rmtree(staging, ignore_errors=True)
             except ValueError as exc:
@@ -330,6 +401,14 @@ class Service:
         return key
 
     @staticmethod
+    def sync_directory(directory):
+        descriptor = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+    @staticmethod
     def place(path, raw):
         """Write one content-named file atomically. A reader sees the whole file or none of it.
 
@@ -338,11 +417,26 @@ class Service:
         """
         try:
             if path.read_bytes() == raw:
+                with path.open('rb') as stream:
+                    os.fsync(stream.fileno())
+                Service.sync_directory(path.parent)
                 return
         except OSError:
             pass
-        with tempfile.NamedTemporaryFile('wb', dir=path.parent, prefix='.incoming-', suffix='.tmp', delete=False) as stream:
-            stream.write(raw)
-            temporary = stream.name
-        os.chmod(temporary, 0o666 & ~UMASK)  # readable by the other processes that share the store
-        os.replace(temporary, path)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile('wb', dir=path.parent, prefix='.incoming-', suffix='.tmp', delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(raw)
+                stream.flush()
+                os.fchmod(stream.fileno(), 0o666 & ~UMASK)
+                os.fsync(stream.fileno())
+            try:
+                os.link(temporary, path)  # complete publication without overwriting another writer
+            except FileExistsError:
+                if path.read_bytes() != raw:
+                    raise QueryError('STORE_CONFLICT', 'A content-named file already holds different bytes.', 409)
+            Service.sync_directory(path.parent)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)

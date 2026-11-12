@@ -1,0 +1,50 @@
+{
+  "logical_requests": 2000,
+  "client_concurrency": 1000,
+  "replicas": 2,
+  "workers_per_replica": 2,
+  "completed": 2000,
+  "statuses": {
+    "200": 2000
+  },
+  "seconds": 7.455,
+  "completed_per_second": 268.26,
+  "latency_including_retries_ms": {
+    "p50": 2030.43,
+    "p99": 7016.19
+  },
+  "synthetic_ingestion": {
+    "unique_releases": 16,
+    "attempted_puts": 32,
+    "seconds": 1.126
+  },
+  "concurrent_approval_puts": 16,
+  "near_limit_body_requests": 32,
+  "near_limit_body_bytes": 1048575,
+  "dense_invalid_specifications": 16,
+  "approved_release": "d82b9f14da01ec1471457d1792c0ee8a703f11eda3e91bae9a154e7b8c4570fd",
+  "status": "pass",
+  "image_id": "sha256:70591a799b5561746b399ad742b9ddf3bb33281481a94c49e622aafd9b43bd59",
+  "image_bytes": 294043778,
+  "architecture": "arm64",
+  "python": "Python 3.15.2",
+  "source_sha256": "89962ebfc3767a1db2d151ec42f781f219a73df699a161b79cdd0c40505dc80f",
+  "driver_sha256": "f80cfa269b2542e7da729b3748051371f76cd93831d2640e3945fd5505ba7996",
+  "trust": "untrusted_local",
+  "memory_before_restart": [
+    {
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+      "memory.peak": "307671040",
+      "memory.max": "536870912"
+    },
+    {
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0",
+      "memory.peak": "295915520",
+      "memory.max": "536870912"
+    }
+  ],
+  "graceful_stop": true,
+  "restart_after_sigkill": true,
+  "store_status": "pass",
+  "limits": "Local synthetic workload on a shared POSIX volume; not a distributed-storage, power-loss or capacity SLO."
+}

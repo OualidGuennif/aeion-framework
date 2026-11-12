@@ -80,8 +80,8 @@ curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.0: contracts, JSON schemas, a file checker, Markdown generation and reference checks, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
-| [`server/`](server/README.md) | The reference service, which answers the package's queries over HTTP and MCP, either for one task in a sandbox or for a whole organization |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.1: contracts, JSON schemas, a file checker, Markdown generation and reference checks, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
+| [`server/`](server/README.md) | The FastAPI REST and MCP service, with a Python 3.15 Docker image, bounded admission and persistent file storage |
 | [`playbooks/`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | Three procedures: [a new project](playbooks/01_NEW_PROJECT_AXIOMSPEC.md), [an existing one](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md), and [an agent in a sandbox](playbooks/03_AGENT_IN_A_SANDBOX.md) |
 
 The Æion family:
@@ -122,8 +122,12 @@ From that directory, compare the two releases of the ledger with:
 ```
 
 The service has its own [README](server/README.md) and tests
-(`.venv/bin/python -m unittest discover -s server/tests`), and `tools/check_repo.py` checks this README
-and the playbooks. CI runs all three on every push.
+(`.venv/bin/python -m unittest discover -s server/tests`), and `tools/check_repo.py` checks the repository
+guides and playbooks. CI runs these on Python 3.14 and 3.15 and also qualifies the Docker image.
+
+For Docker, run `docker compose up --build -d` from the repository root. This starts the organization API
+on `http://127.0.0.1:8787` with a persistent named volume. The [deployment guide](server/DEPLOYMENT.md)
+covers pinned snapshots, concurrency limits, healthchecks, recovery and the scope of the load tests.
 
 ## License
 

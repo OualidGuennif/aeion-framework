@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check what the package QA cannot see: the root README and the playbooks.
+"""Check what the package QA cannot see: repository/server guides and the playbooks.
 
 The AxiomSpec package checks itself (AxiomSpec/qa/run_checks.py) and must stay
 self-contained, so it never reads its parent folder. This script reuses the
@@ -80,7 +80,8 @@ def check_document(path, validator):
 
 def main():
     validator = qa.make_validator(qa.read('schemas/spec.schema.json'), check_formats=True)
-    documents = [REPO / 'README.md', *sorted((REPO / 'playbooks').glob('*.md'))]
+    documents = [REPO / 'README.md', REPO / 'server/README.md', REPO / 'server/DEPLOYMENT.md',
+                 *sorted((REPO / 'playbooks').glob('*.md'))]
     problems = [problem for document in documents for problem in check_document(document, validator)]
     stated = set(re.findall(r'edition (\d+\.\d+\.\d+)', (REPO / 'README.md').read_text(encoding='utf-8')))
     if EDITION not in stated:

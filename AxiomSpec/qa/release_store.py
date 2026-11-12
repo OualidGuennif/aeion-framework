@@ -33,14 +33,16 @@ class Store:
     def __init__(self):
         self.releases = {}   # canonical digest -> specification
         self.paths = {}      # canonical digest -> sorted list of file names that held it
+        self.dependencies = {}  # source file name -> files needed to read it, including specification parts
         self.approvals = {}  # (release digest, project id, version) -> merged approvals document
         self.approval_paths = {}  # the same key -> names of the files that held approvals under it
         self.rejected = []   # files that claim a store format and are not valid
 
-    def add_release(self, spec, name):
+    def add_release(self, spec, name, dependencies=()):
         key = digest(canonical(spec))
         self.releases[key] = spec
         self.paths.setdefault(key, []).append(name)
+        self.dependencies[name] = [name, *dependencies]
 
     def add_approvals(self, document, name=None):
         # Keyed by the whole header: a file that names a release under another project or version is kept
@@ -128,9 +130,15 @@ def add_file(store, file):
             spec_validator.validate(document)
             store.add_release(document, name)
         elif kind == spec_parts.MANIFEST:
-            spec = spec_parts.read(file)
+            dependencies = []
+            try:
+                spec = spec_parts.read(file, dependencies)
+            finally:
+                # Also retain safe attempted paths of a rejected manifest, so a service can notice a
+                # repaired or newly arrived part when its store was configured by manifest filename.
+                store.dependencies[name] = [name, *dependencies]
             spec_validator.validate(spec)
-            store.add_release(spec, name)
+            store.add_release(spec, name, dependencies)
         elif kind == approval_check.FORMAT:
             approvals_validator.validate(document)
             store.add_approvals(document, name)

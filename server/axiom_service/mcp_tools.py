@@ -4,6 +4,7 @@ The tool list is short on purpose: every definition costs the agent context befo
 tool is one operation of the HTTP contract, with the same answer and the same response schema.
 """
 import json
+from itertools import islice
 
 from jsonschema import Draft202012Validator
 import mcp.types as types
@@ -52,7 +53,7 @@ def build(service):
         if tool is None:
             return failed('NOT_FOUND', f'No tool named {parameters.name}')
         arguments = parameters.arguments or {}
-        problems = sorted(error.message[:200] for error in Draft202012Validator(tool['input_schema']).iter_errors(arguments))
+        problems = sorted(error.message[:200] for error in islice(Draft202012Validator(tool['input_schema']).iter_errors(arguments), 3))
         if problems:
             return failed('INVALID_PARAMETER', '; '.join(problems[:3]))
         named = {RENAMED.get(name, name): value for name, value in arguments.items()}

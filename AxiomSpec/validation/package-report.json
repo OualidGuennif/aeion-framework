@@ -45,14 +45,14 @@
   },
   "subject": {
     "spec_sha256": "5d570af966ab47e067a0ac90eb0d577c137f66dc5fef747324e4e1b91c3dc99e",
-    "source_tree_sha256": "36ad063e0d7ca55597a07de7e96e92e7c4306f694234e9aa495f939216c32b7c",
+    "source_tree_sha256": "2eb75a38bc077e37b5af13c2290ac4b2e793e1ef2c470cfd41b4d32cf9021a34",
     "policy_sha256": null,
     "toolchain_sha256": "a44a9cae10a4db36b947444cd58263c76fda321b52899aff18382571fb86e3d1",
     "observations_sha256": "8c3e2eb98e4a35870b094143511f235766e45027fb290cee60ebeb855dd8e5f5"
   },
   "runner": {
     "name": "qa/check_package.py",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "trust": "untrusted_local"
   },
   "checks": [
@@ -206,7 +206,7 @@
       "required": true,
       "subject_id": null,
       "pointer": "",
-      "message": "16 operations and 8 MCP tools agree; 72 reference answers on the example validate against the contract and stay within budget; the committed graph index is current with 13 annotated IDs. Reference queries, not a qualified service.",
+      "message": "18 operations and 8 MCP tools agree; 72 reference answers on the example validate against the contract and stay within budget; the committed graph index is current with 13 annotated IDs. Reference queries, not a qualified service.",
       "evidence": [],
       "limitations": []
     }
@@ -219,7 +219,7 @@
     "max_collection_items": 10000
   },
   "metadata": {
-    "evaluated_at": "2026-11-12T05:43:03.577706+00:00",
+    "evaluated_at": "2026-11-12T06:38:08.862023+00:00",
     "attempt": "local-package-qa"
   },
   "limitations": [

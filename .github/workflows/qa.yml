@@ -11,21 +11,40 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.14", "3.15"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python }}
       - name: Install the pinned QA dependencies
-        run: python3 -m pip install -r AxiomSpec/qa/requirements-qa.txt
+        run: python3 -m pip install -c server/constraints.txt -r AxiomSpec/qa/requirements-qa.txt -r server/requirements.txt
       # The replay rewrites its receipts for this runner; it fails on any test, link or digest problem.
       - name: Replay the package QA
         working-directory: AxiomSpec
         run: python3 qa/run_checks.py
       - name: Check the README and the playbooks
         run: python3 tools/check_repo.py
-      - name: Install the reference service dependencies
-        run: python3 -m pip install -r server/requirements.txt
       # Each operation of the service contract, over HTTP, MCP and a listening port.
       - name: Test the reference service against its contract
         run: python3 -m unittest discover -s server/tests
+
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.15"
+      - name: Install the qualification driver dependencies
+        run: python3 -m pip install -c server/constraints.txt -r AxiomSpec/qa/requirements-qa.txt -r server/requirements.txt
+      - name: Build the pinned Python 3.15 slim image
+        run: docker build --pull -t aeion-framework:ci .
+      - name: Check Compose configuration
+        run: docker compose config --quiet
+      - name: Qualify concurrent ingestion and container recovery
+        run: python3 tools/check_container.py --image aeion-framework:ci --requests 128 --concurrency 16

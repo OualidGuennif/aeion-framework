@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AxiomSpec service interface",
-    "version": "1.1.0",
-    "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md."
+    "version": "1.1.1",
+    "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md. Runtime admission and body limits apply to REST and MCP; application overload returns a problem document, while Uvicorn may return a plain 503 before application dispatch. Health probes are transport operations."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
   "tags": [
@@ -14,6 +14,10 @@
     {
       "name": "organization",
       "description": "Served in organization mode only."
+    },
+    {
+      "name": "health",
+      "description": "Transport liveness and storage-access probes."
     }
   ],
   "paths": {
@@ -36,6 +40,41 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SnapshotList"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -105,7 +144,32 @@
             }
           },
           "503": {
-            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -212,7 +276,32 @@
             }
           },
           "503": {
-            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -337,6 +426,41 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -469,7 +593,32 @@
             }
           },
           "503": {
-            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -589,7 +738,32 @@
             }
           },
           "503": {
-            "description": "CODE_UNAVAILABLE: the current repository scan could not complete. No stale code view is returned.",
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -644,6 +818,41 @@
                 }
               }
             }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -687,6 +896,41 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -736,7 +980,7 @@
             }
           },
           "413": {
-            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -751,6 +995,31 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -810,6 +1079,41 @@
                 }
               }
             }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -866,7 +1170,7 @@
             }
           },
           "413": {
-            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -881,6 +1185,31 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -937,6 +1266,41 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1017,6 +1381,41 @@
                 }
               }
             }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1090,6 +1489,41 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1170,6 +1604,41 @@
                 }
               }
             }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "x-mcp-tool": "axiom_impact"
@@ -1218,7 +1687,7 @@
             }
           },
           "413": {
-            "description": "The body exceeds one megabyte. Send the compact form, or place a larger release in the store as parts.",
+            "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1236,6 +1705,31 @@
                 }
               }
             }
+          },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "OVERLOADED, STORE_BUSY, STORAGE_UNAVAILABLE or CODE_UNAVAILABLE. Retry-After is 1 second. Uvicorn can instead return text/plain 503 before application dispatch.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "x-mcp-tool": "axiom_propose",
@@ -1249,6 +1743,73 @@
             }
           }
         }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "summary": "Transport health: live",
+        "tags": [
+          "health"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "responses": {
+          "200": {
+            "description": "The process responds.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Liveness"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "summary": "Transport health: ready",
+        "tags": [
+          "health"
+        ],
+        "x-axiom-modes": [
+          "sandbox",
+          "organization"
+        ],
+        "responses": {
+          "200": {
+            "description": "The configured store is accessible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Readiness"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "STORAGE_UNAVAILABLE: configured store paths are not accessible. This is not a full release verdict.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "parameters": []
       }
     }
   },
@@ -3085,6 +3646,41 @@
           "reference_errors",
           "comparison",
           "candidate"
+        ],
+        "additionalProperties": false
+      },
+      "Liveness": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "live"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Readiness": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "ready"
+          },
+          "mode": {
+            "enum": [
+              "sandbox",
+              "organization"
+            ]
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "mode",
+          "version"
         ],
         "additionalProperties": false
       }

@@ -2,7 +2,7 @@
 
 A format for product specifications that a program can check, with stable IDs, typed links, bounded constraints and evidence from executed tests.
 
-**Edition 1.1.0 · 12 November 2026**
+**Edition 1.1.1 · 12 November 2026**
 Specification format: `axiomspec/0.3` · Profile: `AX-CORE-0.3` · Report format: `axiomspec-report/0.4`.
 
 This package holds the contracts for a local requirements workflow and what an implementation needs to follow them: JSON schemas, a worked example with a reference implementation and executed tests, reference checks for releases, approvals and a release store, a service interface with reference queries, migrations from formats 0.1 and 0.2, and the QA that checks the package itself. The local `axiom.py` command checks a supplied specification and generates its Markdown reading view. It does not implement the full product-phase engine or a runner adapter, and the queries are reference code. [aeion-factory](https://github.com/OualidGuennif/aeion-factory) has an engine built from edition 0.3.0 of these contracts; it reads format 0.1, and this package's QA does not test it.
@@ -74,6 +74,12 @@ Edition 0.7.0 added the service interface and kept format 0.3: a graph index, `@
 Edition 1.0.0 was the first tagged release. It fixed what a third pass found, including an approvals file that could block a release depending on the order the store read it, and kept format 0.3. The version number means the release is published and will not change; it does not mean the engine is qualified, and the [review](REVIEW.md#edition-100) says what it covers. Edition 1.0.1 requires Python 3.14 or later. Edition 1.0.2 rewrites the READMEs and the release notes in plainer language. Neither changes the format, the checks or the service.
 
 Edition 1.1.0 adds the file checker and Markdown generator. It also requires a passing ancestor chain before a release can pass the store, isolates invalid reference graphs, enforces response budgets and reports unavailable code scans. Python annotations are read only from comments and actual docstrings. The specification format stays 0.3; see the [change record](REVIEW.md#edition-110).
+
+Edition 1.1.1 adds the Python 3.15 Docker deployment to the FastAPI service, bounded REST/MCP admission and
+body deadlines, worker processes, health probes, durable concurrent publication and recovery tests.
+Pinned reads check their own source files instead of listing unrelated releases, including invalidation
+and recovery of specification parts. See the service deployment guide in the full repository distribution;
+the standalone package still contains the file tools and contracts.
 
 ## Commands
 

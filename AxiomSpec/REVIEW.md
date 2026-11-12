@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.0 · 12 November 2026. The [1.1.0 change record](#edition-110) describes the current corrections and file tools. Earlier sections are historical: the fourth review describes edition 0.3.1 and the following sections editions 0.4.0 through 1.0.2. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.1 · 12 November 2026. The [1.1.1 change record](#edition-111) describes the current service runtime; [1.1.0](#edition-110) describes the file tools and earlier corrections. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -422,6 +422,39 @@ budgets, Unicode, missing includes and recovery, unchanged annotations on edited
 behavior, parts, Markdown links, escaping and preservation of source/output files. The file CLI is
 included in the regression input receipt. Tests and the source review are by the same assistant, not
 an independent qualification. Product-phase, identity, load and real-sandbox limits remain explicit.
+
+## Edition 1.1.1
+
+12 November 2026. The REST service already used FastAPI. This edition keeps that transport and adds a
+Python 3.15.2 slim Dockerfile, fixed transitive dependency constraints, a non-root runtime, a persistent
+store volume, read-only filesystem deployment, resource limits, signal handling and health probes.
+Specification format remains `axiomspec/0.3`; the service contract adds two transport health operations.
+
+The HTTP runtime bounds admission, body size and receive time for REST and MCP. Store-lock waits are
+bounded and overload returns 503 with a retry hint; Uvicorn can reject earlier at the connection layer.
+Diagnostic collection stops after a bounded prefix. Each Uvicorn worker owns its in-memory view. Files
+are synced before exclusive publication, never overwritten by a competing writer, and specification
+parts are flushed before their directory is published. Storage errors are explicit and retries remain
+idempotent. These guarantees depend on the filesystem honoring its POSIX link/rename/fsync contract.
+
+Pinned reads stat only their own sources instead of listing unrelated releases. Deleted or changed
+files invalidate the shortcut. Parts are tracked even when the service is configured by manifest
+filename, and a failed manifest watches safe attempted part paths so a later repair is discovered.
+Inventories, approvals and verdicts retain store discovery; no freshness TTL is introduced.
+
+Thirteen additional service tests bring that suite to 56. The package still has 232 regressions, including
+an updated contract check for the health endpoints; the example still executes 33 tests. A separate
+Docker driver checks two replicas sharing a test volume, concurrent ingestion and approval union,
+near-limit bodies, dense invalid specifications, bounded client load, read-only execution, memory/OOM
+events, graceful stop and recovery after SIGKILL. Its report identifies the image and source digest.
+The main QA workflow runs on Python 3.14 and 3.15 and also builds/qualifies the Linux container.
+
+The source store is still held in memory per worker and operations inside a worker are serialized.
+Large fleets should use pinned read-only replicas and bounded ingestion stores; the container is not
+evidence of an unbounded distributed write architecture, multi-region storage consistency, power-loss
+qualification, production identity controls or an enterprise capacity SLO. The full repository's service
+deployment guide defines the runtime settings and reproduction commands. This remains a reference
+implementation, reviewed and tested by its author rather than an independent assessor.
 
 ## Confirmed findings and corrections
 

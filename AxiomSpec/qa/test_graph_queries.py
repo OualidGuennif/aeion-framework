@@ -491,16 +491,19 @@ class Contract(unittest.TestCase):
         self.operations = {(method, path): operation for path, item in self.document['paths'].items() for method, operation in item.items()}
 
     def test_every_read_is_a_get_and_names_its_release(self):
-        reads = {key: op for key, op in self.operations.items() if op['x-axiom-modes'] == ['sandbox', 'organization']}
+        reads = {key: op for key, op in self.operations.items()
+                 if op['x-axiom-modes'] == ['sandbox', 'organization'] and 'read' in op['tags']}
         self.assertEqual(len(reads), 6)
         self.assertEqual({method for method, _ in reads}, {'get'})
         self.assertTrue(all(path == '/v1/snapshots' or path.startswith('/v1/snapshots/{digest}/') for _, path in reads))
+        probes = {key for key, op in self.operations.items() if 'health' in op['tags']}
+        self.assertEqual(probes, {('get', '/health/live'), ('get', '/health/ready')})
         writes = {key for key in self.operations if key[0] != 'get'}
         self.assertEqual(writes, {('put', '/v1/releases/{digest}'), ('put', '/v1/releases/{digest}/approvals'), ('post', '/v1/candidates')})
         self.assertTrue(all(self.operations[key]['x-axiom-modes'] == ['organization'] for key in writes))
 
     def test_every_operation_documents_its_answers_and_errors(self):
-        self.assertEqual(len(self.operations), 16)
+        self.assertEqual(len(self.operations), 18)
         for (method, path), operation in self.operations.items():
             success = [code for code in operation['responses'] if code.startswith('2')]
             self.assertEqual(len(success), 1, path)

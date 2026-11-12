@@ -9,25 +9,26 @@ organization route exists.
 from contextlib import asynccontextmanager
 import hashlib
 import json
+import os
 import re
 
 from fastapi import FastAPI, Request
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from mcp.server.transport_security import TransportSecuritySettings
 from starlette.concurrency import run_in_threadpool
 
 from . import mcp_tools
-from .service import EDITION, MAX_BODY_BYTES, PACKAGE, QueryError, strict_json
+from .http_limits import RequestLimits, problem
+from .service import EDITION, MAX_BODY_BYTES, PACKAGE, QueryError, Service, strict_json
 
 IMMUTABLE = 'public, max-age=31536000, immutable'
-TITLES = {400: 'Invalid request', 404: 'Not found', 409: 'Digest mismatch', 413: 'Body too large',
-          422: 'Invalid document', 500: 'Internal error', 503: 'Code unavailable'}
 INTEGER = re.compile(r'[0-9]{1,9}')
 
 
-def problem(error):
-    body = dict(type='about:blank', title=TITLES.get(error.status, 'Error'), status=error.status, code=error.code, detail=str(error))
-    return Response(json.dumps(body), status_code=error.status, media_type='application/problem+json')
+def configured_app():
+    """Uvicorn factory: every worker builds its own service over the same configured files."""
+    options = json.loads(os.environ['AXIOM_SERVICE_OPTIONS'])
+    return create_app(Service(**options['service']), **options['http'])
 
 
 def integer(request, name, default):
@@ -46,7 +47,7 @@ def required(request, name):
     return value
 
 
-def create_app(service, allowed_hosts=()):
+def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15):
     mcp_server = mcp_tools.build(service)
     hosts = ['127.0.0.1:*', 'localhost:*', '[::1]:*', *allowed_hosts]
     mcp_app = mcp_server.streamable_http_app(
@@ -60,6 +61,7 @@ def create_app(service, allowed_hosts=()):
             yield
 
     app = FastAPI(title='AxiomSpec service', version=EDITION, openapi_url=None, docs_url=None, redoc_url=None, lifespan=lifespan)
+    app.add_middleware(RequestLimits, max_inflight=max_inflight, body_timeout=body_timeout)
     app.add_exception_handler(QueryError, lambda request, error: problem(error))
     # Any other exception is a defect of the service. The caller still receives a problem document.
     app.add_exception_handler(Exception, lambda request, error: problem(
@@ -96,12 +98,22 @@ def create_app(service, allowed_hosts=()):
             if len(raw) > MAX_BODY_BYTES:
                 raise too_large
         try:
-            return strict_json(bytes(raw))
+            return await run_in_threadpool(strict_json, bytes(raw))
         except (ValueError, RecursionError) as error:
             raise QueryError('INVALID_DOCUMENT', f'The body is not strict JSON: {str(error)[:200]}', 422)
 
     def paging(request):
         return dict(budget_bytes=integer(request, 'budget_bytes', 32768), cursor=request.query_params.get('cursor'))
+
+    @app.get('/health/live')
+    async def live():
+        return JSONResponse({'status': 'live'}, headers={'Cache-Control': 'no-store'})
+
+    @app.get('/health/ready')
+    def ready():
+        if not service.ready():
+            return problem(QueryError('STORAGE_UNAVAILABLE', 'The configured store is not accessible.', 503))
+        return JSONResponse({'status': 'ready', 'mode': service.mode, 'version': EDITION}, headers={'Cache-Control': 'no-store'})
 
     @app.get('/v1/openapi.json')
     def get_contract():
