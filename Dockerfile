@@ -9,7 +9,7 @@ RUN python -m venv /opt/venv \
 
 FROM ${PYTHON_IMAGE} AS runtime
 LABEL org.opencontainers.image.title="AxiomSpec FastAPI service" \
-      org.opencontainers.image.version="1.1.2" \
+      org.opencontainers.image.version="1.1.3" \
       org.opencontainers.image.source="https://github.com/OualidGuennif/aeion-framework" \
       org.opencontainers.image.licenses="MIT"
 ENV PATH="/opt/venv/bin:$PATH" \

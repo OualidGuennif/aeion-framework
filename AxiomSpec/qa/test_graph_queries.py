@@ -93,6 +93,16 @@ class Annotations(unittest.TestCase):
                          [('a.ts', 1, None, ['REQ-010', 'REQ-011']), ('b.go', 4, None, []), ('b.go', 5, None, []),
                           ('broken.py', 1, None, ['REQ-020'])])
 
+    def test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations(self):
+        # Python counts lines at \n only: splitting at \f or U+2028 lost every annotation after it, and a
+        # byte-order mark made ast reject the file, so docstrings and symbols were lost.
+        found = self.scan({'a.py': '# page\n\f\n# @req REQ-001\ndef f():\n    """@req REQ-002"""\n',
+                           'b.ts': 'const s = "\u2028";\n// @req REQ-003\n',
+                           'c.py': '\ufeff# @req REQ-004\ndef g():\n    """@req REQ-005"""\n'})
+        self.assertEqual([(a['path'], a['line'], a['symbol'], a['ids']) for a in found],
+                         [('a.py', 3, 'f', ['REQ-001']), ('a.py', 5, 'f', ['REQ-002']), ('b.ts', 2, None, ['REQ-003']),
+                          ('c.py', 1, 'g', ['REQ-004']), ('c.py', 3, 'g', ['REQ-005'])])
+
     def test_a_test_file_is_recognized_by_name_or_folder(self):
         for path, expected in [('tests/test_ledger.py', True), ('pkg/ledger_test.go', True), ('src/__tests__/a.ts', True),
                                ('src/ledger.spec.ts', True), ('app/ledger.py', False), ('src/contest.py', False), ('test.py', False)]:
@@ -506,9 +516,11 @@ class Contract(unittest.TestCase):
         self.assertEqual(len(self.operations), 18)
         for (method, path), operation in self.operations.items():
             success = [code for code in operation['responses'] if code.startswith('2')]
-            self.assertEqual(len(success), 1, path)
-            schema = operation['responses'][success[0]]['content']['application/json']['schema']['$ref']
-            self.assertIn(schema.rsplit('/', 1)[1], self.document['components']['schemas'])
+            # One answer schema per operation. Only a candidate has two statuses: 201 held, 200 refused.
+            self.assertEqual(success, ['200', '201'] if path == '/v1/candidates' else ['200'], path)
+            schemas = {operation['responses'][code]['content']['application/json']['schema']['$ref'] for code in success}
+            self.assertEqual(len(schemas), 1, path)
+            self.assertIn(schemas.pop().rsplit('/', 1)[1], self.document['components']['schemas'])
             for code, response in operation['responses'].items():
                 if not code.startswith('2'):
                     self.assertEqual(response['content']['application/problem+json']['schema'], {'$ref': '#/components/schemas/Problem'})

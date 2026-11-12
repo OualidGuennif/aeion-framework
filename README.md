@@ -80,7 +80,7 @@ curl -s http://127.0.0.1:8787/v1/snapshots/current/nodes/REQ-004
 
 | Path | Content |
 | --- | --- |
-| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.2: contracts, JSON schemas, a file checker, Markdown generation, release comparison and store verification, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
+| [`AxiomSpec/`](AxiomSpec/README.md) | The package, edition 1.1.3: contracts, JSON schemas, a file checker, Markdown generation, release comparison and store verification, with a worked example (a fictional [refund ledger](AxiomSpec/docs/13_REFUND_LEDGER_WALKTHROUGH.md) in two signed releases, with executed tests) |
 | [`server/`](server/README.md) | The FastAPI REST and MCP service, with a Python 3.15 Docker image, bounded admission and persistent file storage |
 | [`playbooks/`](playbooks/01_NEW_PROJECT_AXIOMSPEC.md) | Three procedures: [a new project](playbooks/01_NEW_PROJECT_AXIOMSPEC.md), [an existing one](playbooks/02_EXISTING_PROJECT_NVIDIA_TO_AXIOMSPEC.md), and [an agent in a sandbox](playbooks/03_AGENT_IN_A_SANDBOX.md) |
 

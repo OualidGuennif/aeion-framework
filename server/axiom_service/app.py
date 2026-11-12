@@ -196,7 +196,12 @@ def create_app(service, allowed_hosts=(), max_inflight=32, body_timeout=15, allo
             if (not isinstance(body, dict) or set(body) != {'baseline', 'version', 'operations'}
                     or not isinstance(body['baseline'], str) or not isinstance(body['version'], str)):
                 raise QueryError('INVALID_PARAMETER', 'The body has baseline and version as strings, and operations')
-            return answer(request, await run_in_threadpool(service.call, 'propose', **body), status=201)
+            result = await run_in_threadpool(service.call, 'propose', **body)
+            # 201 only when a release was created; a refused candidate creates nothing and gets 200.
+            response = answer(request, result, status=201 if result.get('held') else 200)
+            if result.get('held'):
+                response.headers['Location'] = f"/v1/releases/{result['spec_sha256']}"
+            return response
 
     app.mount('/mcp', mcp_app)
     return app

@@ -13,7 +13,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-EDITION = '1.1.2'
+EDITION = '1.1.3'
 MIN_PYTHON = (3, 14)
 TEST_COMMAND = ['python3', 'qa/run_checks.py', '--tests-only']
 EXAMPLE = 'examples/refund-ledger'

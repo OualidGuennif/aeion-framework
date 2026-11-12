@@ -302,6 +302,8 @@ class Organization(Case):
         created = self.http.post('/v1/candidates', json=request)
         self.assertEqual(created.status_code, 201)
         result = valid('CandidateResult', created.json())
+        self.assertEqual(created.headers['Location'], f"/v1/releases/{result['spec_sha256']}")
+        self.get(created.headers['Location'])  # the Location names the release now held
         self.assertEqual(result, dict(queries.propose(self.spec, '1.1.1', request['operations']), held=True))
         self.assertEqual((result['status'], result['comparison']['required_step']), ('pass', 'patch'))
         self.assertEqual(self.http.post('/v1/candidates', json=request).json()['spec_sha256'], result['spec_sha256'])
@@ -433,7 +435,7 @@ class FifthReview(Case):
         created = http.post('/v1/candidates', json=dict(baseline=self.head, version='1.1.1',
                                                         operations=[dict(op='put', section='nodes', item=node)]))
         result = valid('CandidateResult', created.json())
-        self.assertEqual((created.status_code, result['status'], result['held']), (201, 'fail', False))
+        self.assertEqual((created.status_code, result['status'], result['held']), (200, 'fail', False))
         self.assertEqual(sorted(e['code'] for e in result['comparison']['errors']), ['UNACKNOWLEDGED_BREAKING', 'VERSION_BUMP_TOO_SMALL'])
         self.assertEqual(http.get(f"/v1/releases/{result['spec_sha256']}").status_code, 404)
         self.assertEqual((http.get('/v1/projects/PROJECT-001').json(), sorted(path.name for path in self.store.rglob('*'))), (before, files))
@@ -708,7 +710,7 @@ class ReleaseReadSafety(Case):
                               operations=[dict(op='put', section='edges', item=edge)]))
         candidate = valid('CandidateResult', proposed.json())
         self.assertEqual((proposed.status_code, candidate['status'], candidate['held'], candidate['comparison']),
-                         (201, 'fail', False, None))
+                         (200, 'fail', False, None))
 
     def test_a_large_lookup_is_a_problem_document_over_http_and_an_mcp_error(self):
         spec = copy.deepcopy(self.spec)

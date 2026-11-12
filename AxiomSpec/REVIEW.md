@@ -1,6 +1,6 @@
 # Final global review
 
-Edition 1.1.2 · 12 November 2026. The [1.1.2 change record](#edition-112) describes the current corrections and file commands; [1.1.1](#edition-111) describes the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
+Edition 1.1.3 · 12 November 2026. The [1.1.3 change record](#edition-113) describes the latest corrections; [1.1.2](#edition-112) describes the file commands and [1.1.1](#edition-111) the Docker runtime. Earlier sections are historical. Their limits and measurements apply to those editions unless a later section explicitly updates them.
 
 ## Verdict
 
@@ -455,6 +455,28 @@ evidence of an unbounded distributed write architecture, multi-region storage co
 qualification, production identity controls or an enterprise capacity SLO. The full repository's service
 deployment guide defines the runtime settings and reproduction commands. This remains a reference
 implementation, reviewed and tested by its author rather than an independent assessor.
+
+## Edition 1.1.3
+
+12 November 2026. A review pass over the code added in 1.1.0 to 1.1.2, with a check of the HTTP verbs and
+statuses. The format stays `axiomspec/0.3`.
+
+- The annotation scan split source files with `str.splitlines`, which also breaks at a form feed, U+2028
+  and a few other characters that Python does not count as line ends. After such a character the line
+  numbers no longer matched the tokenizer and the parser, and every `@req` annotation after it was lost
+  without notice, so `gaps` reported annotated requirements as missing. The scan now splits at `\n` only.
+- A Python file starting with a byte-order mark made `ast` reject it, which dropped its docstring
+  annotations and its symbols. Sources are now read as `utf-8-sig`.
+- `POST /v1/candidates` answered 201 Created even for a refused candidate, which creates nothing. It now
+  answers 201 with a `Location` header naming the release when the candidate is held, and 200 when it is
+  refused. The body is unchanged.
+
+The API stays create and read only: releases are immutable and content-named, and the store never
+deletes a file, so there is no update or delete route by design. `PUT /v1/releases/{digest}` keeps
+answering 200 whether or not the release was already held, since the operation is idempotent and the
+answer is the verdict. One regression test covers both scan defects and fails on 1.1.2; the candidate
+tests now check the status and the `Location`, and the contract test allows the two statuses for
+this operation only. The package suite has 242 tests and the service suite 60.
 
 ## Edition 1.1.2
 

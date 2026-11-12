@@ -92,7 +92,7 @@ def python_annotation_lines(text):
     During an incomplete edit only tokenized comments are available: ordinary strings are never promoted
     to docstrings just because the file does not parse.
     """
-    lines = text.splitlines()
+    lines = text.split('\n')  # the lines Python counts: a form feed or U+2028 does not end one
     kept = [[' '] * len(line) for line in lines]
 
     def keep(start, end):
@@ -176,12 +176,12 @@ def scan(root, include=('.',), exclude=()):
         if path.stat().st_size > MAX_SOURCE_BYTES:
             continue
         try:
-            text = path.read_text(encoding='utf-8')
+            text = path.read_text(encoding='utf-8-sig')  # a BOM would make ast reject the file
         except UnicodeDecodeError:
             continue
         if '@req' not in text:
             continue
-        lines = text.splitlines()
+        lines = text.split('\n')  # read_text already turned \r\n and \r into \n
         python = path.suffix in {'.py', '.pyi'}
         spans = python_symbols(text) if python else []
         annotation_lines = python_annotation_lines(text) if python else lines

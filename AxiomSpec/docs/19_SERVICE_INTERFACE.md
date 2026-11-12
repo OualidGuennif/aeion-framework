@@ -109,7 +109,7 @@ A candidate release is built from a baseline and a list of edits addressed by ID
 
 The service names the baseline by digest, sets the revision of each changed node, checks the result against the schema and the reference rules and runs the comparison (G14). The same request always yields the same digest.
 
-A candidate enters the store only when it passes these checks, and the answer says so in `held`. A refused candidate is returned to its author with the reasons and changes nothing: no file, no head, no verdict. A held candidate is still only a candidate until it has its approvals (G12).
+A candidate enters the store only when it passes these checks, and the answer says so in `held`. A held candidate gets status 201 with a `Location` naming its release. A refused candidate gets status 200 and is returned to its author with the reasons; it changes nothing: no file, no head, no verdict. A held candidate is still only a candidate until it has its approvals (G12).
 
 ## Operations
 

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "AxiomSpec service interface",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "description": "Read access to immutable releases for coding agents, and release management for an organization. Every read is a GET on a release named by digest. An answer that is a function of the release alone never changes and can be cached without limit; an answer that also reads the code beside the release (index, lookup, trace, gaps, when the service was started on a repository) carries an ETag and is revalidated, because the digest does not cover the code. A sandbox can allow the service read-only by HTTP method. Errors are RFC 9457 problem documents, including INTERNAL_ERROR with status 500 for a defect of the service. Rules: docs/19_SERVICE_INTERFACE.md. Runtime admission and body limits apply to REST and MCP; application overload returns a problem document, while Uvicorn may return a plain 503 before application dispatch. Health probes are transport operations."
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
@@ -1656,8 +1656,26 @@
         ],
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "The candidate failed its checks. It is returned with the reasons and held is false; the store does not change.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateResult"
+                }
+              }
+            }
+          },
           "201": {
-            "description": "The candidate and its checks. It is held by the store only when it passes them; a refused candidate is returned and changes nothing. A held candidate is still only a candidate until it has its approvals.",
+            "description": "The candidate passed its checks and the store holds it as a release at the Location given. It is still only a candidate until it has its approvals.",
+            "headers": {
+              "Location": {
+                "description": "The release path of the held candidate, /v1/releases/{spec_sha256}.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1686,6 +1704,16 @@
               }
             }
           },
+          "408": {
+            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "413": {
             "description": "PAYLOAD_TOO_LARGE: a REST or MCP request body exceeds one MiB.",
             "content": {
@@ -1698,16 +1726,6 @@
           },
           "422": {
             "description": "The release has invalid references.",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problem"
-                }
-              }
-            }
-          },
-          "408": {
-            "description": "BODY_TIMEOUT: the complete request body did not arrive before its deadline.",
             "content": {
               "application/problem+json": {
                 "schema": {

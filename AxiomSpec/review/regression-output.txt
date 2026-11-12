@@ -71,6 +71,7 @@ test_terminal_state_has_no_exit_and_every_state_is_reachable (test_fourth_review
 test_transition_ids_use_the_trn_prefix (test_fourth_review.StatedRulesAreChecked.test_transition_ids_use_the_trn_prefix) ... ok
 test_unit_annotation_names_one_integer_leaf (test_fourth_review.StatedRulesAreChecked.test_unit_annotation_names_one_integer_leaf) ... ok
 test_witness_scenario_must_illustrate_a_verified_requirement (test_fourth_review.StatedRulesAreChecked.test_witness_scenario_must_illustrate_a_verified_requirement) ... ok
+test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations (test_graph_queries.Annotations.test_a_form_feed_line_separator_or_bom_does_not_shift_or_drop_annotations) ... ok
 test_a_scan_cannot_leave_its_root (test_graph_queries.Annotations.test_a_scan_cannot_leave_its_root) ... ok
 test_a_test_file_is_recognized_by_name_or_folder (test_graph_queries.Annotations.test_a_test_file_is_recognized_by_name_or_folder) ... ok
 test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in (test_graph_queries.Annotations.test_an_annotation_belongs_to_the_definition_it_precedes_or_sits_in) ... ok
@@ -241,6 +242,6 @@ test_every_transition_scenario_states_both_assertions (test_transition_scenarios
 test_one_changed_field_is_a_change (test_transition_scenarios.TransitionObservations.test_one_changed_field_is_a_change) ... ok
 
 ----------------------------------------------------------------------
-Ran 241 tests in 22.539s
+Ran 242 tests in 22.778s
 
 OK

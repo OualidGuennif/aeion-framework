@@ -169,7 +169,7 @@ class Runtime(Case):
         before = set(self.store.iterdir())
         response = client.post('/v1/candidates', json=dict(baseline=self.provider, version='1.1.0',
             operations=[dict(op='put', section='environments', item=environment)]))
-        self.assertEqual((response.status_code, response.json()['status'], response.json()['held']), (201, 'fail', False))
+        self.assertEqual((response.status_code, response.json()['status'], response.json()['held']), (200, 'fail', False))
         self.assertIn('INVALID_ENVIRONMENT_SCHEMA', response.json()['reference_errors'])
         self.assertEqual(set(self.store.iterdir()), before)
         self.assertNotIn(response.json()['spec_sha256'], service.store.releases)
