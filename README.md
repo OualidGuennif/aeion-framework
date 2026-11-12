@@ -26,10 +26,9 @@ flowchart TB
     direction LR
     agent["Coding agent<br/>index · @req · MCP"] --> code["Code and tests"]
     code --> evidence["Executed tests<br/>as evidence"]
-    evidence --> next["Next release<br/>diff · risk score"]
+    evidence --> next["Next release: diff,<br/>risk score, back to 1"]
   end
   specify ==> build
-  build -. "next release" .-> specify
 
   classDef source fill:#ede9fe,stroke:#6f42c1,color:#1e1b4b
   classDef gate fill:#fef3c7,stroke:#b45309,color:#451a03
