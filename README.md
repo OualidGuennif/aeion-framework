@@ -28,8 +28,8 @@ flowchart TB
     code --> evidence["Executed tests<br/>as evidence"]
     evidence --> next["Next release<br/>diff · risk score"]
   end
-  release --> agent
-  next -.-> spec
+  specify ==> build
+  build -. "next release" .-> specify
 
   classDef source fill:#ede9fe,stroke:#6f42c1,color:#1e1b4b
   classDef gate fill:#fef3c7,stroke:#b45309,color:#451a03
