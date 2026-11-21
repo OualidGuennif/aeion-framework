@@ -89,8 +89,8 @@ The Æion family:
 | Repository | Role |
 | --- | --- |
 | aeion-framework (this one) | The method itself: the format, the checks, the example and the playbooks |
-| [aeion-factory](https://github.com/OualidGuennif/aeion-factory) | A project template that makes the method executable |
-| [aeion-core](https://github.com/OualidGuennif/aeion-core) | A local web app that takes a feature from brainstorm to a checked specification |
+| [aeion-template](https://github.com/OualidGuennif/aeion-template) | A project template that makes the method executable |
+| [aeion-core](https://github.com/OualidGuennif/aeion-core) | (still on-going build) A local web app that takes a feature from brainstorm to a checked specification |
 
 ## Quick start
 
